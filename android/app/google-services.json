@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "414038496032",
+    "project_id": "whats-for-dino",
+    "storage_bucket": "whats-for-dino.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:414038496032:android:367eb647acfadd46c93d45",
+        "android_client_info": {
+          "package_name": "com.example.whats_for_dino_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5bwIpVWoSq8gwAhjIm7tVc-VbQ194xsk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

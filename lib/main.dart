@@ -1,4 +1,6 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:whats_for_dino_2/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/feedback%20copy.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
@@ -9,7 +11,9 @@ Color containerColour = Color.fromARGB(73, 0, 0, 0);
 Color mainColour = Color.fromARGB(255, 35, 117, 35);
 Color secondaryColour = Color.fromARGB(255, 29, 88, 29);
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(WhatsForDinoApp());
 }
 
