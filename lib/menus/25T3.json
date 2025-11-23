@@ -1,0 +1,379 @@
+{
+  "name": "25T3",
+  "startDate": "2025-09-15T00:00:00+10:00",
+  "endDate": "2025-12-12T00:00:00+11:00",
+  "weeks": [
+    {
+      "weekNumber": 1,
+      "days": [
+        {
+          "dayName": "Monday",
+          "breakfast": [
+            { "name": "Scrambled Eggs", "rating": 4.5 },
+            { "name": "Toast", "rating": 4.0 },
+            { "name": "Yogurt Cup", "rating": 4.1 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Wrap", "rating": 4.3 },
+            { "name": "Pumpkin Soup", "rating": 3.9 }
+          ],
+          "dinner": [
+            { "name": "Beef Lasagna", "rating": 4.6 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ]
+        },
+        {
+          "dayName": "Tuesday",
+          "breakfast": [
+            { "name": "Pancakes", "rating": 4.7 },
+            { "name": "Fruit Salad", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Beef Burger", "rating": 4.3 },
+            { "name": "Wedges", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Stir Fry Beef", "rating": 4.1 },
+            { "name": "Rice", "rating": 3.8 }
+          ]
+        },
+        {
+          "dayName": "Wednesday",
+          "breakfast": [
+            { "name": "Omelette", "rating": 4.4 },
+            { "name": "Hash Browns", "rating": 4.1 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "BBQ Chicken", "rating": 4.3 },
+            { "name": "Caesar Salad", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Salmon Teriyaki", "rating": 4.5 },
+            { "name": "Steamed Vegetables", "rating": 4.1 }
+          ]
+        },
+        {
+          "dayName": "Thursday",
+          "breakfast": [
+            { "name": "Bagels", "rating": 4.0 },
+            { "name": "Cream Cheese", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Schnitzel", "rating": 4.4 },
+            { "name": "Mashed Potatoes", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Butter Chicken", "rating": 4.6 },
+            { "name": "Naan Bread", "rating": 4.3 }
+          ]
+        },
+        {
+          "dayName": "Friday",
+          "breakfast": [
+            { "name": "Weet-Bix", "rating": 3.9 },
+            { "name": "Milk", "rating": 4.0 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Fish and Chips", "rating": 4.3 },
+            { "name": "Garden Salad", "rating": 3.9 }
+          ],
+          "dinner": [
+            { "name": "BBQ Sausages", "rating": 4.2 },
+            { "name": "Coleslaw", "rating": 4.0 }
+          ]
+        },
+        {
+          "dayName": "Saturday",
+          "breakfast": [
+            { "name": "French Toast", "rating": 4.5 },
+            { "name": "Bananas", "rating": 4.1 }
+          ],
+          "brunch": [
+            { "name": "Chicken Roll", "rating": 4.0 },
+            { "name": "Potato Gems", "rating": 4.1 }
+          ],
+          "lunch": [
+            { "name": "Cheese Pizza", "rating": 4.2 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Roast Beef", "rating": 4.4 },
+            { "name": "Roast Vegetables", "rating": 4.2 }
+          ]
+        },
+        {
+          "dayName": "Sunday",
+          "breakfast": [
+            { "name": "Bacon & Eggs", "rating": 4.6 },
+            { "name": "Toast", "rating": 4.0 }
+          ],
+          "brunch": [
+            { "name": "Hot Chips", "rating": 4.1 },
+            { "name": "Chicken Nuggets", "rating": 4.0 }
+          ],
+          "lunch": [
+            { "name": "Pasta Bake", "rating": 4.3 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Fried Rice", "rating": 4.3 },
+            { "name": "Spring Rolls", "rating": 4.1 }
+          ]
+        }
+      ]
+    },
+
+    {
+      "weekNumber": 2,
+      "days": [
+        {
+          "dayName": "Monday",
+          "breakfast": [
+            { "name": "Cereal", "rating": 3.9 },
+            { "name": "Milk", "rating": 4.0 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Stir Fry", "rating": 4.2 },
+            { "name": "Noodles", "rating": 4.1 }
+          ],
+          "dinner": [
+            { "name": "Meat Pie", "rating": 4.0 },
+            { "name": "Peas", "rating": 3.8 }
+          ]
+        },
+        {
+          "dayName": "Tuesday",
+          "breakfast": [
+            { "name": "Porridge", "rating": 4.1 },
+            { "name": "Honey", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Burger", "rating": 4.2 },
+            { "name": "Hot Chips", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Tacos", "rating": 4.5 },
+            { "name": "Mexican Rice", "rating": 4.3 }
+          ]
+        },
+        {
+          "dayName": "Wednesday",
+          "breakfast": [
+            { "name": "Toast", "rating": 4.0 },
+            { "name": "Vegemite", "rating": 3.8 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Pasta Carbonara", "rating": 4.3 },
+            { "name": "Bread Roll", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Roast Chicken", "rating": 4.4 },
+            { "name": "Roast Vegetables", "rating": 4.1 }
+          ]
+        },
+        {
+          "dayName": "Thursday",
+          "breakfast": [
+            { "name": "Waffles", "rating": 4.6 },
+            { "name": "Strawberries", "rating": 4.3 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Sushi Rolls", "rating": 4.4 },
+            { "name": "Miso Soup", "rating": 4.1 }
+          ],
+          "dinner": [
+            { "name": "Curry Chicken", "rating": 4.5 },
+            { "name": "Rice", "rating": 4.0 }
+          ]
+        },
+        {
+          "dayName": "Friday",
+          "breakfast": [
+            { "name": "Fruit Salad", "rating": 4.3 },
+            { "name": "Yogurt", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Baked Fish", "rating": 4.0 },
+            { "name": "Chips", "rating": 4.1 }
+          ],
+          "dinner": [
+            { "name": "BBQ Chicken Wings", "rating": 4.3 },
+            { "name": "Potato Salad", "rating": 4.0 }
+          ]
+        },
+        {
+          "dayName": "Saturday",
+          "breakfast": [
+            { "name": "Pancakes", "rating": 4.7 },
+            { "name": "Maple Syrup", "rating": 4.4 }
+          ],
+          "brunch": [
+            { "name": "Hot Dogs", "rating": 4.0 },
+            { "name": "Hot Chips", "rating": 4.1 }
+          ],
+          "lunch": [
+            { "name": "Pepperoni Pizza", "rating": 4.4 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Steak", "rating": 4.5 },
+            { "name": "Vegetables", "rating": 4.2 }
+          ]
+        },
+        {
+          "dayName": "Sunday",
+          "breakfast": [
+            { "name": "Croissants", "rating": 4.5 },
+            { "name": "Fruit Salad", "rating": 4.2 }
+          ],
+          "brunch": [
+            { "name": "Chicken Nuggets", "rating": 4.0 },
+            { "name": "Potato Gems", "rating": 4.1 }
+          ],
+          "lunch": [
+            { "name": "Bolognese Pasta", "rating": 4.4 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Fried Rice", "rating": 4.3 },
+            { "name": "Spring Rolls", "rating": 4.1 }
+          ]
+        }
+      ]
+    },
+
+    {
+      "weekNumber": 3,
+      "days": [
+        {
+          "dayName": "Monday",
+          "breakfast": [
+            { "name": "Scrambled Eggs", "rating": 4.5 },
+            { "name": "Toast", "rating": 4.0 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Fried Rice", "rating": 4.4 },
+            { "name": "Steamed Dumplings", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "BBQ Beef", "rating": 4.4 },
+            { "name": "Corn", "rating": 4.0 }
+          ]
+        },
+        {
+          "dayName": "Tuesday",
+          "breakfast": [
+            { "name": "Porridge", "rating": 4.1 },
+            { "name": "Banana", "rating": 4.0 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Caesar Wrap", "rating": 4.3 },
+            { "name": "Chips", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Taco Bowls", "rating": 4.5 },
+            { "name": "Mexican Rice", "rating": 4.3 }
+          ]
+        },
+        {
+          "dayName": "Wednesday",
+          "breakfast": [
+            { "name": "Bagels", "rating": 4.0 },
+            { "name": "Cream Cheese", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Chicken Pasta", "rating": 4.3 },
+            { "name": "Bread Roll", "rating": 4.0 }
+          ],
+          "dinner": [
+            { "name": "Beef Stir Fry", "rating": 4.4 },
+            { "name": "Rice", "rating": 4.0 }
+          ]
+        },
+        {
+          "dayName": "Thursday",
+          "breakfast": [
+            { "name": "Waffles", "rating": 4.6 },
+            { "name": "Berries", "rating": 4.3 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Teriyaki Chicken", "rating": 4.5 },
+            { "name": "Noodles", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Butter Chicken", "rating": 4.6 },
+            { "name": "Naan Bread", "rating": 4.3 }
+          ]
+        },
+        {
+          "dayName": "Friday",
+          "breakfast": [
+            { "name": "Fruit Salad", "rating": 4.3 },
+            { "name": "Yogurt", "rating": 4.2 }
+          ],
+          "brunch": [],
+          "lunch": [
+            { "name": "Fish and Chips", "rating": 4.3 },
+            { "name": "Garden Salad", "rating": 3.9 }
+          ],
+          "dinner": [
+            { "name": "BBQ Ribs", "rating": 4.6 },
+            { "name": "Coleslaw", "rating": 4.1 }
+          ]
+        },
+        {
+          "dayName": "Saturday",
+          "breakfast": [
+            { "name": "French Toast", "rating": 4.5 },
+            { "name": "Bananas", "rating": 4.1 }
+          ],
+          "brunch": [
+            { "name": "Hot Chips", "rating": 4.1 },
+            { "name": "Chicken Roll", "rating": 4.0 }
+          ],
+          "lunch": [
+            { "name": "Margherita Pizza", "rating": 4.3 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Roast Lamb", "rating": 4.5 },
+            { "name": "Roast Vegetables", "rating": 4.3 }
+          ]
+        },
+        {
+          "dayName": "Sunday",
+          "breakfast": [
+            { "name": "Bacon & Eggs", "rating": 4.6 },
+            { "name": "Toast", "rating": 4.0 }
+          ],
+          "brunch": [
+            { "name": "Chicken Nuggets", "rating": 4.0 },
+            { "name": "Potato Gems", "rating": 4.1 }
+          ],
+          "lunch": [
+            { "name": "Pasta Bake", "rating": 4.3 },
+            { "name": "Garlic Bread", "rating": 4.2 }
+          ],
+          "dinner": [
+            { "name": "Fried Rice", "rating": 4.3 },
+            { "name": "Spring Rolls", "rating": 4.1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

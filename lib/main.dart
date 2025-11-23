@@ -1,7 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:whats_for_dino_2/firebase_options.dart';
-import 'package:whats_for_dino_2/pages/feedback%20copy.dart';
+import 'package:whats_for_dino_2/pages/favourites.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
 import 'package:whats_for_dino_2/pages/settings.dart';
@@ -13,7 +15,9 @@ Color secondaryColour = Color.fromARGB(255, 29, 88, 29);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Hive.openBox('menuBox');
   runApp(WhatsForDinoApp());
 }
 
@@ -74,8 +78,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         appBar: AppBar(
           title: Text(
             titles[currentPage],
-            style: TextStyle(fontWeight: FontWeight.w400, color: Colors.white),
-            textScaler: TextScaler.linear(1.2),
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           backgroundColor: mainColour,
           elevation: 8, // <-- SHADOW
