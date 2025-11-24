@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:whats_for_dino_2/firebase_options.dart';
+import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
@@ -19,6 +19,9 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.openBox('menuBox');
   runApp(WhatsForDinoApp());
+  await Hive.openBox('notificationsBox');
+  await Hive.openBox('settingsBox');
+  await Hive.openBox('favouritesBox');
 }
 
 class WhatsForDinoApp extends StatefulWidget {

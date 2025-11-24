@@ -112,3 +112,13 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/icon.png"
+
+flutter_native_splash:
+  color: "#237523"   # <— background colour you want to fade in from
+  android12:
+    color: "#237523"  # must also set this for Android 12+
