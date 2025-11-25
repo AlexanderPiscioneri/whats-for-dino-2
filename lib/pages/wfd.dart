@@ -18,55 +18,25 @@ class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
 
   List<Menu> menus = [];
-  List<_DatedMenuDay> fullDays = [];
+  List<DayMenu> dayMenus = [];
   bool isLoading = true;
   DateTime dateTimeNow = DateTime.now();
   String dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
   String dayText = "${DateFormat('EEEE').format(DateTime.now())} (Today)";
   final menuBox = Hive.box('menuBox');
-  int todayIndex = -1;
-
-  PageController _pageController = PageController(
-    initialPage: 0,
-  ); // add near your other fields
+  int todayIndex = DateTime.now().difference(DateTime(2025, 9, 16)).inDays + 1;
 
   @override
   void initState() {
     super.initState();
-    dateTimeNow = DateTime.now();
-    // todayIndex = menuBox.get("todayIndex", defaultValue: -1);
-    todayIndex = menuBox.get('todayIndex', defaultValue: 0);
-    _pageController = PageController(initialPage: todayIndex);
     _initLocalThenServer();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   Future<void> _initLocalThenServer() async {
     // 1. Try reading local data first
-    await readLocalFullDays(); // wait for local load to finish
+    await readLocaldayMenus(); // wait for local load to finish
 
-    if (fullDays.isNotEmpty) {
-      todayIndex = fullDays.indexWhere(
-        (d) =>
-            d.dateTime.year == dateTimeNow.year &&
-            d.dateTime.month == dateTimeNow.month &&
-            d.dateTime.day == dateTimeNow.day,
-      );
-
-      menuBox.put('todayIndex', todayIndex);
-
-      _pageController.jumpToPage(todayIndex);
-
-      // update header text
-      dayText = DateFormat('EEEE').format(fullDays[todayIndex].dateTime);
-      dayText += " (Today)";
-      dateText = DateFormat('dd/MM/yyyy').format(fullDays[todayIndex].dateTime);
-
+    if (dayMenus.isNotEmpty) {
       setState(
         () {},
       ); // 2. If we have local data, use it and render immediately
@@ -76,40 +46,37 @@ class _WfdPageState extends State<WfdPage> {
     fetchMenus();
   }
 
-  Future<void> readLocalFullDays() async {
-    String? jsonString = menuBox.get('fullDays');
+  Future<void> readLocaldayMenus() async {
+    String? jsonString = menuBox.get('dayMenus');
 
     if (jsonString != null) {
       List<dynamic> jsonList = jsonDecode(jsonString);
-      fullDays =
+
+      dayMenus =
           jsonList.map((d) {
             final dayMenuJson = d['dayMenu'] as Map<String, dynamic>;
-            return _DatedMenuDay(
-              DateTime.parse(d['dateTime']),
-              DayMenu.fromJson(dayMenuJson),
-            );
+            return DayMenu.fromJson(dayMenuJson);
           }).toList();
     }
   }
 
-  void writeLocalFullDays() async {
-    // Convert fullDays list to JSON
+  void writeLocaldayMenus() async {
+    // Convert dayMenus list to JSON
     List<Map<String, dynamic>> jsonList =
-        fullDays.map((d) {
+        dayMenus.map((dayMenu) {
           return {
-            "dateTime": d.dateTime.toIso8601String(),
             "dayMenu": {
-              "dayName": d.dayMenu.dayName,
-              "breakfast": d.dayMenu.breakfast.map((m) => m.toJson()).toList(),
-              "brunch": d.dayMenu.brunch?.map((m) => m.toJson()).toList(),
-              "lunch": d.dayMenu.lunch.map((m) => m.toJson()).toList(),
-              "dinner": d.dayMenu.dinner.map((m) => m.toJson()).toList(),
+              "dayName": dayMenu.dayName,
+              "breakfast": dayMenu.breakfast.map((m) => m.toJson()).toList(),
+              "brunch": dayMenu.brunch?.map((m) => m.toJson()).toList(),
+              "lunch": dayMenu.lunch.map((m) => m.toJson()).toList(),
+              "dinner": dayMenu.dinner.map((m) => m.toJson()).toList(),
             },
           };
         }).toList();
 
-    // Store in Hive under a key, e.g., 'fullDays'
-    await menuBox.put('fullDays', jsonEncode(jsonList));
+    // Store in Hive under a key, e.g., 'dayMenus'
+    await menuBox.put('dayMenus', jsonEncode(jsonList));
   }
 
   Future<void> fetchMenus() async {
@@ -120,8 +87,8 @@ class _WfdPageState extends State<WfdPage> {
             snapshot.docs
                 .map((doc) => Menu.fromJson(doc.data() as Map<String, dynamic>))
                 .toList();
-        fullDays = generateFullDayList(menus);
-        writeLocalFullDays();
+        dayMenus = generateFullDayMenusList(menus);
+        writeLocaldayMenus();
         print("menu fetched");
       });
     } catch (e) {
@@ -131,14 +98,25 @@ class _WfdPageState extends State<WfdPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (fullDays.isEmpty) {
+    if (dayMenus.isEmpty) {
       return Scaffold(
         backgroundColor: secondaryColour,
         body: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircularProgressIndicator(),
-              const Text("No local menu data, trying to fetch..."),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+              const Text(
+                "No local menu data, trying to fetch...",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
             ],
           ),
         ),
@@ -181,11 +159,11 @@ class _WfdPageState extends State<WfdPage> {
           Expanded(
             flex: 94,
             child: PageView.builder(
-              controller: _pageController,
+              controller: PageController(initialPage: todayIndex),
               scrollDirection: Axis.horizontal,
-              itemCount: fullDays.length,
+              itemCount: dayMenus.length,
               itemBuilder: (context, index) {
-                final dayMenu = fullDays[index].dayMenu;
+                final dayMenu = dayMenus[index];
 
                 return Padding(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
@@ -207,11 +185,20 @@ class _WfdPageState extends State<WfdPage> {
                 );
               },
               onPageChanged: (index) {
-                DateTime dateTime = fullDays[index].dateTime;
+                //DateTime currentMenuStartDate = menus[menus.length].startDate;
+                //int dayDifference = DateTime.now().difference(currentMenuStartDate).inDays;
+                DateTime newDateTime = DateTime.now().add(Duration(days: index - todayIndex));
                 setState(() {
-                  dayText = DateFormat('EEEE').format(dateTime);
-                  dateText = DateFormat('dd/MM/yyyy').format(dateTime); // or format index → date
+                  dayText = dayMenus[index].dayName;
+                  //if (DateTime.now().difference(menus[menus.length].endDate).inDays <= 0) {
+                    dateText = DateFormat(
+                    'dd/MM/yyyy',
+                  ).format(newDateTime);
                   if (todayIndex == index) dayText += " (Today)";
+                  //}
+                  // else {
+                  //   dateText = "No menu here yet :(";
+                  // }
                 });
               },
             ),
@@ -267,20 +254,13 @@ String titleToTime(String title) {
   }
 }
 
-class _DatedMenuDay {
-  final DateTime dateTime;
-  final DayMenu dayMenu;
-
-  _DatedMenuDay(this.dateTime, this.dayMenu);
-}
-
-List<_DatedMenuDay> generateFullDayList(List<Menu> menus) {
+List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
   if (menus.isEmpty) return [];
 
   // Sort menus by start date just in case
   menus.sort((a, b) => a.startDate.compareTo(b.startDate));
 
-  List<_DatedMenuDay> fullDays = [];
+  List<DayMenu> newDayMenus = [];
 
   for (int m = 0; m < menus.length; m++) {
     final menu = menus[m];
@@ -293,7 +273,7 @@ List<_DatedMenuDay> generateFullDayList(List<Menu> menus) {
 
     for (int i = 0; i < totalDays; i++) {
       DayMenu todayMenu = cycle[i % cycle.length];
-      fullDays.add(_DatedMenuDay(date, todayMenu));
+      newDayMenus.add(todayMenu);
       date = date.add(const Duration(days: 1));
     }
 
@@ -304,14 +284,13 @@ List<_DatedMenuDay> generateFullDayList(List<Menu> menus) {
         // Compute "average" day between previous end and next start
         int diff = nextMenu.startDate.difference(date).inDays;
         if (diff > 0) {
-          DateTime midDate = date.add(Duration(days: diff ~/ 2));
-          fullDays.add(_DatedMenuDay(midDate, blankDay)); // placeholder
+          newDayMenus.add(blankDay); // placeholder
         }
       }
     }
   }
 
-  return fullDays;
+  return newDayMenus;
 }
 
 DayMenu blankDay = DayMenu(
