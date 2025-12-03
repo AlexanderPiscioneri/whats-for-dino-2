@@ -3,12 +3,14 @@ class Menu {
   final DateTime startDate;
   final DateTime endDate;
   final List<Week> weeks;
+  final List<DayMenu> exceptions;
 
   Menu({
     required this.name,
     required this.startDate,
     required this.endDate,
     required this.weeks,
+    required this.exceptions,
   });
 
   factory Menu.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,10 @@ class Menu {
           (json['weeks'] as List<dynamic>)
               .map((w) => Week.fromJson(w))
               .toList(),
+      exceptions:
+          (json['exceptions'] as List<dynamic>? ?? [])
+              .map((e) => DayMenu.fromJson(e))
+              .toList(),
     );
   }
 
@@ -29,6 +35,7 @@ class Menu {
       "startDate": startDate.toIso8601String(),
       "endDate": endDate.toIso8601String(),
       "weeks": weeks.map((w) => w.toJson()).toList(),
+      "exceptions": exceptions.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -59,6 +66,7 @@ class Week {
 
 class DayMenu {
   final String dayName;
+  String dayDate = "";
   final List<MealItem> breakfast;
   final List<MealItem>? brunch; // empty Mon–Fri
   final List<MealItem> lunch;
@@ -66,15 +74,27 @@ class DayMenu {
 
   DayMenu({
     required this.dayName,
+    required this.dayDate,
     required this.breakfast,
     this.brunch,
     required this.lunch,
     required this.dinner,
   });
 
+  DayMenu copy() {
+    return DayMenu(
+      dayName: dayName,
+      dayDate: dayDate,
+      breakfast: breakfast.map((m) => m.copy()).toList(),
+      lunch: lunch.map((m) => m.copy()).toList(),
+      dinner: dinner.map((m) => m.copy()).toList(),
+    );
+  }
+
   factory DayMenu.fromJson(Map<String, dynamic> json) {
     return DayMenu(
       dayName: json['dayName'] ?? '',
+      dayDate: json['dayDate'] ?? '',
       breakfast: _parseMeal(json['breakfast']),
 
       // Only parse brunch if key exists
@@ -91,6 +111,7 @@ class DayMenu {
   Map<String, dynamic> toJson() {
     return {
       "dayName": dayName,
+      "dayDate": dayDate,
       "breakfast": breakfast.map((m) => m.toJson()).toList(),
       if (brunch != null) "brunch": brunch!.map((m) => m.toJson()).toList(),
       "lunch": lunch.map((m) => m.toJson()).toList(),
@@ -111,6 +132,8 @@ class MealItem {
   final double rating;
 
   MealItem({required this.name, required this.rating});
+
+  MealItem copy() => MealItem(name: name, rating: rating);
 
   factory MealItem.fromJson(Map<String, dynamic> json) {
     return MealItem(

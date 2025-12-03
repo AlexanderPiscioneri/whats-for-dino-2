@@ -3,9 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:whats_for_dino_2/main.dart';
+import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
 import 'package:whats_for_dino_2/services/firestore.dart';
+import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 class WfdPage extends StatefulWidget {
   const WfdPage({super.key});
@@ -24,7 +25,8 @@ class _WfdPageState extends State<WfdPage> {
   String dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
   String dayText = "${DateFormat('EEEE').format(DateTime.now())} (Today)";
   final menuBox = Hive.box('menuBox');
-  int todayIndex = DateTime.now().difference(DateTime(2025, 9, 16)).inDays + 1;
+  int todayIndex = DateTime.now().difference(DateTime(2025, 9, 15)).inDays;
+  //int todayIndex = dayMenus.indexWhere((day) => day.dayDate == DateFormat('dd/MM/yyyy').format(DateTime.now()));
 
   @override
   void initState() {
@@ -98,9 +100,11 @@ class _WfdPageState extends State<WfdPage> {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme currentColourScheme = Theme.of(context).colorScheme;
+
     if (dayMenus.isEmpty) {
       return Scaffold(
-        backgroundColor: secondaryColour,
+        backgroundColor: currentColourScheme.surface,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -124,38 +128,98 @@ class _WfdPageState extends State<WfdPage> {
     }
 
     return Scaffold(
-      backgroundColor: secondaryColour,
+      backgroundColor: currentColourScheme.surface,
       body: Column(
         children: [
           Expanded(
             flex: 6,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-              ), // optional padding
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    dayText,
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero, // <-- square edges
                   ),
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                ),
+                onPressed: () async {
+                  DateTime? selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate:
+                        DateTime.now(), // start at the first available date
+                    firstDate: menus[0].startDate,
+                    lastDate: menus[menus.length - 1].endDate,
+                    selectableDayPredicate: (date) {
+                      // Only allow dates in the availableDates list
+
+                      return dayMenus.any((d) {
+                        try {
+                          var parts = d.dayDate.split('/');
+                          int dayInt = int.parse(parts[0].trim());
+                          int monthInt = int.parse(parts[1].trim());
+                          int yearInt = int.parse(parts[2].trim());
+                          return date.day == dayInt &&
+                              date.month == monthInt &&
+                              date.year == yearInt;
+                        } catch (e) {
+                          print("Failed to parse date: $d, error: $e");
+                          return false;
+                        }
+                      });
+                    },
+                    builder: (context, child) {
+                      return Theme(
+                        data: ThemeData(
+                          colorScheme: ColorScheme.fromSeed(
+                            seedColor: currentColourScheme.primary,
+                            primary: currentColourScheme.primary,
+                            secondary: currentColourScheme.secondary,
+                            surface: currentColourScheme.surface,
+                          ),
+                          dialogTheme: DialogTheme(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0), // square corners
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  );
+
+                  if (selectedDate != null) {
+                    // Do something with the selected date
+                    print("Selected date: $selectedDate");
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        dayText,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        dateText,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
           Expanded(
             flex: 94,
             child: PageView.builder(
@@ -168,7 +232,10 @@ class _WfdPageState extends State<WfdPage> {
                 return Padding(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
                   child: Container(
-                    color: Colors.white,
+                    color:
+                        Provider.of<ThemeProvider>(
+                          context,
+                        ).themeData.colorScheme.secondary,
                     child: ListView(
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
@@ -187,13 +254,10 @@ class _WfdPageState extends State<WfdPage> {
               onPageChanged: (index) {
                 //DateTime currentMenuStartDate = menus[menus.length].startDate;
                 //int dayDifference = DateTime.now().difference(currentMenuStartDate).inDays;
-                DateTime newDateTime = DateTime.now().add(Duration(days: index - todayIndex));
                 setState(() {
                   dayText = dayMenus[index].dayName;
                   //if (DateTime.now().difference(menus[menus.length].endDate).inDays <= 0) {
-                    dateText = DateFormat(
-                    'dd/MM/yyyy',
-                  ).format(newDateTime);
+                  dateText = dayMenus[index].dayDate;
                   if (todayIndex == index) dayText += " (Today)";
                   //}
                   // else {
@@ -272,7 +336,16 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
     int totalDays = menu.endDate.difference(menu.startDate).inDays + 1;
 
     for (int i = 0; i < totalDays; i++) {
-      DayMenu todayMenu = cycle[i % cycle.length];
+      DayMenu todayMenu = cycle[i % cycle.length].copy();
+      todayMenu.dayDate = DateFormat('dd/MM/yyyy').format(date);
+
+      if (menu.exceptions.any((e) => e.dayDate == todayMenu.dayDate)) {
+        DayMenu exceptionDay = menu.exceptions.firstWhere(
+          (e) => e.dayDate == todayMenu.dayDate,
+        );
+        todayMenu = exceptionDay;
+      }
+
       newDayMenus.add(todayMenu);
       date = date.add(const Duration(days: 1));
     }
@@ -281,10 +354,17 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
     if (m < menus.length - 1) {
       final nextMenu = menus[m + 1];
       if (date.isBefore(nextMenu.startDate)) {
-        // Compute "average" day between previous end and next start
         int diff = nextMenu.startDate.difference(date).inDays;
         if (diff > 0) {
-          newDayMenus.add(blankDay); // placeholder
+          newDayMenus.add(
+            DayMenu(
+              dayName: "$diff days between ${menu.name} and ${nextMenu.name}",
+              dayDate: "",
+              breakfast: [MealItem(name: "Nothing Cereal", rating: -1)],
+              lunch: [MealItem(name: "Unsatiating Burger", rating: -1)],
+              dinner: [MealItem(name: "Hollow Steak", rating: -1)],
+            ),
+          ); // placeholder
         }
       }
     }
@@ -293,8 +373,9 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
   return newDayMenus;
 }
 
-DayMenu blankDay = DayMenu(
-  dayName: "Blank Day",
+DayMenu betweenMenusDay = DayMenu(
+  dayName: "",
+  dayDate: "",
   breakfast: [MealItem(name: "Nothing Cereal", rating: -1)],
   lunch: [MealItem(name: "Unsatiating Burger", rating: -1)],
   dinner: [MealItem(name: "Hollow Steak", rating: -1)],

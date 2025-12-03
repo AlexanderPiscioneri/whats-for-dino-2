@@ -1,379 +1,1329 @@
 {
+  "endDate": "2025-12-12T00:00:00",
   "name": "25T3",
-  "startDate": "2025-09-15T00:00:00+10:00",
-  "endDate": "2025-12-12T00:00:00+11:00",
+  "startDate": "2025-09-15T00:00:00",
   "weeks": [
     {
-      "weekNumber": 1,
       "days": [
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Monday",
-          "breakfast": [
-            { "name": "Scrambled Eggs", "rating": 4.5 },
-            { "name": "Toast", "rating": 4.0 },
-            { "name": "Yogurt Cup", "rating": 4.1 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Wrap", "rating": 4.3 },
-            { "name": "Pumpkin Soup", "rating": 3.9 }
+          "dessert": [
+            {
+              "name": "Chocolate brownie with ice-cream cups",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Beef Lasagna", "rating": 4.6 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+            {
+              "name": "Roasted Beef Tataki Steak with Soy Yuzu Glaze",
+              "rating": -1
+            },
+            {
+              "name": "Vietnamese Caramel Ginger Tofu with Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Garlic Roasted Potato, Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Superfood Salad with Kale, Broccoli, Green Beans, Quinoa, Mint, Pepitas Seed & Green Goddess Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Butter Lettuce Salad, with Cucumber, Cherry Tomato, Radish, Onion and Lemon Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Butter Chicken Pie Mashed Pumpkin with Peas & Gravy",
+              "rating": -1
+            },
+            {
+              "name": "Vegetarian Cornish Pies",
+              "rating": -1
+            },
+            {
+              "name": "Fattoush Salad with Tomato, Cucumber, Crispy Bread, Romaine Lettuce, Spanish onion, Radish, Sumac, Pomegranate molasses and Lemon Pepper Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Greek Salad with Roma Tomato, Cucumber, Onion, Capsicum, Kalamata Olives & Feta",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Breakfast Bagels with Capers & Dill Cream Cheese, Scramble Egg, Smashed Avocado, sliced Cucumber, Onion Pickle, Green leaves with Herbs",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Tuesday",
-          "breakfast": [
-            { "name": "Pancakes", "rating": 4.7 },
-            { "name": "Fruit Salad", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Beef Burger", "rating": 4.3 },
-            { "name": "Wedges", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "Fruit Cake Slice",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Stir Fry Beef", "rating": 4.1 },
-            { "name": "Rice", "rating": 3.8 }
+            {
+              "name": "Oregano Lamb Gnocchi",
+              "rating": -1
+            },
+            {
+              "name": "Chana Dhal with Chutney Yoghurt",
+              "rating": -1
+            },
+            {
+              "name": "Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Mediterranean Quinoa & Chickpea Salad with Cucumber, Cherry Tomato, Red Onion, Baby Spinach, Fresh Parsley, Mint, Kalamata Olives and Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Spiced Sweet Potato Salad with Charred Corn, Pickled Radish, Green Beans, Parsley and Lemon Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Balinese Grilled Maryland Chicken serve with Jasmine Rice, Cucumber, Chilli Sambal, Lemon Wedges",
+              "rating": -1
+            },
+            {
+              "name": "Lentil Meatballs in Spiced Pumpkin & Tomato Sauce with Spaghetti",
+              "rating": -1
+            },
+            {
+              "name": "Grilled Zucchini Salad with Baby Spinach, Red Onion, Parsley, Mint, Kalamata Olives and Light Hummus Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Crunchy Slaw with Sesame Dressing, Napa Cabbage, Carrot, Bell Pepper, Edamame, Coriander, Onion, and Sesame Seeds",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Egg Muffin, Beef Chipolata, Turkey Bacon, Baked Beans, Tomato, Hashbrowns",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Wednesday",
-          "breakfast": [
-            { "name": "Omelette", "rating": 4.4 },
-            { "name": "Hash Browns", "rating": 4.1 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "BBQ Chicken", "rating": 4.3 },
-            { "name": "Caesar Salad", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Coffee Tiramisu, Sandwich Bar",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Salmon Teriyaki", "rating": 4.5 },
-            { "name": "Steamed Vegetables", "rating": 4.1 }
+            {
+              "name": "Amazing beef in Honey Pepper Sauce, Capsicum, Onion & Shallots",
+              "rating": -1
+            },
+            {
+              "name": "Chickpeas Eggplant Tagine with Cranberry & Sultana Couscous",
+              "rating": -1
+            },
+            {
+              "name": "Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Pesto Pasta Salad with Spinach, Charred Capsicum, Sundried Tomatoes, and Basil with Light Vegan Pesto Cream Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Panzanella Bread Salad with Tomato, Basil, Onion, Capsicum with Balsamic Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Steamed Brown Rice or Shoyu Noodles, Tuna, Edamame, Steamed Broccoli, Lettuce, Nori, Tomato, Cucumber, Kimchi",
+              "rating": -1
+            },
+            {
+              "name": "Roasted Pumpkin, Diced Beetroot, Pickled Radish, Pickled Ginger, Roasted Sesame Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Miso Soup",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Pain au Chocolate, Danish, Assorted Muffins, Banana Bread",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Thursday",
-          "breakfast": [
-            { "name": "Bagels", "rating": 4.0 },
-            { "name": "Cream Cheese", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Schnitzel", "rating": 4.4 },
-            { "name": "Mashed Potatoes", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "Lemon Drizzle Slice",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Butter Chicken", "rating": 4.6 },
-            { "name": "Naan Bread", "rating": 4.3 }
+            {
+              "name": "Margarita Meat Lover BBQ Chicken Pizza",
+              "rating": -1
+            },
+            {
+              "name": "Garlic Bread",
+              "rating": -1
+            },
+            {
+              "name": "Beetroot, Green Beans, Rocket, Kale Salad with Balsamic Vinegar & Feta Cheese",
+              "rating": -1
+            },
+            {
+              "name": "Creamy Pasta Salad with Cannellini Beans, Tomatoes, Capsicum, Cucumber, Onion, and black Olives",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Chicken Tikka Masala with Cumin Saffron Biryani Rice",
+              "rating": -1
+            },
+            {
+              "name": "Chickpea & Zucchini Frittata",
+              "rating": -1
+            },
+            {
+              "name": "Greek Chickpeas Salad with Tomato, Cucumber, Red Onion, Crumbed Feta, Capsicums, Parsley with Lemon Greek Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Cobb Salad with Chopped Lettuce, Cherry Tomato, Cucumber, Chives, Onion and Lemon Vinaigrette",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Friday",
-          "breakfast": [
-            { "name": "Weet-Bix", "rating": 3.9 },
-            { "name": "Milk", "rating": 4.0 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Fish and Chips", "rating": 4.3 },
-            { "name": "Garden Salad", "rating": 3.9 }
+          "dessert": [
+            {
+              "name": "Mango Sticky Rice Spring Roll",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "BBQ Sausages", "rating": 4.2 },
-            { "name": "Coleslaw", "rating": 4.0 }
+            {
+              "name": "Asian Style Braised Beef in Soy & Pickle",
+              "rating": -1
+            },
+            {
+              "name": "Tofu & Egg Tteok‑bokki",
+              "rating": -1
+            },
+            {
+              "name": "Selection of Roasted Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Charred Green Bean Salad with Chilli Flakes, Garlic, Capsicum, Fried Onion, Celery and Sesame Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Potato and Seeded Mustard Salad, with Sweet Potato, Pumpkin, Roasted Carrots and Dill",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Wing Day: Sweet & Spicy Korean Chicken Wings with Pickles",
+              "rating": -1
+            },
+            {
+              "name": "Roasted Tofu with Chickpea Satay Sauce, Buttermilk Macaroni & Cheese Ranch Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Classic Coleslaw with Cabbage, Carrot, Onion, Celery & Mayonnaise",
+              "rating": -1
+            },
+            {
+              "name": "Mexican Corn & Bean Salad with Spanish Onion, Coriander, Tomatoes, Jalapenos and Smoked Paprika Dressing",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Pancakes with Vanilla Cream, Maple Syrup, Marshmallow with Berries & Condiments. Muffins, Banana Bread",
+              "rating": -1
+            }
+          ],
           "dayName": "Saturday",
-          "breakfast": [
-            { "name": "French Toast", "rating": 4.5 },
-            { "name": "Bananas", "rating": 4.1 }
-          ],
-          "brunch": [
-            { "name": "Chicken Roll", "rating": 4.0 },
-            { "name": "Potato Gems", "rating": 4.1 }
-          ],
-          "lunch": [
-            { "name": "Cheese Pizza", "rating": 4.2 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Cream Cannoli",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Roast Beef", "rating": 4.4 },
-            { "name": "Roast Vegetables", "rating": 4.2 }
+            {
+              "name": "Butter Chicken",
+              "rating": -1
+            },
+            {
+              "name": "Slow Cooked Bean Dahl Makhani",
+              "rating": -1
+            },
+            {
+              "name": "Crispy Poppadums, Mango Chutney, Raita, Basmati Rice & Assorted Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Green Power Salad with Avocado, Spinach, Green Beans, Celery, Kale, Broccoli, Snow Pea Sprouts and Pumpkin Seeds",
+              "rating": -1
+            },
+            {
+              "name": "Curried Chat Potato Salad with Chives, Onion, Chat Masala, Rocket and Curried Yoghurt Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Beef Lasagne",
+              "rating": -1
+            },
+            {
+              "name": "Roasted Vegetables Lasagna",
+              "rating": -1
+            },
+            {
+              "name": "Green Leaf Salad with Cucumber, Avocado, Tomato & Pepitas with Lemon Vinaigrette",
+              "rating": -1
+            },
+            {
+              "name": "Penne Pasta Salad with Spinach, Charred Capsicums, Sundried Tomato, and Basil with Light Cream Dressing",
+              "rating": -1
+            }
           ]
         },
         {
-          "dayName": "Sunday",
           "breakfast": [
-            { "name": "Bacon & Eggs", "rating": 4.6 },
-            { "name": "Toast", "rating": 4.0 }
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
           ],
           "brunch": [
-            { "name": "Hot Chips", "rating": 4.1 },
-            { "name": "Chicken Nuggets", "rating": 4.0 }
+            {
+              "name": "Breakfast Muffins with Turkey Ham, Eggs, Breakfast Beef Pattie, Baked Beans, Sliced Tomato, Tomato Relish, Hashbrowns",
+              "rating": -1
+            }
           ],
-          "lunch": [
-            { "name": "Pasta Bake", "rating": 4.3 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dayName": "Sunday",
+          "dessert": [
+            {
+              "name": "Custard & Berry Waffle",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Fried Rice", "rating": 4.3 },
-            { "name": "Spring Rolls", "rating": 4.1 }
+            {
+              "name": "Italian Meatballs in Napolitana",
+              "rating": -1
+            },
+            {
+              "name": "Spinach & Cheese Tortellini in Lemon & Dill Butter Sauce",
+              "rating": -1
+            },
+            {
+              "name": "Spaghetti, Roasted Vegetable & Garlic Bread",
+              "rating": -1
+            },
+            {
+              "name": "Corn Succotash Salad with Roasted Corn, Capsicum, Cherry Tomatoes, Onion, Edamame, Basil & Oregano and a Hint of Cayenne Pepper Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Classic Pasta Salad with Elbow Pasta, Carrot, Peas, Onion, Celery, Bell Pepper and Cheddar Cheese Sauce",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "EPIC Singaporean Chicken Noodle",
+              "rating": -1
+            },
+            {
+              "name": "Baked Spanakopita with Herb, Spinach & Ricotta Cheese",
+              "rating": -1
+            },
+            {
+              "name": "Haloumi, Potato Gems with Sour Cream, Dill and Cucumber Salad",
+              "rating": -1
+            },
+            {
+              "name": "Garden Salad with Tomato, Cucumber, Shredded Carrot, Mixed Greens, Red Bell Pepper with Pomegranate Balsamic Dressing",
+              "rating": -1
+            }
           ]
         }
-      ]
+      ],
+      "weekNumber": 1
     },
-
     {
-      "weekNumber": 2,
       "days": [
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Selection of Bread & Gluten-free Bread with Spreads",
+              "rating": -1
+            },
+            {
+              "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Monday",
-          "breakfast": [
-            { "name": "Cereal", "rating": 3.9 },
-            { "name": "Milk", "rating": 4.0 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Stir Fry", "rating": 4.2 },
-            { "name": "Noodles", "rating": 4.1 }
+          "dessert": [
+            {
+              "name": "Chocolate Brownie with Ice-cream Cups",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Meat Pie", "rating": 4.0 },
-            { "name": "Peas", "rating": 3.8 }
+            {
+              "name": "Beef Stroganoff",
+              "rating": -1
+            },
+            {
+              "name": "Veg. Dumplings in Soy Glaze with Buckwheat Soba Noodles",
+              "rating": -1
+            },
+            {
+              "name": "Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Butter Lettuce Salad with Cucumber, Cherry Tomato, Radish, Onion and Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Fusilli Pasta Salad with Cherry Tomatoes, Bocconcini, Radicchio, Kalamata Olives",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Chicken Camembert Pie served with Mashed Potatoes, Carrots & Peas, and Gravy",
+              "rating": -1
+            },
+            {
+              "name": "Creamy Vegetarian Pie",
+              "rating": -1
+            },
+            {
+              "name": "Romaine Lettuce Salad with Cherry Tomatoes, Onion, Avocado, Coriander and Spiced Cream Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Mexican Macaroni Salad, Red Kidney Beans, Lettuce, Sweet Corn, Onion, Tomatoes, Jalapeños, Cilantro with Mexican Ranch Dressing",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Selection of Bread & Gluten-free Bread with Spreads",
+              "rating": -1
+            },
+            {
+              "name": "Breakfast Burrito: Mexican Bean Rice, Chilli Ground Beef, Scrambled Eggs, Lettuce, Diced Tomato, Sour Cream, Sweet Corn, Tomato Relish & Hot Sauce",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Tuesday",
-          "breakfast": [
-            { "name": "Porridge", "rating": 4.1 },
-            { "name": "Honey", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Burger", "rating": 4.2 },
-            { "name": "Hot Chips", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "Kunafa Cream (Baked)",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Tacos", "rating": 4.5 },
-            { "name": "Mexican Rice", "rating": 4.3 }
+            {
+              "name": "Mamak Style Fish Curry with Sweet Potatoes & Green Beans",
+              "rating": -1
+            },
+            {
+              "name": "Mapo Tofu with Cauliflower & Shallot",
+              "rating": -1
+            },
+            {
+              "name": "Spiced Roasted Potatoes, Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Grilled Zucchini Salad with Baby Spinach, Red Onion, Parsley, Mint, Kalamata Olives and Light Hummus Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Potato & Seeded Mustard Salad with Sweet Potato, Pumpkin, Roasted Carrots and Dill",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Yakisoba Style Chicken Noodle Stir-Fry",
+              "rating": -1
+            },
+            {
+              "name": "Tempeh & Zucchini Potato Noodles in Chilli Soybean Sauce",
+              "rating": -1
+            },
+            {
+              "name": "Curried Potato Salad with Herb & Dijon Mustard Dressing, Shallots, Red Onion, Curry Powder with Leaf & Basil",
+              "rating": -1
+            },
+            {
+              "name": "Garden Salad with Tomato, Cucumber, Shredded Carrot, Mixed Greens, Red Bell Pepper with Pomegranate Balsamic Dressing",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Omelette, Beef Breakfast Pattie, Baked Beans, Tomato, Hashbrown",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Wednesday",
-          "breakfast": [
-            { "name": "Toast", "rating": 4.0 },
-            { "name": "Vegemite", "rating": 3.8 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Pasta Carbonara", "rating": 4.3 },
-            { "name": "Bread Roll", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "S’mores Chocolate Cookie Cake",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Roast Chicken", "rating": 4.4 },
-            { "name": "Roast Vegetables", "rating": 4.1 }
+            {
+              "name": "Korean Beef with Shallot & Sesame",
+              "rating": -1
+            },
+            {
+              "name": "Chickpeas & Onion Bhaji with Mango Sauce",
+              "rating": -1
+            },
+            {
+              "name": "Spiced & Herb-roasted Potatoes, Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Mediterranean Quinoa & Chickpea Salad with Cucumber, Cherry Tomato, Red Onion, Baby Spinach, Fresh Parsley, Mint, Kalamata Olives and Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Pesto Pasta Salad with Spinach, Charred Capsicum, Sundried Tomatoes and Basil with Light Vegan Pesto Cream Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Choice of Grilled Cheese Beef Pattie, Crumbed Chicken Scallop, Soy Protein Patties",
+              "rating": -1
+            },
+            {
+              "name": "French Fries, Crinkle Pickle, Burger Sauce & Condiments",
+              "rating": -1
+            },
+            {
+              "name": "Lettuce, Sliced Tomato, Cheese, Fresh Onion Rings",
+              "rating": -1
+            },
+            {
+              "name": "Fresh Coleslaw with Cabbage, Carrot, Onion, Shallots & Mayo",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Egg Muffin, Beef Chipolata, Turkey Bacon, Baked Beans, Tomato, Hashbrown",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Thursday",
-          "breakfast": [
-            { "name": "Waffles", "rating": 4.6 },
-            { "name": "Strawberries", "rating": 4.3 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Sushi Rolls", "rating": 4.4 },
-            { "name": "Miso Soup", "rating": 4.1 }
+          "dessert": [
+            {
+              "name": "Lychee & Coconut Sago",
+              "rating": -1
+            },
+            {
+              "name": "Creamy Vegan Cauliflower, Chickpeas & Spinach Curry",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Curry Chicken", "rating": 4.5 },
-            { "name": "Rice", "rating": 4.0 }
+            {
+              "name": "Lamb Pakku",
+              "rating": -1
+            },
+            {
+              "name": "Khana Palak Paneer",
+              "rating": -1
+            },
+            {
+              "name": "Pita Bread, Raita Sauce, Saffron Basmati Rice & Assorted Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Beetroot, Green Beans, Rocket, Kale Salad with Balsamic Vinegar & Feta Cheese",
+              "rating": -1
+            },
+            {
+              "name": "Curried Chat Potato Salad with Chives, Onion, Chat Masala, Rocket and Curried Yoghurt Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Basil & Soya Minced Chicken, Chilli & Basil Beef Stir‑Fry with Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Drunken Herb & Tofu with Vegetables and Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Spiced Creamy Spiral Salad with Sundried Tomato, Spinach, and Onion with Moroccan Ranch Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Greek Salad with Roma Tomato, Cucumber, Onion, Capsicum, Kalamata Olives & Feta",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Madeleines, Muffins, Croissant, GF Banana Bread",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Friday",
-          "breakfast": [
-            { "name": "Fruit Salad", "rating": 4.3 },
-            { "name": "Yogurt", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Baked Fish", "rating": 4.0 },
-            { "name": "Chips", "rating": 4.1 }
+          "dessert": [
+            {
+              "name": "Matcha Banoffee",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "BBQ Chicken Wings", "rating": 4.3 },
-            { "name": "Potato Salad", "rating": 4.0 }
+            {
+              "name": "Cheddar Cheese Sauce Chicken Schnitzel",
+              "rating": -1
+            },
+            {
+              "name": "Cream Garlic Parmesan Plant‑Based Schnitzel",
+              "rating": -1
+            },
+            {
+              "name": "French Fries & Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Green Power Salad with Avocado, Spinach, Green Beans, Celery, Kale, Broccoli, Snow Pea Sprouts and Pumpkin Seeds",
+              "rating": -1
+            },
+            {
+              "name": "Pasta Salad with Chickpea, Red Onion, Coriander, Spinach, Mixed Seeds, Feta & Cranberry",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Taco Components: Shredded Lettuce, Cucumber, Corn, Spiced Taco Beans, Guacamole, Cheese & Sour Cream",
+              "rating": -1
+            },
+            {
+              "name": "Hot Pepper Sauce Corn Tortilla Chips",
+              "rating": -1
+            },
+            {
+              "name": "Mexican Corn & Black Bean Salad, Tomato Salsa, Onion, Parsley & Spiced Lemon Dressing",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Waffles with Vanilla Cream, Maple Syrup, Berries & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Saturday",
-          "breakfast": [
-            { "name": "Pancakes", "rating": 4.7 },
-            { "name": "Maple Syrup", "rating": 4.4 }
-          ],
-          "brunch": [
-            { "name": "Hot Dogs", "rating": 4.0 },
-            { "name": "Hot Chips", "rating": 4.1 }
-          ],
-          "lunch": [
-            { "name": "Pepperoni Pizza", "rating": 4.4 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Chocolate Mousse",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Steak", "rating": 4.5 },
-            { "name": "Vegetables", "rating": 4.2 }
+            {
+              "name": "Beef Lasagne",
+              "rating": -1
+            },
+            {
+              "name": "Kale, Spinach & Ricotta Basil Pesto Pasta",
+              "rating": -1
+            },
+            {
+              "name": "Spaghetti, Roasted Vegetable & Garlic Bread",
+              "rating": -1
+            },
+            {
+              "name": "Charred Green Bean Salad with Chilli Flakes, Garlic, Capsicum, Fried Onion, Celery and Sesame Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Potato & Friends Salad, with Sweet Potatoes, Pumpkin, Roasted Carrots and Lemon Greek Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Spicy Korean Chicken Karaage & Pickled Radish",
+              "rating": -1
+            },
+            {
+              "name": "Dry Masala Tofu with Pumpkin, Green Beans & Curry Leaf",
+              "rating": -1
+            },
+            {
+              "name": "Caesar Salad with Cos Lettuce, Tomatoes, Parmesan Cheese Croutons on the side",
+              "rating": -1
+            },
+            {
+              "name": "Dill & Herb Potato Salad with Rocket, Roasted Spanish Onion & Fried Baby Capers",
+              "rating": -1
+            }
           ]
         },
         {
-          "dayName": "Sunday",
           "breakfast": [
-            { "name": "Croissants", "rating": 4.5 },
-            { "name": "Fruit Salad", "rating": 4.2 }
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
           ],
           "brunch": [
-            { "name": "Chicken Nuggets", "rating": 4.0 },
-            { "name": "Potato Gems", "rating": 4.1 }
+            {
+              "name": "Cafe Poached Eggs, Corn Fritters, Turkey Ham, Avocado Salsa, Sour Cream, Leaf Salad",
+              "rating": -1
+            }
           ],
-          "lunch": [
-            { "name": "Bolognese Pasta", "rating": 4.4 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dayName": "Sunday",
+          "dessert": [
+            {
+              "name": "Custard Cream Choux",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Fried Rice", "rating": 4.3 },
-            { "name": "Spring Rolls", "rating": 4.1 }
+            {
+              "name": "Slow Cooked Roasted Beef with Garlic & Rosemary",
+              "rating": -1
+            },
+            {
+              "name": "Baked Vegan Meatloaf (Nutrition Meat Loaf) with Vegan Gravy",
+              "rating": -1
+            },
+            {
+              "name": "Selection of Roasted Potatoes & Assorted Vegetables, and Yorkshire Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Garden Salad with Tomato, Cucumber, Shredded Carrot, Mixed Greens, Red Bell Pepper with Pomegranate Balsamic Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Classic Pasta Salad with Elbow Pasta, Carrot, Peas, Onion, Celery, Bell Pepper and Cheddar Cheese Sauce",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Tandoori Chicken with Green Chutney & Turmeric Basmati Rice",
+              "rating": -1
+            },
+            {
+              "name": "Tofu in Miso & Mushroom Sauce",
+              "rating": -1
+            },
+            {
+              "name": "Crunchy Kale Salad with Cucumber, Kalamata Olives, Onions, Crumbled Vegan Feta, Chickpeas and Lemon Garlic Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Harissa Potato Salad with Carrots, Onion, Crispy Shallots, and Harissa Cream Dressing",
+              "rating": -1
+            }
           ]
         }
-      ]
+      ],
+      "weekNumber": 2
     },
-
     {
-      "weekNumber": 3,
       "days": [
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Monday",
-          "breakfast": [
-            { "name": "Scrambled Eggs", "rating": 4.5 },
-            { "name": "Toast", "rating": 4.0 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Fried Rice", "rating": 4.4 },
-            { "name": "Steamed Dumplings", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Chocolate Brownie with Ice-cream Cups",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "BBQ Beef", "rating": 4.4 },
-            { "name": "Corn", "rating": 4.0 }
+            {
+              "name": "Beef Picadillo with Jamaican Rice & Beans",
+              "rating": -1
+            },
+            {
+              "name": "Sweet & Sour Soy Protein Meat Stir-fry",
+              "rating": -1
+            },
+            {
+              "name": "Jasmine Rice & Assorted Steamed Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Butter Lettuce Salad, with Cucumber, Cherry Tomato, Radish, Onion and Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Creamy Potato Salad with Celery, Onion, Dill, Cucumber, Capsicum & Creamy Horseradish Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "PIE DAY: Aussie Meat Pie Mashed Potatoes, Carrots, Peas & Gravy",
+              "rating": -1
+            },
+            {
+              "name": "Spinach Ricotta Roll",
+              "rating": -1
+            },
+            {
+              "name": "Spiced Creamy Spiral Salad with Sundried Tomato, Spinach, and Onion with Moroccan Ranch Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Greek Salad with Roma Tomato, Cucumber, Onion, Capsicum, Kalamata Olives & Feta",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Breakfast Bagels, Herb Cream Cheese, Hummus, Sliced Cucumber or Tomato, Sliced Spanish Onion, Greenleaf",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Tuesday",
-          "breakfast": [
-            { "name": "Porridge", "rating": 4.1 },
-            { "name": "Banana", "rating": 4.0 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Caesar Wrap", "rating": 4.3 },
-            { "name": "Chips", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "Hokey Pokey Eton Mess",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Taco Bowls", "rating": 4.5 },
-            { "name": "Mexican Rice", "rating": 4.3 }
+            {
+              "name": "Chilli Cumin Lamb Dry Noodle & Asian Greens",
+              "rating": -1
+            },
+            {
+              "name": "Tofu Bibimbap Baked Rice with Egg, Shiitake, Bean Sprouts, Mushrooms & Broccoli",
+              "rating": -1
+            },
+            {
+              "name": "Roasted Potatoes, Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Superfood Salad with Kale, Broccoli, Green Beans, Quinoa, Mint, Pepitas Seed & Green Goddess Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Mexican Macaroni Salad, Red Kidney Beans, Lettuce, Sweet Corn, Onion, Tomatoes, Jalapeños, Cilantro with Mexican Ranch Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Sliced Pepper Steak or Chicken Shawarma or Moroccan Tofu",
+              "rating": -1
+            },
+            {
+              "name": "A Variety of Condiments",
+              "rating": -1
+            },
+            {
+              "name": "Fresh Tabbouli Chickpea Salad with Parsley, Cucumber, Tomato, Red Onion, Quinoa, Green Leaf and Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Classic Coleslaw with Cabbage, Carrot, Onion, Celery & Mayonnaise",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Scrambled Egg, Beef Chipolata, Turkey Bacon, Baked Beans, Tomato, Hashbrown",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Wednesday",
-          "breakfast": [
-            { "name": "Bagels", "rating": 4.0 },
-            { "name": "Cream Cheese", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Chicken Pasta", "rating": 4.3 },
-            { "name": "Bread Roll", "rating": 4.0 }
+          "dessert": [
+            {
+              "name": "Rhubarb, Orange & Cardamom Cake",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Beef Stir Fry", "rating": 4.4 },
-            { "name": "Rice", "rating": 4.0 }
+            {
+              "name": "Texas Style Baked Beef Ribs",
+              "rating": -1
+            },
+            {
+              "name": "Chickpeas Falafel in Sultana Couscous",
+              "rating": -1
+            },
+            {
+              "name": "Creamy Mashed Potatoes, Assorted Roasted Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Pesto Pasta Salad with Spinach, Charred Capsicum, Sundried Tomatoes and Basil with Light Vegan Pesto Cream Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Italian Pasta Salad with Olives, Bocconcini, Tomato, Cucumber, Red Onion, Rocket & Basil",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Chicken Rissoles Napoli Sauce, Mashed Potato, Peas & Carrot",
+              "rating": -1
+            },
+            {
+              "name": "Plant‑based Meatballs",
+              "rating": -1
+            },
+            {
+              "name": "Haloumi, Potato Gem with Sour Cream, Dill & Cucumber Salad",
+              "rating": -1
+            },
+            {
+              "name": "Caesar Salad with Cos Lettuce, Cherry Tomatoes, Parmesan & Croutons",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Pain au Chocolate, Danish, Assorted Muffins, Banana Bread",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Thursday",
-          "breakfast": [
-            { "name": "Waffles", "rating": 4.6 },
-            { "name": "Berries", "rating": 4.3 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Teriyaki Chicken", "rating": 4.5 },
-            { "name": "Noodles", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Self‑Saucing Chocolate Pudding",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Butter Chicken", "rating": 4.6 },
-            { "name": "Naan Bread", "rating": 4.3 }
+            {
+              "name": "Margarita Meat Lover BBQ Chicken Pizza",
+              "rating": -1
+            },
+            {
+              "name": "Garlic Bread",
+              "rating": -1
+            },
+            {
+              "name": "Beetroot, Green Beans, Rocket, Kale Salad with Balsamic Vinegar & Feta Cheese",
+              "rating": -1
+            },
+            {
+              "name": "Panzanella Bread Salad with Tomato, Basil, Onion, Capsicum with Balsamic Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Condiments: Cheese, Sour Cream, Mixed Beans, Corn, Shredded Lettuce, Onion, Diced Tomato, Jalapeños, Shallots, Cheese Sauce, Olives",
+              "rating": -1
+            },
+            {
+              "name": "Variety of Hot Sauce & Condiment",
+              "rating": -1
+            },
+            {
+              "name": "Garden Salad with Tomato, Cucumber, Shredded Carrot, Mixed Greens, Red Bell Pepper with Pomegranate Balsamic Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Tri‑colour Roasted Potato Salad with Carrot, Caramelised Onion, Rocket, Capers & Dill",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            },
+            {
+              "name": "Hot Breakfast: Fried Egg, Beef Breakfast Patty, Baked Beans, Tomato, Hashbrown",
+              "rating": -1
+            },
+            {
+              "name": "Fried Rice, Dumplings & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Friday",
-          "breakfast": [
-            { "name": "Fruit Salad", "rating": 4.3 },
-            { "name": "Yogurt", "rating": 4.2 }
-          ],
-          "brunch": [],
-          "lunch": [
-            { "name": "Fish and Chips", "rating": 4.3 },
-            { "name": "Garden Salad", "rating": 3.9 }
+          "dessert": [
+            {
+              "name": "Mango & Friends Shrikhand",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "BBQ Ribs", "rating": 4.6 },
-            { "name": "Coleslaw", "rating": 4.1 }
+            {
+              "name": "Irish Beef Stew with Potato & Carrot",
+              "rating": -1
+            },
+            {
+              "name": "Tofu Soba Noodle with Soy Ginger, Shallot & Vegetable",
+              "rating": -1
+            },
+            {
+              "name": "Garlic Roasted Potatoes, Vegetables & Steamed Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Dill & Herb Potato Salad with Rocket, Roasted Spanish Onion & Fried Baby Capers",
+              "rating": -1
+            },
+            {
+              "name": "Green Leaf Salad with Cucumber, Avocado, Tomato, Pepitas and Lemon Vinaigrette",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Chicken Mee Noodle Stir‑fried & Asian Greens",
+              "rating": -1
+            },
+            {
+              "name": "Ricotta & Tofu Broccoli & Rizoni Stuffed Pepper",
+              "rating": -1
+            },
+            {
+              "name": "Greek Lemon Roasted Broccoli Pasta Salad, Kalamata Olives, Zucchini, Capsicum, Cucumber, Feta Cheese, Basil with Light Lemon Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Corn Succotash Salad with Roasted Corn, Capsicum, Cherry Tomatoes, Onion, Edamame, Basil & Oregano and a Hint of Cayenne Pepper Dressing",
+              "rating": -1
+            }
           ]
         },
         {
+          "breakfast": [
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Waffles with Vanilla Cream, Maple Syrup, Berries & Condiments",
+              "rating": -1
+            }
+          ],
           "dayName": "Saturday",
-          "breakfast": [
-            { "name": "French Toast", "rating": 4.5 },
-            { "name": "Bananas", "rating": 4.1 }
-          ],
-          "brunch": [
-            { "name": "Hot Chips", "rating": 4.1 },
-            { "name": "Chicken Roll", "rating": 4.0 }
-          ],
-          "lunch": [
-            { "name": "Margherita Pizza", "rating": 4.3 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dessert": [
+            {
+              "name": "Cinnamon Mini Churros",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Roast Lamb", "rating": 4.5 },
-            { "name": "Roast Vegetables", "rating": 4.3 }
+            {
+              "name": "Lamb Shank in Creamy Curry",
+              "rating": -1
+            },
+            {
+              "name": "Tempeh Chilli & Lime Curry with Green Beans, Peas & Baby Corn",
+              "rating": -1
+            },
+            {
+              "name": "Pita bread, Raita, Basmati Rice & Assorted Roasted Vegetables",
+              "rating": -1
+            },
+            {
+              "name": "Green Power Salad with Avocado, Spinach, Green Beans, Celery, Kale, Broccoli, Snow Pea Sprouts, Pumpkin Seed",
+              "rating": -1
+            },
+            {
+              "name": "Curried Chat Potato Salad with Chives, Onion, Chat Masala, Rocket and Curried Yoghurt Dressing",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Classic Chicken Parmigiana (Gluten‑free)",
+              "rating": -1
+            },
+            {
+              "name": "Plant‑based Schnitzel Parmigiana with Miso Mushroom Cream",
+              "rating": -1
+            },
+            {
+              "name": "Cobb Salad with Chopped Lettuce, Cherry Tomato, Cucumber, Chives, Onion and Lemon Vinaigrette",
+              "rating": -1
+            },
+            {
+              "name": "Potato & Friends Salad, with Crispy Potato Gem, Carrot, Sweet Potato, Rocket and Ranch Dressing",
+              "rating": -1
+            }
           ]
         },
         {
-          "dayName": "Sunday",
           "breakfast": [
-            { "name": "Bacon & Eggs", "rating": 4.6 },
-            { "name": "Toast", "rating": 4.0 }
+            {
+              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+              "rating": -1
+            }
           ],
           "brunch": [
-            { "name": "Chicken Nuggets", "rating": 4.0 },
-            { "name": "Potato Gems", "rating": 4.1 }
+            {
+              "name": "Poached Eggs Benedict, Turkey Ham, Hollandaise Sauce, Sautéed Spinach, Mixed Salad Leaf",
+              "rating": -1
+            }
           ],
-          "lunch": [
-            { "name": "Pasta Bake", "rating": 4.3 },
-            { "name": "Garlic Bread", "rating": 4.2 }
+          "dayName": "Sunday",
+          "dessert": [
+            {
+              "name": "Mix Berry Mousse",
+              "rating": -1
+            }
           ],
           "dinner": [
-            { "name": "Fried Rice", "rating": 4.3 },
-            { "name": "Spring Rolls", "rating": 4.1 }
+            {
+              "name": "Classic Beef Ragu",
+              "rating": -1
+            },
+            {
+              "name": "Mexican Spiced Bean & Sweet Potato Enchiladas",
+              "rating": -1
+            },
+            {
+              "name": "Fettucine, Roasted Vegetables & Garlic Bread",
+              "rating": -1
+            },
+            {
+              "name": "Garden Salad with Tomato, Cucumber, Shredded Carrot, Mixed Greens, Red Bell Pepper with Pomegranate Balsamic Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Potato and Seeded Mustard Salad, with Sweet Potato, Pumpkin, Roasted Carrots and Dill",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Rosemary & Sage Roasted Chicken with Spanish Onion Roasted Potatoes Served with Gravy",
+              "rating": -1
+            },
+            {
+              "name": "Hoi Sin Tempeh, Green Beans & Vegetable Stir‑Fry Jasmine Rice",
+              "rating": -1
+            },
+            {
+              "name": "Asian Yum Salad with Rice Vermicelli, Lettuce, Cucumber, Tomato, Red Onion, Coriander, Shallot, Leaf with Chilli & Lime Dressing",
+              "rating": -1
+            },
+            {
+              "name": "Pasta Salad with White Beans, Sundried Tomatoes, Whole Grain Mustard, Red Onion, Capers, Spinach, and Italian Seasoning",
+              "rating": -1
+            }
           ]
         }
-      ]
+      ],
+      "weekNumber": 3
     }
   ]
 }

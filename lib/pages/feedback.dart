@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:whats_for_dino_2/main.dart';
 
 class FeedbackPage extends StatelessWidget {
   const FeedbackPage({super.key});
@@ -7,7 +6,7 @@ class FeedbackPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: secondaryColour,
+      backgroundColor: Theme.of(context).colorScheme.surface,
         body:Center(child: Text("Feedback"))
     );
   }

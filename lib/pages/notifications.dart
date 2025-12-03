@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:whats_for_dino_2/main.dart';
+import 'package:whats_for_dino_2/widgets/standard_switch_list_tile.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -15,21 +15,24 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: secondaryColour,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Column(
         children: [
-          Divider(color: mainColour),
-          standardSwitchListTile("Enable Notifications", 'enableNotifications'),
-          Divider(color: mainColour),
+          Divider(color: Theme.of(context).colorScheme.primary),
+          notificationsSwitchListTile(
+            "Enable Notifications",
+            'enableNotifications',
+          ),
+          Divider(color: Theme.of(context).colorScheme.primary),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
-            standardSwitchListTile(
+            notificationsSwitchListTile(
               "Different Dino Times",
               'notifDifferentDinoTimes',
             ),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
-            standardSwitchListTile("Special Events", 'notifSpecialEvent'),
+            notificationsSwitchListTile("Special Events", 'notifSpecialEvent'),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
-            standardSwitchListTile(
+            notificationsSwitchListTile(
               "Favourite Menu Items",
               'notifFavouriteMeals',
             ),
@@ -61,7 +64,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Column(
       children: [
-        Divider(color: mainColour, indent: 20, endIndent: 20,),
+        Divider(
+          color: Theme.of(context).colorScheme.primary,
+          indent: 20,
+          endIndent: 20,
+        ),
         Text(
           "Favourite Meal Notification Time",
           style: TextStyle(
@@ -71,7 +78,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ),
         Slider(
-          activeColor: mainColour,
+          activeColor: Theme.of(context).colorScheme.primary,
+          inactiveColor: Theme.of(context).colorScheme.surface,
           min: -90,
           value: currentValue,
           max: 90,
@@ -90,34 +98,53 @@ class _NotificationsPageState extends State<NotificationsPage> {
             style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
         ),
-        Divider(color: mainColour, indent: 20, endIndent: 20,),
+        Divider(
+          color: Theme.of(context).colorScheme.primary,
+          indent: 20,
+          endIndent: 20,
+        ),
       ],
     );
   }
 
-  SwitchListTile standardSwitchListTile(String title, String variableName) {
-    return SwitchListTile(
-      splashRadius: 0,
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w400,
-          color: Colors.white,
-        ),
-      ),
+  StandardSwitchListTile notificationsSwitchListTile(
+    String title,
+    String variableName,
+  ) {
+    return StandardSwitchListTile(
+      title: title,
       value: notificationsBox.get(variableName, defaultValue: false),
-      activeColor: mainColour,
-      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-      inactiveTrackColor: Colors.grey[700],
-      thumbColor: WidgetStateProperty.all<Color>(Colors.white),
-      inactiveThumbColor: Colors.white,
       onChanged: (value) {
         notificationsBox.put(variableName, value);
         setState(() {
           //enableNotifications = value;
         });
       },
+      activeColour: Theme.of(context).colorScheme.primary,
     );
+
+    //   return SwitchListTile(
+    //     splashRadius: 0,
+    //     title: Text(
+    //       title,
+    //       style: TextStyle(
+    //         fontSize: 22,
+    //         fontWeight: FontWeight.w400,
+    //         color: Colors.white,
+    //       ),
+    //     ),
+    //     value: notificationsBox.get(variableName, defaultValue: false),
+    //     activeColor: Theme.of(context).colorScheme.primary,
+    //     trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+    //     inactiveTrackColor: Colors.grey[700],
+    //     thumbColor: WidgetStateProperty.all<Color>(Colors.white),
+    //     inactiveThumbColor: Colors.white,
+    //     onChanged: (value) {
+    //       notificationsBox.put(variableName, value);
+    //       setState(() {
+    //         //enableNotifications = value;
+    //       });
+    //     },
+    //   );
   }
 }

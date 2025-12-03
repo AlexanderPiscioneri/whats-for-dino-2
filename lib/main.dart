@@ -1,26 +1,30 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
 import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
+import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
-Color mainColour = Color.fromARGB(255, 35, 117, 35);
-Color secondaryColour = Color.fromARGB(255, 29, 88, 29);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.openBox('menuBox');
-  runApp(WhatsForDinoApp());
-  await Hive.openBox('notificationsBox');
   await Hive.openBox('settingsBox');
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: WhatsForDinoApp(),
+    ),
+  );
+  await Hive.openBox('notificationsBox');
   await Hive.openBox('favouritesBox');
 }
 
@@ -58,32 +62,26 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<ThemeProvider>(context, listen: false).setDarkMode(
+      Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
+    );
+    ColorScheme currentColourScheme =
+        Provider.of<ThemeProvider>(context).themeData.colorScheme;
+
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: mainColour,
-          surface: mainColour, // sets BottomNavigationBar background
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: mainColour, // bar color
-          indicatorColor: Colors.transparent, // removes grey circle
-          height: 60,
-          iconTheme: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return IconThemeData(color: Colors.white, size: 36);
-            }
-            return IconThemeData(color: Colors.grey, size: 32);
-          }),
-        ),
-      ),
+      theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
-        backgroundColor: secondaryColour,
+        backgroundColor: currentColourScheme.surface,
         appBar: AppBar(
           title: Text(
             titles[currentPage],
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-          backgroundColor: mainColour,
+          backgroundColor: currentColourScheme.primary,
           elevation: 8, // <-- SHADOW
           shadowColor: Colors.black, // <-- SHADOW COLOR
           surfaceTintColor:
@@ -95,14 +93,14 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
           data: Theme.of(context).copyWith(
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
-            canvasColor: mainColour,
+            canvasColor: currentColourScheme.primary,
           ),
           child: BottomNavigationBar(
-            backgroundColor: mainColour,
+            backgroundColor: currentColourScheme.primary,
             currentIndex: currentPage,
             onTap: navigateToPage,
             selectedItemColor: Colors.white,
-            unselectedItemColor: secondaryColour,
+            unselectedItemColor: currentColourScheme.surface,
             iconSize: 36,
             items: [
               BottomNavigationBarItem(
