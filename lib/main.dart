@@ -96,12 +96,17 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
             canvasColor: currentColourScheme.primary,
           ),
           child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             backgroundColor: currentColourScheme.primary,
             currentIndex: currentPage,
             onTap: navigateToPage,
             selectedItemColor: Colors.white,
             unselectedItemColor: currentColourScheme.surface,
-            iconSize: 36,
+            iconSize: 42,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings),

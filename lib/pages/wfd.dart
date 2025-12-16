@@ -15,86 +15,172 @@ class WfdPage extends StatefulWidget {
   State<WfdPage> createState() => _WfdPageState();
 }
 
+// Static storage for persistent data across widget rebuilds
+class _MenuCache {
+  static List<Menu> menus = [];
+  static List<DayMenu> dayMenus = [];
+  static PageController? pageController;
+  static bool isInitialized = false;
+}
+
 class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
-
-  List<Menu> menus = [];
-  List<DayMenu> dayMenus = [];
-  bool isLoading = true;
-  DateTime dateTimeNow = DateTime.now();
-  String dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
-  String dayText = "${DateFormat('EEEE').format(DateTime.now())} (Today)";
   final menuBox = Hive.box('menuBox');
-  int todayIndex = DateTime.now().difference(DateTime(2025, 9, 15)).inDays;
-  //int todayIndex = dayMenus.indexWhere((day) => day.dayDate == DateFormat('dd/MM/yyyy').format(DateTime.now()));
+
+  late String dateText;
+  late String dayText;
+  int _pageViewKey = 0; // Add this to force PageView rebuild
 
   @override
   void initState() {
     super.initState();
-    _initLocalThenServer();
+
+    if (!_MenuCache.isInitialized) {
+      _initializeData();
+      // Set temporary values while loading
+      dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
+      dayText = "Loading...";
+    } else {
+      // Data already exists, recreate PageController with today's index
+      final todayIndex = _findTodayIndex();
+      _MenuCache.pageController?.dispose();
+      _MenuCache.pageController = PageController(initialPage: todayIndex);
+
+      // Initialize labels immediately to match the page being displayed
+      dayText = _MenuCache.dayMenus[todayIndex].dayName;
+      dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+      if (todayIndex == _findTodayIndex() && dayText.contains("||") == false) {
+        dayText += " (Today)";
+      }
+    }
   }
 
-  Future<void> _initLocalThenServer() async {
-    // 1. Try reading local data first
-    await readLocaldayMenus(); // wait for local load to finish
+  @override
+  void dispose() {
+    // Don't dispose the PageController - keep it alive for next time
+    super.dispose();
+  }
 
-    if (dayMenus.isNotEmpty) {
-      setState(
-        () {},
-      ); // 2. If we have local data, use it and render immediately
+  Future<void> _initializeData() async {
+    // Load from local storage
+    await _loadFromLocal();
+
+    if (_MenuCache.dayMenus.isNotEmpty) {
+      final todayIndex = _findTodayIndex();
+      _MenuCache.pageController = PageController(initialPage: todayIndex);
+
+      if (mounted) {
+        setState(() {
+          _MenuCache.isInitialized = true;
+          // Set the correct labels
+          dayText = _MenuCache.dayMenus[todayIndex].dayName + " (Today)";
+          dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+        });
+      }
     }
 
-    // 3. Fetch from server in background
-    fetchMenus();
+    // Fetch from server in background
+    _fetchFromServer();
   }
 
-  Future<void> readLocaldayMenus() async {
-    String? jsonString = menuBox.get('dayMenus');
+  Future<void> _loadFromLocal() async {
+    try {
+      final data = menuBox.get('dayMenus');
+      if (data == null) return;
 
-    if (jsonString != null) {
-      List<dynamic> jsonList = jsonDecode(jsonString);
-
-      dayMenus =
+      final jsonList = jsonDecode(data) as List;
+      _MenuCache.dayMenus =
           jsonList.map((d) {
             final dayMenuJson = d['dayMenu'] as Map<String, dynamic>;
             return DayMenu.fromJson(dayMenuJson);
           }).toList();
+
+      print(
+        "Loaded ${_MenuCache.dayMenus.length} day menus from local storage",
+      );
+    } catch (e) {
+      print("Error loading from local: $e");
     }
   }
 
-  void writeLocaldayMenus() async {
-    // Convert dayMenus list to JSON
-    List<Map<String, dynamic>> jsonList =
-        dayMenus.map((dayMenu) {
-          return {
-            "dayMenu": {
-              "dayName": dayMenu.dayName,
-              "breakfast": dayMenu.breakfast.map((m) => m.toJson()).toList(),
-              "brunch": dayMenu.brunch?.map((m) => m.toJson()).toList(),
-              "lunch": dayMenu.lunch.map((m) => m.toJson()).toList(),
-              "dinner": dayMenu.dinner.map((m) => m.toJson()).toList(),
-            },
-          };
-        }).toList();
-
-    // Store in Hive under a key, e.g., 'dayMenus'
-    await menuBox.put('dayMenus', jsonEncode(jsonList));
-  }
-
-  Future<void> fetchMenus() async {
+  Future<void> _fetchFromServer() async {
     try {
       QuerySnapshot snapshot = await firestoreService.getMenusOnce();
-      setState(() {
-        menus =
-            snapshot.docs
-                .map((doc) => Menu.fromJson(doc.data() as Map<String, dynamic>))
-                .toList();
-        dayMenus = generateFullDayMenusList(menus);
-        writeLocaldayMenus();
-        print("menu fetched");
-      });
+
+      final fetchedMenus =
+          snapshot.docs
+              .map((doc) => Menu.fromJson(doc.data() as Map<String, dynamic>))
+              .toList();
+
+      final newDayMenus = generateFullDayMenusList(fetchedMenus);
+
+      print("Fetched data from server, updating cache...");
+      final todayIndex = _findTodayIndexForList(newDayMenus);
+
+      // Recreate PageController with new data and today's index
+      _MenuCache.pageController?.dispose();
+      _MenuCache.pageController = PageController(initialPage: todayIndex);
+
+      if (mounted) {
+        setState(() {
+          _MenuCache.menus = fetchedMenus;
+          _MenuCache.dayMenus = newDayMenus;
+          _pageViewKey++; // Force PageView to rebuild
+          // Update labels
+          dayText = "${_MenuCache.dayMenus[todayIndex].dayName} (Today)";
+          dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+        });
+      }
+
+      await _saveToLocal();
+      print("Updated menus from server, initial page: $todayIndex");
     } catch (e) {
-      print("Error loading menus: $e");
+      print("Error fetching from server: $e");
+    }
+  }
+
+  Future<void> _saveToLocal() async {
+    try {
+      final jsonList =
+          _MenuCache.dayMenus.map((dayMenu) {
+            return {
+              "dayMenu": {
+                "dayName": dayMenu.dayName,
+                "dayDate": dayMenu.dayDate,
+                "breakfast": dayMenu.breakfast.map((m) => m.toJson()).toList(),
+                "brunch": dayMenu.brunch?.map((m) => m.toJson()).toList(),
+                "lunch": dayMenu.lunch.map((m) => m.toJson()).toList(),
+                "dinner": dayMenu.dinner.map((m) => m.toJson()).toList(),
+              },
+            };
+          }).toList();
+
+      await menuBox.put('dayMenus', jsonEncode(jsonList));
+      print("Saved ${jsonList.length} day menus to local storage");
+    } catch (e) {
+      print("Error saving to local: $e");
+    }
+  }
+
+  void _resetCache() async {
+    // Clear static cache
+    _MenuCache.menus = [];
+    _MenuCache.dayMenus = [];
+    _MenuCache.pageController?.dispose();
+    _MenuCache.pageController = null;
+    _MenuCache.isInitialized = false;
+
+    // Clear Hive storage
+    await menuBox.delete('dayMenus');
+
+    // Reinitialize
+    if (mounted) {
+      setState(() {
+        dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
+        dayText = "Loading...";
+        _pageViewKey++;
+      });
+      await _initializeData();
     }
   }
 
@@ -102,7 +188,9 @@ class _WfdPageState extends State<WfdPage> {
   Widget build(BuildContext context) {
     ColorScheme currentColourScheme = Theme.of(context).colorScheme;
 
-    if (dayMenus.isEmpty) {
+    if (!_MenuCache.isInitialized ||
+        _MenuCache.dayMenus.isEmpty ||
+        _MenuCache.pageController == null) {
       return Scaffold(
         backgroundColor: currentColourScheme.surface,
         body: Center(
@@ -115,7 +203,7 @@ class _WfdPageState extends State<WfdPage> {
                 child: CircularProgressIndicator(color: Colors.white),
               ),
               const Text(
-                "No local menu data, trying to fetch...",
+                "Loading menu data...",
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -127,107 +215,237 @@ class _WfdPageState extends State<WfdPage> {
       );
     }
 
+    final todayIndex = _findTodayIndex();
+
     return Scaffold(
       backgroundColor: currentColourScheme.surface,
+      // Uncomment for development
+      // floatingActionButton: FloatingActionButton(
+      //   mini: true,
+      //   onPressed: _resetCache,
+      //   child: Icon(Icons.refresh),
+      //   backgroundColor: Colors.red.withOpacity(0.7),
+      // ),
       body: Column(
         children: [
           Expanded(
             flex: 6,
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero, // <-- square edges
-                  ),
-                ),
-                onPressed: () async {
-                  DateTime? selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate:
-                        DateTime.now(), // start at the first available date
-                    firstDate: menus[0].startDate,
-                    lastDate: menus[menus.length - 1].endDate,
-                    selectableDayPredicate: (date) {
-                      // Only allow dates in the availableDates list
+            child: Container(
+              color: Colors.transparent,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap:
+                      _MenuCache.menus.isEmpty
+                          ? null
+                          : () async {
+                            DateTime? selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateFormat(
+                                'dd/MM/yyyy',
+                              ).parse(_MenuCache.dayMenus[todayIndex].dayDate),
+                              firstDate: _MenuCache.menus.first.startDate,
+                              lastDate: _MenuCache.menus.last.endDate,
+                              selectableDayPredicate: (date) {
+                                return _MenuCache.dayMenus.any((d) {
+                                  try {
+                                    if (d.dayDate.isEmpty) return false;
+                                    var parts = d.dayDate.split('/');
+                                    if (parts.length != 3) return false;
+                                    int dayInt = int.parse(parts[0].trim());
+                                    int monthInt = int.parse(parts[1].trim());
+                                    int yearInt = int.parse(parts[2].trim());
+                                    return date.day == dayInt &&
+                                        date.month == monthInt &&
+                                        date.year == yearInt;
+                                  } catch (e) {
+                                    return false;
+                                  }
+                                });
+                              },
+                              builder: (context, child) {
+                                final baseTheme = Theme.of(context);
 
-                      return dayMenus.any((d) {
-                        try {
-                          var parts = d.dayDate.split('/');
-                          int dayInt = int.parse(parts[0].trim());
-                          int monthInt = int.parse(parts[1].trim());
-                          int yearInt = int.parse(parts[2].trim());
-                          return date.day == dayInt &&
-                              date.month == monthInt &&
-                              date.year == yearInt;
-                        } catch (e) {
-                          print("Failed to parse date: $d, error: $e");
-                          return false;
-                        }
-                      });
-                    },
-                    builder: (context, child) {
-                      return Theme(
-                        data: ThemeData(
-                          colorScheme: ColorScheme.fromSeed(
-                            seedColor: currentColourScheme.primary,
-                            primary: currentColourScheme.primary,
-                            secondary: currentColourScheme.secondary,
-                            surface: currentColourScheme.surface,
-                          ),
-                          dialogTheme: DialogTheme(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(0), // square corners
-                            ),
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
+                                return Theme(
+                                  data: baseTheme.copyWith(
+                                    // THIS controls "January 2026"
+                                    colorScheme: baseTheme.colorScheme.copyWith(
+                                      onSurface: Colors.white,
+                                      surfaceTint:
+                                          Colors.transparent, // Doesn't seem to do anything
+                                          outline: Colors.transparent,
+                                    ),
 
-                  if (selectedDate != null) {
-                    // Do something with the selected date
-                    print("Selected date: $selectedDate");
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        dayText,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                                    // OK / CANCEL colour
+                                    textButtonTheme: TextButtonThemeData(
+                                      style: ButtonStyle(
+                                        foregroundColor:
+                                            WidgetStateProperty.all(
+                                              Colors.white,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                  child: DatePickerTheme(
+                                    data: DatePickerThemeData(
+                                      headerBackgroundColor:
+                                          currentColourScheme
+                                              .primary, // top bar
+
+                                      headerForegroundColor:
+                                          Colors
+                                              .white, // header icons + some header text
+
+                                      backgroundColor:
+                                          currentColourScheme
+                                              .surface, // calendar body
+
+                                      dividerColor: Colors.transparent,
+                                      
+                                      // These styles ARE valid, but only affect secondary header text
+                                      headerHelpStyle: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      headerHeadlineStyle: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+
+                                      // Weekday letters styling (only partially respected)
+                                      weekdayStyle: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+
+                                      dayForegroundColor:
+                                          WidgetStateColor.resolveWith((
+                                            states,
+                                          ) {
+                                            if (states.contains(
+                                              WidgetState.selected,
+                                            )) {
+                                              return Colors.white;
+                                            }
+                                            if (states.contains(
+                                              WidgetState.disabled,
+                                            )) {
+                                              return Colors.white24;
+                                            }
+                                            return Colors.white70;
+                                          }),
+
+                                      todayForegroundColor:
+                                          WidgetStateColor.resolveWith((
+                                            states,
+                                          ) {
+                                            return Colors.white;
+                                          }),
+
+                                      confirmButtonStyle: ButtonStyle(
+                                        shape: WidgetStateProperty.all(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ), // smaller radius
+                                          ),
+                                        ),
+                                      ),
+
+                                      cancelButtonStyle: ButtonStyle(
+                                        shape: WidgetStateProperty.all(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      yearForegroundColor: WidgetStateColor.resolveWith((
+                                            states,
+                                          ) {
+                                            if (states.contains(
+                                              WidgetState.selected,
+                                            )) {
+                                              return Colors.white;
+                                            }
+                                            if (states.contains(
+                                              WidgetState.disabled,
+                                            )) {
+                                              return Colors.white24;
+                                            }
+                                            return Colors.white70;
+                                          }),
+
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  ),
+                                );
+                              },
+                            );
+
+                            if (selectedDate != null) {
+                              String selectedDateStr = DateFormat(
+                                'dd/MM/yyyy',
+                              ).format(selectedDate);
+                              int targetIndex = _MenuCache.dayMenus.indexWhere(
+                                (d) => d.dayDate == selectedDateStr,
+                              );
+                              if (targetIndex != -1 &&
+                                  _MenuCache.pageController != null) {
+                                _MenuCache.pageController!.animateToPage(
+                                  targetIndex,
+                                  duration: Duration(milliseconds: 1000),
+                                  curve: Curves.easeInOutCubic,
+                                );
+                              }
+                            }
+                          },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          dayText,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                      Text(
-                        dateText,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        Text(
+                          dateText,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+          ),
           Expanded(
             flex: 94,
             child: PageView.builder(
-              controller: PageController(initialPage: todayIndex),
+              key: ValueKey(_pageViewKey), // Add key to force rebuild
+              controller: _MenuCache.pageController!,
               scrollDirection: Axis.horizontal,
-              itemCount: dayMenus.length,
+              itemCount: _MenuCache.dayMenus.length,
               itemBuilder: (context, index) {
-                final dayMenu = dayMenus[index];
+                final dayMenu = _MenuCache.dayMenus[index];
 
                 return Padding(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
@@ -240,7 +458,6 @@ class _WfdPageState extends State<WfdPage> {
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       children: [
-                        // --- Meals ---
                         mealSection("Breakfast", dayMenu.breakfast),
                         if (dayMenu.brunch != null)
                           mealSection("Brunch", dayMenu.brunch!),
@@ -252,17 +469,12 @@ class _WfdPageState extends State<WfdPage> {
                 );
               },
               onPageChanged: (index) {
-                //DateTime currentMenuStartDate = menus[menus.length].startDate;
-                //int dayDifference = DateTime.now().difference(currentMenuStartDate).inDays;
                 setState(() {
-                  dayText = dayMenus[index].dayName;
-                  //if (DateTime.now().difference(menus[menus.length].endDate).inDays <= 0) {
-                  dateText = dayMenus[index].dayDate;
-                  if (todayIndex == index) dayText += " (Today)";
-                  //}
-                  // else {
-                  //   dateText = "No menu here yet :(";
-                  // }
+                  dayText = _MenuCache.dayMenus[index].dayName;
+                  dateText = _MenuCache.dayMenus[index].dayDate;
+                  if (todayIndex == index && dayText.contains("||") == false) {
+                    dayText += " (Today)";
+                  }
                 });
               },
             ),
@@ -271,31 +483,97 @@ class _WfdPageState extends State<WfdPage> {
       ),
     );
   }
+
+  int _findTodayIndex() {
+    return _findTodayIndexForList(_MenuCache.dayMenus);
+  }
+
+  int _findTodayIndexForList(List<DayMenu> menuList) {
+    if (menuList.length < 3) return 0;
+
+    DateTime now = DateTime.now();
+
+    for (int i = 1; i < menuList.length - 1; i++) {
+      try {
+        if (menuList[i - 1].dayDate.isEmpty ||
+            menuList[i + 1].dayDate.isEmpty) {
+          continue;
+        }
+
+        DateTime previous = DateFormat(
+          'dd/MM/yyyy',
+        ).parse(menuList[i - 1].dayDate);
+        DateTime current = DateFormat('dd/MM/yyyy').parse(menuList[i].dayDate);
+        DateTime next = DateFormat('dd/MM/yyyy').parse(menuList[i + 1].dayDate);
+
+        if (now.isAfter(previous) &&
+            now.isBefore(next) &&
+            current.difference(previous).inDays > 2) {
+          return i;
+        }
+
+        if (menuList[i].dayDate.isNotEmpty) {
+          if (_isSameDay(now, current)) {
+            return i;
+          }
+        }
+      } catch (e) {
+        print("Error parsing date at index $i: $e");
+        continue;
+      }
+    }
+
+    try {
+      if (menuList.first.dayDate.isNotEmpty) {
+        DateTime firstDate = DateFormat(
+          'dd/MM/yyyy',
+        ).parse(menuList.first.dayDate);
+        if (_isSameDay(now, firstDate) || now.isBefore(firstDate)) {
+          return 0;
+        }
+      }
+
+      if (menuList.last.dayDate.isNotEmpty) {
+        DateTime lastDate = DateFormat(
+          'dd/MM/yyyy',
+        ).parse(menuList.last.dayDate);
+        if (_isSameDay(now, lastDate) || now.isAfter(lastDate)) {
+          return menuList.length - 1;
+        }
+      }
+    } catch (e) {
+      print("Error checking boundaries: $e");
+    }
+
+    return 0;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 }
 
+// Keep these functions at the file level
 Widget mealSection(String title, List<MealItem> items) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       Text(
         "$title ${titleToTime(title)}",
-        textAlign: TextAlign.center, // ensures title stays centered
+        textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       ),
       const SizedBox(height: 6),
-
-      // Print each menu item
       ...items.map(
         (item) => Padding(
           padding: const EdgeInsets.only(top: 4, bottom: 4),
           child: Text(
             item.name,
-            textAlign: TextAlign.center, // center the text
+            textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
           ),
         ),
       ),
-
       const SizedBox(height: 16),
     ],
   );
@@ -321,7 +599,6 @@ String titleToTime(String title) {
 List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
   if (menus.isEmpty) return [];
 
-  // Sort menus by start date just in case
   menus.sort((a, b) => a.startDate.compareTo(b.startDate));
 
   List<DayMenu> newDayMenus = [];
@@ -329,7 +606,6 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
   for (int m = 0; m < menus.length; m++) {
     final menu = menus[m];
 
-    // Flatten menu weeks into 1 list
     List<DayMenu> cycle = [for (var w in menu.weeks) ...w.days];
 
     DateTime date = menu.startDate;
@@ -350,7 +626,6 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
       date = date.add(const Duration(days: 1));
     }
 
-    // Add a gap day if next menu exists
     if (m < menus.length - 1) {
       final nextMenu = menus[m + 1];
       if (date.isBefore(nextMenu.startDate)) {
@@ -358,13 +633,25 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
         if (diff > 0) {
           newDayMenus.add(
             DayMenu(
-              dayName: "$diff days between ${menu.name} and ${nextMenu.name}",
-              dayDate: "",
-              breakfast: [MealItem(name: "Nothing Cereal", rating: -1)],
-              lunch: [MealItem(name: "Unsatiating Burger", rating: -1)],
-              dinner: [MealItem(name: "Hollow Steak", rating: -1)],
+              dayName: "${menu.name} || ${nextMenu.name}",
+              dayDate: DateFormat(
+                'dd/MM/yyyy',
+              ).format(date.add(Duration(days: diff ~/ 2))),
+              breakfast: [
+                MealItem(
+                  name: "$diff days between ${menu.name} and ${nextMenu.name}",
+                  rating: -1,
+                ),
+              ],
+              lunch: [
+                MealItem(
+                  name: "Whatever you can get your hands on",
+                  rating: -1,
+                ),
+              ],
+              dinner: [MealItem(name: "Nothing", rating: -1)],
             ),
-          ); // placeholder
+          );
         }
       }
     }
@@ -372,11 +659,3 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
 
   return newDayMenus;
 }
-
-DayMenu betweenMenusDay = DayMenu(
-  dayName: "",
-  dayDate: "",
-  breakfast: [MealItem(name: "Nothing Cereal", rating: -1)],
-  lunch: [MealItem(name: "Unsatiating Burger", rating: -1)],
-  dinner: [MealItem(name: "Hollow Steak", rating: -1)],
-);

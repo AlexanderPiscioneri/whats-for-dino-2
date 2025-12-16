@@ -4,6 +4,9 @@ const Color defaultPrimary = Color.fromARGB(255, 35, 117, 35);
 const Color defaultSurface = Color.fromARGB(255, 29, 88, 29);
 
 ThemeData lightMode = ThemeData(
+  splashFactory: NoSplash.splashFactory,
+  highlightColor: Colors.black26,
+
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
     surface: defaultSurface,
@@ -26,6 +29,9 @@ ThemeData lightMode = ThemeData(
 );
 
 ThemeData darkMode = ThemeData(
+  splashFactory: NoSplash.splashFactory,
+  highlightColor: Colors.black26,
+  
   brightness: Brightness.dark,
   colorScheme: ColorScheme.dark(
     surface: Colors.grey.shade800,

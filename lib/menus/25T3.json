@@ -1,5 +1,85 @@
 {
-  "endDate": "2025-12-12T00:00:00",
+  "endDate": "2025-12-13T00:00:00",
+  "exceptions": [
+    {
+      "breakfast": [
+        {
+          "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
+          "rating": -1
+        },
+        {
+          "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
+          "rating": -1
+        },
+        {
+          "name": "Fried Rice, Dumplings & Condiments",
+          "rating": -1
+        }
+      ],
+      "dayDate": "04/12/2025",
+      "dayName": "HALLOWEEN",
+      "dessert": [
+        {
+          "name": "test",
+          "rating": -1
+        }
+      ],
+      "dinner": [
+        {
+          "name": "🎃\n🎃\n🎃",
+          "rating": -1
+        },
+        {
+          "name": "Vietnamese Caramel Ginger Tofu with Vegetables",
+          "rating": -1
+        },
+        {
+          "name": "Garlic Roasted Potato, Vegetables & Steamed Jasmine Rice",
+          "rating": -1
+        },
+        {
+          "name": "Superfood Salad with Kale, Broccoli, Green Beans, Quinoa, Mint, Pepitas Seed & Green Goddess Dressing",
+          "rating": -1
+        },
+        {
+          "name": "Butter Lettuce Salad, with Cucumber, Cherry Tomato, Radish, Onion and Lemon Dressing",
+          "rating": -1
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Butter Chicken Pie Mashed Pumpkin with Peas & Gravy",
+          "rating": -1
+        }
+      ]
+    },
+    {
+      "breakfast": [
+        {
+          "name": "Nothing",
+          "rating": -1
+        }
+      ],
+      "dayDate": "07/12/2025",
+      "dayName": "The Day of Nas",
+      "dinner": [
+        {
+          "name": "🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️",
+          "rating": -1
+        },
+        {
+          "name": "Something something something idk it was a coleslaw",
+          "rating": -1
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Korean gochichunjang chicken",
+          "rating": -1
+        }
+      ]
+    }
+  ],
   "name": "25T3",
   "startDate": "2025-09-15T00:00:00",
   "weeks": [
@@ -8,18 +88,11 @@
         {
           "breakfast": [
             {
-              "name": "Fresh seasonal Fruit Salad Natural & flavoured Yoghurt with Accompaniments Chia Seed Pudding",
-              "rating": -1
-            },
-            {
-              "name": "Scrambled Egg, Beef Breakfast Pattie, Baked Beans, Grilled Tomato, Hashbrowns",
-              "rating": -1
-            },
-            {
-              "name": "Fried Rice, Dumplings & Condiments",
+              "name": "🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️🧗‍♀️",
               "rating": -1
             }
           ],
+          "dayDate": "Not Set",
           "dayName": "Monday",
           "dessert": [
             {
@@ -458,6 +531,7 @@
               "rating": -1
             }
           ],
+          "dayDate": "Not Set",
           "dayName": "Monday",
           "dessert": [
             {
@@ -904,6 +978,7 @@
               "rating": -1
             }
           ],
+          "dayDate": "Not Set",
           "dayName": "Monday",
           "dessert": [
             {

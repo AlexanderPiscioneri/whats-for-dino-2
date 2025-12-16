@@ -17,23 +17,30 @@ class StandardSwitchListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      splashRadius: 0,
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w400,
-          color: Colors.white,
-        ),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashFactory: NoSplash.splashFactory,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
       ),
-      value: value,
-      activeColor: defaultPrimary,
-      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-      inactiveTrackColor: Colors.grey[700],
-      thumbColor: WidgetStateProperty.all(Colors.white),
-      inactiveThumbColor: Colors.white,
-      onChanged: onChanged,
+      child: SwitchListTile(
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
+          ),
+        ),
+        value: value,
+        activeColor: defaultPrimary,
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+        inactiveTrackColor: Colors.grey[700],
+        thumbColor: WidgetStateProperty.all(Colors.white),
+        inactiveThumbColor: Colors.white,
+        onChanged: onChanged,
+      ),
     );
   }
 }
