@@ -25,11 +25,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
           Divider(color: Theme.of(context).colorScheme.primary),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
-            notificationsSwitchListTile(
-              "Different Dino Times",
-              'notifDifferentDinoTimes',
-            ),
-          if (notificationsBox.get('enableNotifications', defaultValue: false))
             notificationsSwitchListTile("Special Events", 'notifSpecialEvent'),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
             notificationsSwitchListTile(

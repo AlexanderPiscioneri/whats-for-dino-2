@@ -23,6 +23,11 @@ class _MenuCache {
   static bool isInitialized = false;
 }
 
+/// Public accessor
+List<DayMenu> getDayMenuCache() {
+  return _MenuCache.dayMenus;
+}
+
 class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
   final menuBox = Hive.box('menuBox');
@@ -268,7 +273,7 @@ class _WfdPageState extends State<WfdPage> {
 
                                 return Theme(
                                   data: baseTheme.copyWith(
-                                    // THIS controls "January 2026"
+                                    // This controls "January 2026"
                                     colorScheme: baseTheme.colorScheme.copyWith(
                                       onSurface: Colors.white,
                                       surfaceTint:
@@ -302,7 +307,7 @@ class _WfdPageState extends State<WfdPage> {
 
                                       dividerColor: Colors.transparent,
                                       
-                                      // These styles ARE valid, but only affect secondary header text
+                                      // These styles only affect secondary header text
                                       headerHelpStyle: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 20,
@@ -314,7 +319,7 @@ class _WfdPageState extends State<WfdPage> {
                                         fontWeight: FontWeight.normal,
                                       ),
 
-                                      // Weekday letters styling (only partially respected)
+                                      // Weekday letters styling
                                       weekdayStyle: const TextStyle(
                                         color: Colors.white,
                                         fontSize: 20,
