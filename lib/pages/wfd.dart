@@ -477,9 +477,9 @@ class _WfdPageState extends State<WfdPage> {
                 setState(() {
                   dayText = _MenuCache.dayMenus[index].dayName;
                   dateText = _MenuCache.dayMenus[index].dayDate;
-                  if (todayIndex == index && dayText.contains("||") == false) {
-                    dayText += " (Today)";
-                  }
+                  // if (todayIndex == index && dayText.contains("||") == false) {
+                  //   dayText += " (Today)";
+                  // }
                 });
               },
             ),
