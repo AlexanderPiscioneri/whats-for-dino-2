@@ -44,6 +44,11 @@ dependencies:
   url_launcher: ^6.2.6
   shared_preferences: ^2.2.0
   uuid: ^4.4.0
+  device_info_plus: ^10.1.0
+  flutter_local_notifications: ^19.5.0
+  permission_handler: ^12.0.1
+  timezone: ^0.10.1
+  flutter_timezone: ^5.0.1
 
 dev_dependencies:
   flutter_test:

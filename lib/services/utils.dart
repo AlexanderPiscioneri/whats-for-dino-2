@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 
 Future<String> getInstallId() async {
   final prefs = await SharedPreferences.getInstance();
@@ -11,4 +13,35 @@ Future<String> getInstallId() async {
   }
 
   return id;
+}
+
+Map<String, dynamic>? _cachedDeviceInfo;
+
+Future<Map<String, dynamic>> getDeviceInfo() async {
+  if (_cachedDeviceInfo != null) return _cachedDeviceInfo!;
+
+  final plugin = DeviceInfoPlugin();
+
+  if (Platform.isAndroid) {
+    final info = await plugin.androidInfo;
+    _cachedDeviceInfo = {
+      'platform': 'android',
+      'model': info.model,
+      'manufacturer': info.manufacturer,
+      'sdk': info.version.sdkInt,
+    };
+  } else if (Platform.isIOS) {
+    final info = await plugin.iosInfo;
+    _cachedDeviceInfo = {
+      'platform': 'ios',
+      'model': info.utsname.machine,
+      'systemVersion': info.systemVersion,
+    };
+  } else {
+    _cachedDeviceInfo = {
+      'platform': 'unknown',
+    };
+  }
+
+  return _cachedDeviceInfo!;
 }

@@ -5,7 +5,10 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
+import 'package:whats_for_dino_2/services/dayMenus_cache.dart';
 import 'package:whats_for_dino_2/services/firestore.dart';
+import 'package:whats_for_dino_2/services/food_cache.dart';
+import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 class WfdPage extends StatefulWidget {
@@ -13,19 +16,6 @@ class WfdPage extends StatefulWidget {
 
   @override
   State<WfdPage> createState() => _WfdPageState();
-}
-
-// Static storage for persistent data across widget rebuilds
-class _MenuCache {
-  static List<Menu> menus = [];
-  static List<DayMenu> dayMenus = [];
-  static PageController? pageController;
-  static bool isInitialized = false;
-}
-
-/// Public accessor
-List<DayMenu> getDayMenuCache() {
-  return _MenuCache.dayMenus;
 }
 
 class _WfdPageState extends State<WfdPage> {
@@ -40,7 +30,7 @@ class _WfdPageState extends State<WfdPage> {
   void initState() {
     super.initState();
 
-    if (!_MenuCache.isInitialized) {
+    if (!MenuCache.isInitialized) {
       _initializeData();
       // Set temporary values while loading
       dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -48,16 +38,19 @@ class _WfdPageState extends State<WfdPage> {
     } else {
       // Data already exists, recreate PageController with today's index
       final todayIndex = _findTodayIndex();
-      _MenuCache.pageController?.dispose();
-      _MenuCache.pageController = PageController(initialPage: todayIndex);
+      MenuCache.pageController?.dispose();
+      MenuCache.pageController = PageController(initialPage: todayIndex);
 
       // Initialize labels immediately to match the page being displayed
-      dayText = _MenuCache.dayMenus[todayIndex].dayName;
-      dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+      dayText = MenuCache.dayMenus[todayIndex].dayName;
+      dateText = MenuCache.dayMenus[todayIndex].dayDate;
       if (todayIndex == _findTodayIndex() && dayText.contains("||") == false) {
         dayText += " (Today)";
       }
     }
+
+    initializeFoodItems();
+    NotiService().refreshNotifications();
   }
 
   @override
@@ -70,16 +63,16 @@ class _WfdPageState extends State<WfdPage> {
     // Load from local storage
     await _loadFromLocal();
 
-    if (_MenuCache.dayMenus.isNotEmpty) {
+    if (MenuCache.dayMenus.isNotEmpty) {
       final todayIndex = _findTodayIndex();
-      _MenuCache.pageController = PageController(initialPage: todayIndex);
+      MenuCache.pageController = PageController(initialPage: todayIndex);
 
       if (mounted) {
         setState(() {
-          _MenuCache.isInitialized = true;
+          MenuCache.isInitialized = true;
           // Set the correct labels
-          dayText = _MenuCache.dayMenus[todayIndex].dayName + " (Today)";
-          dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+          dayText = MenuCache.dayMenus[todayIndex].dayName + " (Today)";
+          dateText = MenuCache.dayMenus[todayIndex].dayDate;
         });
       }
     }
@@ -94,15 +87,13 @@ class _WfdPageState extends State<WfdPage> {
       if (data == null) return;
 
       final jsonList = jsonDecode(data) as List;
-      _MenuCache.dayMenus =
+      MenuCache.dayMenus =
           jsonList.map((d) {
             final dayMenuJson = d['dayMenu'] as Map<String, dynamic>;
             return DayMenu.fromJson(dayMenuJson);
           }).toList();
 
-      print(
-        "Loaded ${_MenuCache.dayMenus.length} day menus from local storage",
-      );
+      print("Loaded ${MenuCache.dayMenus.length} day menus from local storage");
     } catch (e) {
       print("Error loading from local: $e");
     }
@@ -123,17 +114,17 @@ class _WfdPageState extends State<WfdPage> {
       final todayIndex = _findTodayIndexForList(newDayMenus);
 
       // Recreate PageController with new data and today's index
-      _MenuCache.pageController?.dispose();
-      _MenuCache.pageController = PageController(initialPage: todayIndex);
+      MenuCache.pageController?.dispose();
+      MenuCache.pageController = PageController(initialPage: todayIndex);
 
       if (mounted) {
         setState(() {
-          _MenuCache.menus = fetchedMenus;
-          _MenuCache.dayMenus = newDayMenus;
+          MenuCache.menus = fetchedMenus;
+          MenuCache.dayMenus = newDayMenus;
           _pageViewKey++; // Force PageView to rebuild
           // Update labels
-          dayText = "${_MenuCache.dayMenus[todayIndex].dayName} (Today)";
-          dateText = _MenuCache.dayMenus[todayIndex].dayDate;
+          dayText = "${MenuCache.dayMenus[todayIndex].dayName} (Today)";
+          dateText = MenuCache.dayMenus[todayIndex].dayDate;
         });
       }
 
@@ -147,7 +138,7 @@ class _WfdPageState extends State<WfdPage> {
   Future<void> _saveToLocal() async {
     try {
       final jsonList =
-          _MenuCache.dayMenus.map((dayMenu) {
+          MenuCache.dayMenus.map((dayMenu) {
             return {
               "dayMenu": {
                 "dayName": dayMenu.dayName,
@@ -167,35 +158,35 @@ class _WfdPageState extends State<WfdPage> {
     }
   }
 
-  void _resetCache() async {
-    // Clear static cache
-    _MenuCache.menus = [];
-    _MenuCache.dayMenus = [];
-    _MenuCache.pageController?.dispose();
-    _MenuCache.pageController = null;
-    _MenuCache.isInitialized = false;
+  // void _resetCache() async {
+  //   // Clear static cache
+  //   MenuCache.menus = [];
+  //   MenuCache.dayMenus = [];
+  //   MenuCache.pageController?.dispose();
+  //   MenuCache.pageController = null;
+  //   MenuCache.isInitialized = false;
 
-    // Clear Hive storage
-    await menuBox.delete('dayMenus');
+  //   // Clear Hive storage
+  //   await menuBox.delete('dayMenus');
 
-    // Reinitialize
-    if (mounted) {
-      setState(() {
-        dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
-        dayText = "Loading...";
-        _pageViewKey++;
-      });
-      await _initializeData();
-    }
-  }
+  //   // Reinitialize
+  //   if (mounted) {
+  //     setState(() {
+  //       dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  //       dayText = "Loading...";
+  //       _pageViewKey++;
+  //     });
+  //     await _initializeData();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     ColorScheme currentColourScheme = Theme.of(context).colorScheme;
 
-    if (!_MenuCache.isInitialized ||
-        _MenuCache.dayMenus.isEmpty ||
-        _MenuCache.pageController == null) {
+    if (!MenuCache.isInitialized ||
+        MenuCache.dayMenus.isEmpty ||
+        MenuCache.pageController == null) {
       return Scaffold(
         backgroundColor: currentColourScheme.surface,
         body: Center(
@@ -241,18 +232,18 @@ class _WfdPageState extends State<WfdPage> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap:
-                      _MenuCache.menus.isEmpty
+                      MenuCache.menus.isEmpty
                           ? null
                           : () async {
                             DateTime? selectedDate = await showDatePicker(
                               context: context,
                               initialDate: DateFormat(
                                 'dd/MM/yyyy',
-                              ).parse(_MenuCache.dayMenus[todayIndex].dayDate),
-                              firstDate: _MenuCache.menus.first.startDate,
-                              lastDate: _MenuCache.menus.last.endDate,
+                              ).parse(MenuCache.dayMenus[todayIndex].dayDate),
+                              firstDate: MenuCache.menus.first.startDate,
+                              lastDate: MenuCache.menus.last.endDate,
                               selectableDayPredicate: (date) {
-                                return _MenuCache.dayMenus.any((d) {
+                                return MenuCache.dayMenus.any((d) {
                                   try {
                                     if (d.dayDate.isEmpty) return false;
                                     var parts = d.dayDate.split('/');
@@ -277,8 +268,9 @@ class _WfdPageState extends State<WfdPage> {
                                     colorScheme: baseTheme.colorScheme.copyWith(
                                       onSurface: Colors.white,
                                       surfaceTint:
-                                          Colors.transparent, // Doesn't seem to do anything
-                                          outline: Colors.transparent,
+                                          Colors
+                                              .transparent, // Doesn't seem to do anything
+                                      outline: Colors.transparent,
                                     ),
 
                                     // OK / CANCEL colour
@@ -306,7 +298,7 @@ class _WfdPageState extends State<WfdPage> {
                                               .surface, // calendar body
 
                                       dividerColor: Colors.transparent,
-                                      
+
                                       // These styles only affect secondary header text
                                       headerHelpStyle: const TextStyle(
                                         color: Colors.white,
@@ -370,7 +362,8 @@ class _WfdPageState extends State<WfdPage> {
                                         ),
                                       ),
 
-                                      yearForegroundColor: WidgetStateColor.resolveWith((
+                                      yearForegroundColor:
+                                          WidgetStateColor.resolveWith((
                                             states,
                                           ) {
                                             if (states.contains(
@@ -400,12 +393,12 @@ class _WfdPageState extends State<WfdPage> {
                               String selectedDateStr = DateFormat(
                                 'dd/MM/yyyy',
                               ).format(selectedDate);
-                              int targetIndex = _MenuCache.dayMenus.indexWhere(
+                              int targetIndex = MenuCache.dayMenus.indexWhere(
                                 (d) => d.dayDate == selectedDateStr,
                               );
                               if (targetIndex != -1 &&
-                                  _MenuCache.pageController != null) {
-                                _MenuCache.pageController!.animateToPage(
+                                  MenuCache.pageController != null) {
+                                MenuCache.pageController!.animateToPage(
                                   targetIndex,
                                   duration: Duration(milliseconds: 1000),
                                   curve: Curves.easeInOutCubic,
@@ -446,11 +439,11 @@ class _WfdPageState extends State<WfdPage> {
             flex: 94,
             child: PageView.builder(
               key: ValueKey(_pageViewKey), // Add key to force rebuild
-              controller: _MenuCache.pageController!,
+              controller: MenuCache.pageController!,
               scrollDirection: Axis.horizontal,
-              itemCount: _MenuCache.dayMenus.length,
+              itemCount: MenuCache.dayMenus.length,
               itemBuilder: (context, index) {
-                final dayMenu = _MenuCache.dayMenus[index];
+                final dayMenu = MenuCache.dayMenus[index];
 
                 return Padding(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
@@ -475,8 +468,8 @@ class _WfdPageState extends State<WfdPage> {
               },
               onPageChanged: (index) {
                 setState(() {
-                  dayText = _MenuCache.dayMenus[index].dayName;
-                  dateText = _MenuCache.dayMenus[index].dayDate;
+                  dayText = MenuCache.dayMenus[index].dayName;
+                  dateText = MenuCache.dayMenus[index].dayDate;
                   // if (todayIndex == index && dayText.contains("||") == false) {
                   //   dayText += " (Today)";
                   // }
@@ -490,7 +483,7 @@ class _WfdPageState extends State<WfdPage> {
   }
 
   int _findTodayIndex() {
-    return _findTodayIndexForList(_MenuCache.dayMenus);
+    return _findTodayIndexForList(MenuCache.dayMenus);
   }
 
   int _findTodayIndexForList(List<DayMenu> menuList) {
@@ -564,7 +557,7 @@ Widget mealSection(String title, List<MealItem> items) {
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       Text(
-        "$title ${titleToTime(title)}",
+        "$title ${mealToTimeString(title)}",
         textAlign: TextAlign.center,
         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       ),
@@ -584,8 +577,8 @@ Widget mealSection(String title, List<MealItem> items) {
   );
 }
 
-String titleToTime(String title) {
-  switch (title) {
+String mealToTimeString(String meal) {
+  switch (meal) {
     case "Breakfast":
       return "(7:30 am - 10 am)";
     case "Brunch":
@@ -597,7 +590,7 @@ String titleToTime(String title) {
     case "Early Dinner":
       return "(4:30 pm - 5:30 pm)";
     default:
-      return "Meal title is not recognised";
+      return "meal is not recognised";
   }
 }
 
@@ -620,11 +613,14 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
       DayMenu todayMenu = cycle[i % cycle.length].copy();
       todayMenu.dayDate = DateFormat('dd/MM/yyyy').format(date);
 
-      if (menu.exceptions.any((e) => e.dayDate == todayMenu.dayDate)) {
-        DayMenu exceptionDay = menu.exceptions.firstWhere(
-          (e) => e.dayDate == todayMenu.dayDate,
-        );
-        todayMenu = exceptionDay;
+      // Find all exceptions for this day
+      final exceptionsForDay = menu.exceptions.where(
+        (e) => e.dayDate == todayMenu.dayDate,
+      );
+
+      // Apply all exceptions for this day if there are any
+      for (final exception in exceptionsForDay) {
+        exception.applyTo(todayMenu);
       }
 
       newDayMenus.add(todayMenu);

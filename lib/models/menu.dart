@@ -3,7 +3,7 @@ class Menu {
   final DateTime startDate;
   final DateTime endDate;
   final List<Week> weeks;
-  final List<DayMenu> exceptions;
+  final List<DayMenuException> exceptions;
 
   Menu({
     required this.name,
@@ -24,7 +24,7 @@ class Menu {
               .toList(),
       exceptions:
           (json['exceptions'] as List<dynamic>? ?? [])
-              .map((e) => DayMenu.fromJson(e))
+              .map((e) => DayMenuException.fromJson(e))
               .toList(),
     );
   }
@@ -37,6 +37,67 @@ class Menu {
       "weeks": weeks.map((w) => w.toJson()).toList(),
       "exceptions": exceptions.map((e) => e.toJson()).toList(),
     };
+  }
+}
+
+class DayMenuException {
+  final String dayDate;           // dd/MM/yyyy
+  final String meal;              // "breakfast" | "brunch" | "lunch" | "dinner"
+  final List<MealItem> mealItems;
+
+  final String notifTitle;
+  final String notifBody;
+
+  DayMenuException({
+    required this.dayDate,
+    required this.meal,
+    required this.mealItems,
+    required this.notifTitle,
+    required this.notifBody,
+  });
+
+  factory DayMenuException.fromJson(Map<String, dynamic> json) {
+    return DayMenuException(
+      dayDate: json['dayDate'] ?? '',
+      meal: json['meal'] ?? '',
+      mealItems:
+          (json['mealItems'] as List<dynamic>? ?? [])
+              .map((e) => MealItem.fromJson(e))
+              .toList(),
+      notifTitle: json['notifTitle'] ?? '',
+      notifBody: json['notifBody'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "dayDate": dayDate,
+      "meal": meal,
+      "mealItems": mealItems.map((m) => m.toJson()).toList(),
+      "notifTitle": notifTitle,
+      "notifBody": notifBody,
+    };
+  }
+
+  /// Apply this exception to a DayMenu
+  void applyTo(DayMenu menu) {
+    switch (meal.toLowerCase()) {
+      case 'breakfast':
+        menu.breakfast = mealItems.map((m) => m.copy()).toList();
+        break;
+
+      case 'brunch':
+        menu.brunch = mealItems.map((m) => m.copy()).toList();
+        break;
+
+      case 'lunch':
+        menu.lunch = mealItems.map((m) => m.copy()).toList();
+        break;
+
+      case 'dinner':
+        menu.dinner = mealItems.map((m) => m.copy()).toList();
+        break;
+    }
   }
 }
 
@@ -65,12 +126,12 @@ class Week {
 }
 
 class DayMenu {
-  final String dayName;
+  String dayName;
   String dayDate = "";
-  final List<MealItem> breakfast;
-  final List<MealItem>? brunch; // empty Mon–Fri
-  final List<MealItem> lunch;
-  final List<MealItem> dinner;
+  List<MealItem> breakfast;
+  List<MealItem>? brunch; // empty Mon–Fri
+  List<MealItem> lunch;
+  List<MealItem> dinner;
 
   DayMenu({
     required this.dayName,

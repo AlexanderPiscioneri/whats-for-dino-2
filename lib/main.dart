@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -8,25 +9,50 @@ import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
 import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
+import 'package:whats_for_dino_2/services/noti_service.dart';
+import 'package:whats_for_dino_2/services/utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
 
+Future<void> ensureInstallDocument() async {
+  final installId = await getInstallId();
+  final deviceInfo = await getDeviceInfo();
+
+  final docRef = FirebaseFirestore.instance
+      .collection('installs')
+      .doc(installId);
+
+  await docRef.set({
+    'device': deviceInfo,
+    'createdAt': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await NotiService().initNotification();
+
   await Hive.openBox('menuBox');
   await Hive.openBox('settingsBox');
+  await Hive.openBox('notificationsBox');
+  await Hive.openBox('favouritesBox');
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
       child: WhatsForDinoApp(),
     ),
   );
-  await Hive.openBox('notificationsBox');
-  await Hive.openBox('favouritesBox');
+
+  ensureInstallDocument();
 }
+
 
 class WhatsForDinoApp extends StatefulWidget {
   const WhatsForDinoApp({super.key});

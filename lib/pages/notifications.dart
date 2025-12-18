@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/widgets/standard_switch_list_tile.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -19,13 +20,33 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: Column(
         children: [
           Divider(color: Theme.of(context).colorScheme.primary),
-          notificationsSwitchListTile(
-            "Enable Notifications",
-            'enableNotifications',
+          StandardSwitchListTile(
+            title: "Enable Notifications",
+            value: notificationsBox.get(
+              'enableNotifications',
+              defaultValue: false,
+            ),
+            onChanged: (value) {
+              notificationsBox.put('enableNotifications', value);
+              if (value == true) {
+                NotiService().showNotification(
+                  title: "Dinos are green, violets are blue...",
+                  body: "I just sent a notification to you!",
+                );
+                NotiService().refreshNotifications();
+              }
+              else {
+                NotiService().cancelAllNotifications();
+              }
+              setState(() {
+                
+              });
+            },
+            activeColour: Theme.of(context).colorScheme.primary,
           ),
           Divider(color: Theme.of(context).colorScheme.primary),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
-            notificationsSwitchListTile("Special Events", 'notifSpecialEvent'),
+            notificationsSwitchListTile("Special Events", 'notifSpecialEvents'),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
             notificationsSwitchListTile(
               "Favourite Menu Items",
@@ -111,35 +132,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
       value: notificationsBox.get(variableName, defaultValue: false),
       onChanged: (value) {
         notificationsBox.put(variableName, value);
+        NotiService().refreshNotifications();
         setState(() {
-          //enableNotifications = value;
+
         });
       },
       activeColour: Theme.of(context).colorScheme.primary,
     );
-
-    //   return SwitchListTile(
-    //     splashRadius: 0,
-    //     title: Text(
-    //       title,
-    //       style: TextStyle(
-    //         fontSize: 22,
-    //         fontWeight: FontWeight.w400,
-    //         color: Colors.white,
-    //       ),
-    //     ),
-    //     value: notificationsBox.get(variableName, defaultValue: false),
-    //     activeColor: Theme.of(context).colorScheme.primary,
-    //     trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-    //     inactiveTrackColor: Colors.grey[700],
-    //     thumbColor: WidgetStateProperty.all<Color>(Colors.white),
-    //     inactiveThumbColor: Colors.white,
-    //     onChanged: (value) {
-    //       notificationsBox.put(variableName, value);
-    //       setState(() {
-    //         //enableNotifications = value;
-    //       });
-    //     },
-    //   );
   }
 }

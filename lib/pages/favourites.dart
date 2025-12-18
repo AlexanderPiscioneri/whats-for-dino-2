@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 import 'package:hive/hive.dart';
-import 'package:whats_for_dino_2/models/menu.dart';
-import 'package:whats_for_dino_2/pages/wfd.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:whats_for_dino_2/services/food_cache.dart';
+import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
 
 Future<void> _uploadRating(FoodItem item) async {
@@ -19,6 +19,7 @@ Future<void> _uploadRating(FoodItem item) async {
   await docRef.set({
     'ratings': {
       item.name: {
+        'isFavourite': item.isFavourite,
         'rating': item.myRating,
         'updatedAt': FieldValue.serverTimestamp(),
       },
@@ -54,10 +55,9 @@ class FoodItem {
   );
 }
 
-// Static cache for favourites
-class _FavouritesCache {
-  static List<FoodItem> items = [];
-  static bool isInitialized = false;
+/// Public accessor
+List<FoodItem> getFoodItemsCache() {
+  return FoodItemsCache.items;
 }
 
 // The page
@@ -91,105 +91,23 @@ class _FavouritesPageState extends State<FavouritesPage> {
     menuBox = Hive.box('menuBox');
 
     _searchController.addListener(_onSearchChanged);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFavourites();
-    });
+    _filteredItems = List.from(FoodItemsCache.items);
   }
 
-  void _initializeFavourites() {
-    if (_FavouritesCache.isInitialized) {
-      setState(() {
-        _filteredItems = List.from(_FavouritesCache.items);
-      });
-      return;
-    }
+  // void _resetFavouritesCache() {
+  //   setState(() {
+  //     FoodItemsCache.items.clear();
+  //     FoodItemsCache.isInitialized = false;
+  //     favouritesBox.delete('favourites');
+  //   });
 
-    // Load persisted favourites
-    final stored = favouritesBox.get('favourites', defaultValue: []);
-    _FavouritesCache.items =
-        (stored as List)
-            .map((e) => FoodItem.fromJson(Map<String, dynamic>.from(e)))
-            .toList();
-
-    // Merge menu items into favourites
-    final dayMenus = getDayMenuCache();
-    _mergeMenuItems(dayMenus);
-
-    // Finalise
-    _FavouritesCache.isInitialized = true;
-
-    setState(() {
-      _filteredItems = List.from(_FavouritesCache.items);
-    });
-  }
-
-  void _resetFavouritesCache() {
-    setState(() {
-      _FavouritesCache.items.clear();
-      _FavouritesCache.isInitialized = false;
-      favouritesBox.delete('favourites');
-    });
-
-    _initializeFavourites();
-  }
-
-  void _mergeMenuItems(List<DayMenu> dayMenus) {
-    // Build a set of all current menu item names
-    final Set<String> currentMenuNames = {};
-
-    for (var day in dayMenus) {
-      for (var meal in [
-        ...day.breakfast,
-        if (day.brunch != null) ...day.brunch!,
-        ...day.lunch,
-        ...day.dinner,
-      ]) {
-        currentMenuNames.add(meal.name);
-
-        final index = _FavouritesCache.items.indexWhere(
-          (m) => m.name == meal.name,
-        );
-
-        // New item → add
-        if (index == -1 && meal.rating != -1) {
-          _FavouritesCache.items.add(
-            FoodItem(
-              name: meal.name,
-              communityRating: meal.rating,
-              isFavourite: false,
-            ),
-          );
-          continue;
-        }
-
-        // Existing item → update rating
-        if (index != -1) {
-          if (meal.rating == -1) {
-            // Marked for deletion
-            _FavouritesCache.items.removeAt(index);
-          } else if (_FavouritesCache.items[index].communityRating !=
-              meal.rating) {
-            _FavouritesCache.items[index].communityRating = meal.rating;
-          }
-        }
-      }
-    }
-
-    // Remove any cached item whose name is NOT in current menu or has a rating of -1
-    _FavouritesCache.items.removeWhere(
-      (item) =>
-          !currentMenuNames.contains(item.name) || item.communityRating == -1,
-    );
-
-    // Save changes
-    _saveToHive();
-  }
+  //   initializeFoodItems();
+  // }
 
   void _saveToHive() {
     favouritesBox.put(
       'favourites',
-      _FavouritesCache.items.map((e) => e.toJson()).toList(),
+      FoodItemsCache.items.map((e) => e.toJson()).toList(),
     );
   }
 
@@ -197,7 +115,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredItems =
-          _FavouritesCache.items
+          FoodItemsCache.items
               .where((item) => item.name.toLowerCase().contains(query))
               .toList();
     });
@@ -355,6 +273,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                               item.isFavourite = !item.isFavourite;
                               _updateItem(item);
                             });
+                            NotiService().refreshNotifications();
                           },
                         ),
                       ],
