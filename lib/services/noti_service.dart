@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -8,7 +9,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
-import 'package:whats_for_dino_2/services/dayMenus_cache.dart';
+import 'package:whats_for_dino_2/services/menu_cache.dart';
 
 class NotiService {
   final notificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -17,6 +18,11 @@ class NotiService {
 
   Future<void> initNotification() async {
     if (_isInitialized) return;
+
+    if (kIsWeb) {
+      _isInitialized = true;
+      return;
+    }
 
     // init timezone handling
     tz.initializeTimeZones();
@@ -44,7 +50,7 @@ class NotiService {
     await notificationsPlugin.initialize(initSettings);
 
     // Android 13+ permission request
-    if (Platform.isAndroid) {
+    if (!kIsWeb && Platform.isAndroid) {
       if (await Permission.notification.isDenied) {
         await Permission.notification.request();
       }
@@ -86,7 +92,7 @@ class NotiService {
     required int minute,
   }) async {
     // Get the current date/time in device's local timezone
-    final now = tz.TZDateTime.now(tz.local);
+    // final now = tz.TZDateTime.now(tz.local);
 
     // Create a date/time for today at the specified hour/min
     var scheduledDate = tz.TZDateTime(tz.local, year, month, day, hour, minute);
@@ -113,7 +119,7 @@ class NotiService {
   }
 
   Future<void> scheduleFavouritesNotifications() async {
-    print("scheduling notifications");
+    // debugPrint("scheduling notifications");
 
     if (!_isInitialized) await initNotification();
 
@@ -182,16 +188,16 @@ class NotiService {
       }
     }
 
-    print("done");
+    // debugPrint("done");
   }
 
   Future<void> scheduleSpecialEventsNotifications() async {
-    print("scheduling special event notifications");
+    // debugPrint("scheduling special event notifications");
 
     if (!_isInitialized) await initNotification();
 
     final dayMenus = getDayMenuCache();
-    final notificationsBox = Hive.box('notificationsBox');
+    // final notificationsBox = Hive.box('notificationsBox');
 
     final Map<String, DayMenu> menusByDate = {
       for (final d in dayMenus) d.dayDate: d,
@@ -211,19 +217,11 @@ class NotiService {
         ).parse(exception.dayDate);
 
         final mealType = _normaliseMealName(exception.meal);
-        final scheduledDate = DateTime(dayDate.year, dayDate.month, dayDate.day)
-            .add(mealToStartOffset(mealType))
-            .add(
-              Duration(
-                minutes:
-                    ((notificationsBox.get(
-                              'notifSpecialEventTime',
-                              defaultValue: 0.0,
-                            )
-                            as double)
-                        .round()),
-              ),
-            );
+        final scheduledDate = DateTime(
+          dayDate.year,
+          dayDate.month,
+          dayDate.day,
+        ).add(mealToStartOffset(mealType)).add(Duration(minutes: (-30)));
 
         await scheduleNotification(
           id:
@@ -245,7 +243,7 @@ class NotiService {
       }
     }
 
-    print("done");
+    // debugPrint("done");
   }
 
   Future<void> refreshNotifications() async {

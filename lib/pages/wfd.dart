@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
-import 'package:whats_for_dino_2/services/dayMenus_cache.dart';
+import 'package:whats_for_dino_2/services/menu_cache.dart';
 import 'package:whats_for_dino_2/services/firestore.dart';
 import 'package:whats_for_dino_2/services/food_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
@@ -25,6 +25,7 @@ class _WfdPageState extends State<WfdPage> {
   late String dateText;
   late String dayText;
   int _pageViewKey = 0; // Add this to force PageView rebuild
+  bool menuLoading = true;
 
   @override
   void initState() {
@@ -44,9 +45,6 @@ class _WfdPageState extends State<WfdPage> {
       // Initialize labels immediately to match the page being displayed
       dayText = MenuCache.dayMenus[todayIndex].dayName;
       dateText = MenuCache.dayMenus[todayIndex].dayDate;
-      if (todayIndex == _findTodayIndex() && dayText.contains("||") == false) {
-        dayText += " (Today)";
-      }
     }
 
     initializeFoodItems();
@@ -71,7 +69,7 @@ class _WfdPageState extends State<WfdPage> {
         setState(() {
           MenuCache.isInitialized = true;
           // Set the correct labels
-          dayText = MenuCache.dayMenus[todayIndex].dayName + " (Today)";
+          dayText = MenuCache.dayMenus[todayIndex].dayName;
           dateText = MenuCache.dayMenus[todayIndex].dayDate;
         });
       }
@@ -93,9 +91,9 @@ class _WfdPageState extends State<WfdPage> {
             return DayMenu.fromJson(dayMenuJson);
           }).toList();
 
-      print("Loaded ${MenuCache.dayMenus.length} day menus from local storage");
+      debugPrint("Loaded ${MenuCache.dayMenus.length} day menus from local storage");
     } catch (e) {
-      print("Error loading from local: $e");
+      debugPrint("Error loading from local: $e");
     }
   }
 
@@ -110,7 +108,7 @@ class _WfdPageState extends State<WfdPage> {
 
       final newDayMenus = generateFullDayMenusList(fetchedMenus);
 
-      print("Fetched data from server, updating cache...");
+      debugPrint("Fetched data from server, updating cache...");
       final todayIndex = _findTodayIndexForList(newDayMenus);
 
       // Recreate PageController with new data and today's index
@@ -121,17 +119,18 @@ class _WfdPageState extends State<WfdPage> {
         setState(() {
           MenuCache.menus = fetchedMenus;
           MenuCache.dayMenus = newDayMenus;
+          MenuCache.isInitialized = true;
           _pageViewKey++; // Force PageView to rebuild
           // Update labels
-          dayText = "${MenuCache.dayMenus[todayIndex].dayName} (Today)";
+          dayText = MenuCache.dayMenus[todayIndex].dayName;
           dateText = MenuCache.dayMenus[todayIndex].dayDate;
         });
       }
 
       await _saveToLocal();
-      print("Updated menus from server, initial page: $todayIndex");
+      debugPrint("Updated menus from server, initial page: $todayIndex");
     } catch (e) {
-      print("Error fetching from server: $e");
+      debugPrint("Error fetching from server: $e");
     }
   }
 
@@ -152,9 +151,9 @@ class _WfdPageState extends State<WfdPage> {
           }).toList();
 
       await menuBox.put('dayMenus', jsonEncode(jsonList));
-      print("Saved ${jsonList.length} day menus to local storage");
+      debugPrint("Saved ${jsonList.length} day menus to local storage");
     } catch (e) {
-      print("Error saving to local: $e");
+      debugPrint("Error saving to local: $e");
     }
   }
 
@@ -187,6 +186,7 @@ class _WfdPageState extends State<WfdPage> {
     if (!MenuCache.isInitialized ||
         MenuCache.dayMenus.isEmpty ||
         MenuCache.pageController == null) {
+          menuLoading = true;
       return Scaffold(
         backgroundColor: currentColourScheme.surface,
         body: Center(
@@ -211,6 +211,7 @@ class _WfdPageState extends State<WfdPage> {
       );
     }
 
+    menuLoading = false;
     final todayIndex = _findTodayIndex();
 
     return Scaffold(
@@ -470,9 +471,9 @@ class _WfdPageState extends State<WfdPage> {
                 setState(() {
                   dayText = MenuCache.dayMenus[index].dayName;
                   dateText = MenuCache.dayMenus[index].dayDate;
-                  // if (todayIndex == index && dayText.contains("||") == false) {
-                  //   dayText += " (Today)";
-                  // }
+                  if (todayIndex == index && dayText.contains("||") == false) {
+                    dayText += " (Today)";
+                  }
                 });
               },
             ),
@@ -516,7 +517,7 @@ class _WfdPageState extends State<WfdPage> {
           }
         }
       } catch (e) {
-        print("Error parsing date at index $i: $e");
+        debugPrint("Error parsing date at index $i: $e");
         continue;
       }
     }
@@ -540,7 +541,7 @@ class _WfdPageState extends State<WfdPage> {
         }
       }
     } catch (e) {
-      print("Error checking boundaries: $e");
+      debugPrint("Error checking boundaries: $e");
     }
 
     return 0;

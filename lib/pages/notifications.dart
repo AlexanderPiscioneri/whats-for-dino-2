@@ -63,7 +63,25 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  Widget favMealReminderTime() {
+  StandardSwitchListTile notificationsSwitchListTile(
+    String title,
+    String variableName,
+  ) {
+    return StandardSwitchListTile(
+      title: title,
+      value: notificationsBox.get(variableName, defaultValue: false),
+      onChanged: (value) {
+        notificationsBox.put(variableName, value);
+        NotiService().refreshNotifications();
+        setState(() {
+
+        });
+      },
+      activeColour: Theme.of(context).colorScheme.primary,
+    );
+  }
+
+    Widget favMealReminderTime() {
     double currentValue = notificationsBox.get(
       'notifFavMealTime',
       defaultValue: 0.0,
@@ -104,6 +122,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
             notificationsBox.put('notifFavMealTime', value);
             setState(() {});
           },
+          onChangeEnd: (value) {
+            NotiService().refreshNotifications();
+          },
         ),
 
         Padding(
@@ -120,24 +141,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
           endIndent: 20,
         ),
       ],
-    );
-  }
-
-  StandardSwitchListTile notificationsSwitchListTile(
-    String title,
-    String variableName,
-  ) {
-    return StandardSwitchListTile(
-      title: title,
-      value: notificationsBox.get(variableName, defaultValue: false),
-      onChanged: (value) {
-        notificationsBox.put(variableName, value);
-        NotiService().refreshNotifications();
-        setState(() {
-
-        });
-      },
-      activeColour: Theme.of(context).colorScheme.primary,
     );
   }
 }

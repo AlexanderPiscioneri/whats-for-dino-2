@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:provider/provider.dart';
@@ -33,9 +34,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotiService().initNotification();
 
   await Hive.openBox('menuBox');
@@ -53,7 +52,6 @@ void main() async {
   ensureInstallDocument();
 }
 
-
 class WhatsForDinoApp extends StatefulWidget {
   const WhatsForDinoApp({super.key});
 
@@ -70,21 +68,66 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
     });
   }
 
-  final List titles = [
-    "SETTINGS",
-    "NOTIFICATIONS",
-    "WHAT'S FOR DINO",
-    "FEEDBACK",
-    "FAVOURITES",
-  ];
+  late final List<String> titles;
+  late final List<Widget> pages;
+  late final List<BottomNavigationBarItem> navItems;
 
-  final List pages = [
-    SettingsPage(),
-    NotificationsPage(),
-    WfdPage(),
-    FeedbackPage(),
-    FavouritesPage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    if (kIsWeb) {
+      titles = ["SETTINGS", "WHAT'S FOR DINO", "FEEDBACK"];
+
+      pages = [SettingsPage(), WfdPage(), FeedbackPage()];
+
+      navItems = const [
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.food_bank),
+          label: "What's For Dino",
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
+      ];
+
+      currentPage = 1; // default to WFD
+    } else {
+      titles = [
+        "SETTINGS",
+        "NOTIFICATIONS",
+        "WHAT'S FOR DINO",
+        "FEEDBACK",
+        "FAVOURITES",
+      ];
+
+      pages = [
+        SettingsPage(),
+        NotificationsPage(),
+        WfdPage(),
+        FeedbackPage(),
+        FavouritesPage(),
+      ];
+
+      navItems = const [
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.notifications),
+          label: "Notifications",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.food_bank),
+          label: "What's For Dino",
+        ),
+        BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.favorite),
+          label: "Favourites",
+        ),
+      ];
+
+      currentPage = 2; // default to WFD
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,32 +172,11 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
             selectedItemColor: Colors.white,
             unselectedItemColor: currentColourScheme.surface,
             iconSize: 42,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
+            selectedFontSize: 0,
+            unselectedFontSize: 0,
             showSelectedLabels: false,
             showUnselectedLabels: false,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.settings),
-                label: "Settings",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
-                label: "Notifications",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.food_bank),
-                label: "What's For Dino",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.messenger),
-                label: "Feedback",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
-                label: "Favourites",
-              ),
-            ],
+            items: navItems,
           ),
         ),
       ),

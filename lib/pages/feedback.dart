@@ -101,7 +101,7 @@ class FeedbackPage extends StatelessWidget {
               endIndent: 20,
             ),
             Text(
-              'Want to get in touch?',
+              'Want to get in touch?\nAre you ambitious?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -111,7 +111,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed:
-                  () => _openLink("https://m.me/alexander.piscioneri.2025"),
+                  () => _openLink("https://linktr.ee/alexanderpiscioneri"),
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,

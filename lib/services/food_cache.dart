@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
-import 'package:whats_for_dino_2/services/dayMenus_cache.dart';
+import 'package:whats_for_dino_2/services/menu_cache.dart';
 
 // Public cache
 class FoodItemsCache {
