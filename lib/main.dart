@@ -131,9 +131,11 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<ThemeProvider>(context, listen: false).setDarkMode(
-      Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ThemeProvider>(context, listen: false).setDarkMode(
+        Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
+      );
+    });
     ColorScheme currentColourScheme =
         Provider.of<ThemeProvider>(context).themeData.colorScheme;
 

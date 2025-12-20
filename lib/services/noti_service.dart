@@ -108,8 +108,8 @@ class NotiService {
       // Android specific: Allow notification while device is in low-power mode
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
 
-      // Make notification repeat DAILY at same time
-      matchDateTimeComponents: DateTimeComponents.time,
+      // // Make notification repeat DAILY at same time
+      // matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
@@ -167,6 +167,10 @@ class NotiService {
                 ),
               );
 
+          // Don't schedule the notification if it's scheduled to fire in the past
+          if (scheduledDate.isBefore(DateTime.now())) continue;
+          // debugPrint(foodItem.name);
+
           await scheduleNotification(
             id:
                 foodItem.hashCode ^
@@ -223,6 +227,10 @@ class NotiService {
           dayDate.day,
         ).add(mealToStartOffset(mealType)).add(Duration(minutes: (-30)));
 
+        // Don't schedule the notification if it's scheduled to fire in the past
+        if (scheduledDate.isBefore(DateTime.now())) continue;
+        // debugPrint(exception.notifTitle);
+        
         await scheduleNotification(
           id:
               exception.hashCode ^
@@ -263,6 +271,15 @@ class NotiService {
     if (notificationsBox.get('notifFavouriteMeals', defaultValue: false)) {
       await scheduleFavouritesNotifications();
     }
+
+    // final List<PendingNotificationRequest> pending =
+    //     await FlutterLocalNotificationsPlugin().pendingNotificationRequests();
+
+    // for (final n in pending) {
+    //   debugPrint(
+    //     'id=${n.id}, title=${n.title}, body=${n.body}, payload=${n.payload}',
+    //   );
+    // }
   }
 }
 

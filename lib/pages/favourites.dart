@@ -212,6 +212,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
               child: TextField(
                 controller: _searchController,
                 style: const TextStyle(color: Colors.white),
+                keyboardAppearance: MediaQuery.of(context).platformBrightness, // Ignore the theme of the app, use the theme of the device
                 decoration: InputDecoration(
                   hintText: 'Search...',
                   hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),

@@ -461,7 +461,7 @@ class _WfdPageState extends State<WfdPage> {
                         if (dayMenu.brunch != null)
                           mealSection("Brunch", dayMenu.brunch!),
                         mealSection("Lunch", dayMenu.lunch),
-                        mealSection("Dinner", dayMenu.dinner),
+                        if (dayMenu.hasEarlyDinner == false) mealSection("Dinner", dayMenu.dinner) else mealSection("Early Dinner", dayMenu.dinner),
                       ],
                     ),
                   ),

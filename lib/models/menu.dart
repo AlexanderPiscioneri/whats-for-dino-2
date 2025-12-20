@@ -41,8 +41,8 @@ class Menu {
 }
 
 class DayMenuException {
-  final String dayDate;           // dd/MM/yyyy
-  final String meal;              // "breakfast" | "brunch" | "lunch" | "dinner"
+  final String dayDate; // dd/MM/yyyy
+  final String meal; // "breakfast" | "brunch" | "lunch" | "dinner"
   final List<MealItem> mealItems;
 
   final String notifTitle;
@@ -80,22 +80,26 @@ class DayMenuException {
   }
 
   /// Apply this exception to a DayMenu
-  void applyTo(DayMenu menu) {
+  void applyTo(DayMenu dayMenu) {
     switch (meal.toLowerCase()) {
       case 'breakfast':
-        menu.breakfast = mealItems.map((m) => m.copy()).toList();
+        dayMenu.breakfast = mealItems.map((m) => m.copy()).toList();
         break;
 
       case 'brunch':
-        menu.brunch = mealItems.map((m) => m.copy()).toList();
+        dayMenu.brunch = mealItems.map((m) => m.copy()).toList();
         break;
 
       case 'lunch':
-        menu.lunch = mealItems.map((m) => m.copy()).toList();
+        dayMenu.lunch = mealItems.map((m) => m.copy()).toList();
         break;
 
       case 'dinner':
-        menu.dinner = mealItems.map((m) => m.copy()).toList();
+        dayMenu.dinner = mealItems.map((m) => m.copy()).toList();
+        break;
+      case 'early dinner':
+        dayMenu.dinner = mealItems.map((m) => m.copy()).toList();
+        dayMenu.hasEarlyDinner = true;
         break;
     }
   }
@@ -132,6 +136,7 @@ class DayMenu {
   List<MealItem>? brunch; // empty Mon–Fri
   List<MealItem> lunch;
   List<MealItem> dinner;
+  bool hasEarlyDinner;
 
   DayMenu({
     required this.dayName,
@@ -140,15 +145,18 @@ class DayMenu {
     this.brunch,
     required this.lunch,
     required this.dinner,
+    this.hasEarlyDinner = false, // default to false
   });
 
   DayMenu copy() {
     return DayMenu(
       dayName: dayName,
       dayDate: dayDate,
-      breakfast: breakfast.map((m) => m.copy()).toList(),
-      lunch: lunch.map((m) => m.copy()).toList(),
-      dinner: dinner.map((m) => m.copy()).toList(),
+      breakfast: [...breakfast],
+      brunch: brunch == null ? null : [...brunch!],
+      lunch: [...lunch],
+      dinner: [...dinner],
+      hasEarlyDinner: hasEarlyDinner, // <-- copy the flag
     );
   }
 
@@ -157,15 +165,13 @@ class DayMenu {
       dayName: json['dayName'] ?? '',
       dayDate: json['dayDate'] ?? '',
       breakfast: _parseMeal(json['breakfast']),
-
-      // Only parse brunch if key exists
       brunch:
           json.containsKey("brunch") && json["brunch"] != null
               ? _parseMeal(json['brunch'])
               : null,
-
       lunch: _parseMeal(json['lunch']),
       dinner: _parseMeal(json['dinner']),
+      hasEarlyDinner: json['hasEarlyDinner'] ?? false, // <-- parse from JSON
     );
   }
 
@@ -177,6 +183,7 @@ class DayMenu {
       if (brunch != null) "brunch": brunch!.map((m) => m.toJson()).toList(),
       "lunch": lunch.map((m) => m.toJson()).toList(),
       "dinner": dinner.map((m) => m.toJson()).toList(),
+      "hasEarlyDinner": hasEarlyDinner, // <-- include in JSON
     };
   }
 
