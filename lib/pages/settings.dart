@@ -32,6 +32,17 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             activeColour: Theme.of(context).colorScheme.primary,
           ),
+          StandardSwitchListTile(
+            title: "Show Times On Menu",
+            value: settingsBox.get("showTimesOnMenu", defaultValue: true),
+            onChanged: (value) {
+              settingsBox.put("showTimesOnMenu", value);
+              setState(() {
+                
+              });
+            },
+            activeColour: Theme.of(context).colorScheme.primary,
+          ),
         ],
       ),
     );

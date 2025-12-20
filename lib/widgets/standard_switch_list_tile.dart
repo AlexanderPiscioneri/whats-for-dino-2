@@ -34,7 +34,7 @@ class StandardSwitchListTile extends StatelessWidget {
           ),
         ),
         value: value,
-        activeColor: defaultPrimary,
+        activeThumbColor: defaultPrimary,
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
         inactiveTrackColor: Colors.grey[700],
         thumbColor: WidgetStateProperty.all(Colors.white),

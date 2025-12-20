@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 import 'package:hive/hive.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:whats_for_dino_2/services/food_cache.dart';
@@ -129,75 +127,62 @@ class _FavouritesPageState extends State<FavouritesPage> {
   void _showRatingPicker(FoodItem item) {
     final List<int> reversedRatings = [5, 4, 3, 2, 1];
 
-    if (Platform.isIOS) {
-      showCupertinoModalPopup(
-        context: context,
-        builder:
-            (_) => Container(
-              height: 250,
-              color: Colors.transparent,
-              child: CupertinoPicker(
-                scrollController: FixedExtentScrollController(
-                  initialItem:
-                      item.myRating != null
-                          ? reversedRatings.indexOf(item.myRating!)
-                          : 0,
+    ColorScheme currentColourScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: currentColourScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(0),
+        ),
+      ),
+      builder:
+          (_) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16.0,
+                    horizontal: 24.0,
+                  ),
+                  child: Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // title color
+                    ),
+                  ),
                 ),
-                itemExtent: 32,
-                onSelectedItemChanged: (index) {
-                  setState(() {
-                    item.myRating = reversedRatings[index];
-                    _updateItem(item);
-                  });
-
-                  _uploadRating(item);
-                },
-                children:
-                    reversedRatings
-                        .map(
-                          (r) => Center(
-                            child: Text(
-                              '$r - ${ratingLabels[r]}',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        )
-                        .toList(),
-              ),
+                Divider(
+                  color: currentColourScheme.primary,
+                ), // optional divider below title
+                // Rating buttons
+                ...reversedRatings.map((r) {
+                  return ListTile(
+                    title: Text(
+                      '$r - ${ratingLabels[r]}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        item.myRating = r;
+                        _updateItem(item);
+                      });
+                      Navigator.pop(context);
+                      _uploadRating(item);
+                    },
+                  );
+                }),
+              ],
             ),
-      );
-    } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder:
-            (_) => SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children:
-                    reversedRatings
-                        .map(
-                          (r) => ListTile(
-                            title: Text(
-                              '$r - ${ratingLabels[r]}',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            onTap: () {
-                              setState(() {
-                                item.myRating = r;
-                                _updateItem(item);
-                              });
-                              Navigator.pop(context);
-
-                              _uploadRating(item);
-                            },
-                          ),
-                        )
-                        .toList(),
-              ),
-            ),
-      );
-    }
+          ),
+    );
   }
 
   @override
@@ -212,10 +197,15 @@ class _FavouritesPageState extends State<FavouritesPage> {
               child: TextField(
                 controller: _searchController,
                 style: const TextStyle(color: Colors.white),
-                keyboardAppearance: MediaQuery.of(context).platformBrightness, // Ignore the theme of the app, use the theme of the device
+                keyboardAppearance:
+                    MediaQuery.of(
+                      context,
+                    ).platformBrightness, // Ignore the theme of the app, use the theme of the device
                 decoration: InputDecoration(
                   hintText: 'Search...',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.6)),
+                  hintStyle: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
                   prefixIcon: const Icon(Icons.search, color: Colors.white),
                   border: const OutlineInputBorder(),
                   enabledBorder: const OutlineInputBorder(
@@ -257,7 +247,10 @@ class _FavouritesPageState extends State<FavouritesPage> {
                             ),
                             child: Text(
                               item.myRating?.toString() ?? '-',
-                              style: const TextStyle(color: Colors.white, fontSize: 15),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ),

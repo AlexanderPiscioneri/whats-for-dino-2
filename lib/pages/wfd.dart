@@ -21,6 +21,7 @@ class WfdPage extends StatefulWidget {
 class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
   final menuBox = Hive.box('menuBox');
+  final settingsBox = Hive.box('settingsBox');
 
   late String dateText;
   late String dayText;
@@ -91,7 +92,9 @@ class _WfdPageState extends State<WfdPage> {
             return DayMenu.fromJson(dayMenuJson);
           }).toList();
 
-      debugPrint("Loaded ${MenuCache.dayMenus.length} day menus from local storage");
+      debugPrint(
+        "Loaded ${MenuCache.dayMenus.length} day menus from local storage",
+      );
     } catch (e) {
       debugPrint("Error loading from local: $e");
     }
@@ -186,7 +189,7 @@ class _WfdPageState extends State<WfdPage> {
     if (!MenuCache.isInitialized ||
         MenuCache.dayMenus.isEmpty ||
         MenuCache.pageController == null) {
-          menuLoading = true;
+      menuLoading = true;
       return Scaffold(
         backgroundColor: currentColourScheme.surface,
         body: Center(
@@ -446,6 +449,19 @@ class _WfdPageState extends State<WfdPage> {
               itemBuilder: (context, index) {
                 final dayMenu = MenuCache.dayMenus[index];
 
+                String dinnerSectionName = "Dinner";
+                if (dayMenu.hasEarlyDinner == true) {
+                  dinnerSectionName = "E. Dinner";
+                  if (settingsBox.get("showTimesOnMenu", defaultValue: true) ==
+                      false) {
+                    dinnerSectionName =
+                        "Early Dinner"; // there is space bc times aren't showing
+                  }
+                }
+
+                bool isBetweenMenusPage =
+                    dayMenu.dayName.contains("||") == false;
+
                 return Padding(
                   padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
                   child: Container(
@@ -453,17 +469,19 @@ class _WfdPageState extends State<WfdPage> {
                         Provider.of<ThemeProvider>(
                           context,
                         ).themeData.colorScheme.secondary,
-                    child: ListView(
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      children: [
-                        mealSection("Breakfast", dayMenu.breakfast),
-                        if (dayMenu.brunch != null)
-                          mealSection("Brunch", dayMenu.brunch!),
-                        mealSection("Lunch", dayMenu.lunch),
-                        if (dayMenu.hasEarlyDinner == false) mealSection("Dinner", dayMenu.dinner) else mealSection("Early Dinner", dayMenu.dinner),
-                      ],
-                    ),
+                    child:
+                        isBetweenMenusPage
+                            ? ListView(
+                              padding: const EdgeInsets.all(16),
+                              children: [
+                                _mealSection("Breakfast", dayMenu.breakfast),
+                                if (dayMenu.brunch != null)
+                                  _mealSection("Brunch", dayMenu.brunch!),
+                                _mealSection("Lunch", dayMenu.lunch),
+                                _mealSection(dinnerSectionName, dayMenu.dinner),
+                              ],
+                            )
+                            : _betweenMenusPage(dayMenu.dayName),
                   ),
                 );
               },
@@ -550,32 +568,117 @@ class _WfdPageState extends State<WfdPage> {
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
-}
 
-// Keep these functions at the file level
-Widget mealSection(String title, List<MealItem> items) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Text(
-        "$title ${mealToTimeString(title)}",
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 6),
-      ...items.map(
-        (item) => Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 4),
-          child: Text(
-            item.name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+  Widget _mealSection(String title, List<MealItem> items) {
+    String sectionTitle = title;
+    if (settingsBox.get("showTimesOnMenu", defaultValue: true)) {
+      sectionTitle = "$title ${mealToTimeString(title)}";
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          sectionTitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 6),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 4),
+            child: Text(
+              item.name,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
           ),
         ),
-      ),
-      const SizedBox(height: 16),
-    ],
-  );
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+String asciiArt = '''
+                              _.-.
+                             /  99\\
+                            (     `\\
+                            |\\ ,  ,|
+                    __      | \\____/
+              ,.--"`-.".   /   `---'
+          _.-'          '-/      |
+      _.-"   |   '-.             |_/_
+,__.-'  _,.--\\      \\      ((    /-\\
+',_..--'      `\\     \\      \\\\_ /
+                `-,   )      |\\' 
+                  |   |-.,,-" (  
+                  |   |   `\\   `',_
+                  )    \\    \\,(\\(\\-'
+              jgs \\     `-,_
+                   \\_(\\-(\\`-`
+                      "  "  
+''';
+
+String asciiArt2 = '''
+
+                                              ____
+  ___                                      .-~. /_"-._
+`-._~-.                                  / /_ "~o\\  :Y
+      \\  \\                                / : \\~x.  ` ')
+      ]  Y                              /  |  Y< ~-.__j
+     /   !                        _.--~T : l  l<  /.-~
+    /   /                 ____.--~ .   ` l /~\\ <|Y
+   /   /             .-~~"        /| .    ',-~\\ \\L|
+  /   /             /     .^   \\ Y~Y \\.^>/l_   "--'
+ /   Y           .-"(  .  l__  j_j l_/ /~_.-~    .
+Y    l          /    \\  )    ~~~." / `/"~ / \\.__/l_
+|     \\     _.-"      ~-{__     l  :  l._Z~-.___.--~
+|      ~---~           /   ~~"---\\_  ' __[>
+l  .                _.^   ___     _>-y~
+ \\  \\     .      .-~   .-~   ~>--"  /
+  \\  ~---"            /     ./  _.-'
+   "-.,_____.,_  _.--~\\     _.-~
+               ~~     (   _}       -Row
+                      `. ~(
+                        )  \\
+                  /,`--'~\\--'~\\
+''';
+
+  Widget _betweenMenusPage(String dayName) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          asciiArt,
+          style: const TextStyle(fontFamily: "Courier New", fontSize: 8, fontWeight: FontWeight.w900),
+        ),
+        Divider(
+          color: Theme.of(context).colorScheme.surface,
+          indent: 10,
+          endIndent: 10,
+          thickness: 5,
+        ),
+        Text(
+          dayName,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+        ),
+        Divider(
+          color: Theme.of(context).colorScheme.surface,
+          indent: 10,
+          endIndent: 10,
+          thickness: 5,
+        ),
+        Text(
+          asciiArt2,
+          style: const TextStyle(fontFamily: "Courier New", fontSize: 8, fontWeight: FontWeight.w900),
+        ),
+      ],
+    );
+  }
 }
 
 String mealToTimeString(String meal) {
@@ -588,6 +691,8 @@ String mealToTimeString(String meal) {
       return "(12 pm - 2:15 pm)";
     case "Dinner":
       return "(5 pm - 7:30 pm)";
+    case "E. Dinner":
+      return "(4:30 pm - 5:30 pm)";
     case "Early Dinner":
       return "(4:30 pm - 5:30 pm)";
     default:
