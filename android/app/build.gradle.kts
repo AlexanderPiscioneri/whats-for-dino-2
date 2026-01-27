@@ -26,7 +26,7 @@ android {
     defaultConfig {
         applicationId = "com.example.whats_for_dino_2"
 
-        minSdk = 23   // FIXED (no minSdkVersion)
+        minSdk = flutter.minSdkVersion   // FIXED (no minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

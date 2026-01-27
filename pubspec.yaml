@@ -126,11 +126,13 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/icon.png"
   adaptive_icon_foreground: "assets/icons/foreground.png"
+  adaptive_icon_background: "assets/icons/background.png"
+  remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#237523"      # Background color for splash
