@@ -89,8 +89,19 @@ class _FavouritesPageState extends State<FavouritesPage> {
     menuBox = Hive.box('menuBox');
 
     _searchController.addListener(_onSearchChanged);
-    _filteredItems = List.from(FoodItemsCache.items);
+    // _filteredItems = List.from(FoodItemsCache.items);
+
+    _loadItems();
   }
+
+  Future<void> _loadItems() async {
+  await initializeFoodItems(); // <-- ensure cache is ready
+  if (!mounted) return;
+
+  setState(() {
+    _filteredItems = List.from(FoodItemsCache.items);
+  });
+}
 
   // void _resetFavouritesCache() {
   //   setState(() {
