@@ -1,16 +1,12 @@
 # whats_for_dino_2
 
-A new Flutter project.
+A continuation of What's For Dino.
 
-## Getting Started
+## Updating/adding menus
+Use Refi App to interface with Firebase via JSON.
+Sample menus can be found in lib/menus
+All items must have a rating.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Exceptions and Ratings
+Only the rating from the LATEST OCCURING INSTANCE of a particular meal will be used.
+Exceptions cannot be rated.
