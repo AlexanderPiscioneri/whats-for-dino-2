@@ -132,6 +132,8 @@ class _WfdPageState extends State<WfdPage> {
 
       await _saveToLocal();
       debugPrint("Updated menus from server, initial page: $todayIndex");
+      initializeFoodItems();
+      NotiService().refreshNotifications();
     } catch (e) {
       debugPrint("Error fetching from server: $e");
     }

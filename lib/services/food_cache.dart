@@ -6,12 +6,11 @@ import 'package:whats_for_dino_2/services/menu_cache.dart';
 // Public cache
 class FoodItemsCache {
   static List<FoodItem> items = [];
-  static bool isInitialized = false;
+  // static bool isInitialized = false;
 }
 
 // Initialize food items
 Future<void> initializeFoodItems() async {
-  if (FoodItemsCache.isInitialized) return;
 
   final favouritesBox = Hive.box('favouritesBox');
 
@@ -25,7 +24,6 @@ Future<void> initializeFoodItems() async {
   final dayMenus = getDayMenuCache();
   mergeMenuItems(dayMenus);
 
-  FoodItemsCache.isInitialized = true;
   // Save back to Hive
   favouritesBox.put(
     'favourites',

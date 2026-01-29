@@ -279,6 +279,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                               _updateItem(item);
                             });
                             NotiService().refreshNotifications();
+                            _uploadRating(item);
                           },
                         ),
                       ],
