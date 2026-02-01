@@ -139,8 +139,8 @@ class NotiService {
           'Breakfast': dayMenu.breakfast,
           if (dayMenu.brunch != null) 'Brunch': dayMenu.brunch!,
           'Lunch': dayMenu.lunch,
-          'Dinner': dayMenu.dinner,
-          'Early Dinner': dayMenu.dinner,
+          if (dayMenu.hasEarlyDinner == false) 'Dinner': dayMenu.dinner
+          else 'Early Dinner': dayMenu.dinner,
         };
 
         for (final entry in meals.entries) {
@@ -177,7 +177,7 @@ class NotiService {
                 dayMenu.dayDate.hashCode ^
                 mealType.hashCode,
             title: "Favourite Meal",
-            body: "${foodItem.name} for $mealType!",
+            body: "${foodItem.name} for ${mealType.toLowerCase()}!",
             year: scheduledDate.year,
             month: scheduledDate.month,
             day: scheduledDate.day,

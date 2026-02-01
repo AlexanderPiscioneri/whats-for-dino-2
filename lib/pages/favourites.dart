@@ -75,11 +75,11 @@ class _FavouritesPageState extends State<FavouritesPage> {
   List<FoodItem> _filteredItems = [];
 
   final Map<int, String> ratingLabels = {
-    1: 'Terrible',
-    2: 'Bad',
-    3: 'Neutral',
-    4: 'Good',
-    5: 'Great',
+    1: 'I don\'t like it at all',
+    2: 'I don\'t like it much',
+    3: 'I\'m neutral on it',
+    4: 'I like it',
+    5: 'I love it',
   };
 
   @override
