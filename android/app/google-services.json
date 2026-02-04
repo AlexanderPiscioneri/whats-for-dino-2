@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:414038496032:android:367eb647acfadd46c93d45",
+        "mobilesdk_app_id": "1:414038496032:android:70c6856b0b60eda9c93d45",
         "android_client_info": {
-          "package_name": "com.example.whats_for_dino_2"
+          "package_name": "com.AlexanderPiscioneri.WhatsForDino2"
         }
       },
       "oauth_client": [],
