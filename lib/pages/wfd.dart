@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
 import 'package:whats_for_dino_2/services/menu_cache.dart';
 import 'package:whats_for_dino_2/services/firestore.dart';
-import 'package:whats_for_dino_2/services/food_cache.dart';
+import 'package:whats_for_dino_2/services/meals_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
@@ -33,7 +33,7 @@ class _WfdPageState extends State<WfdPage> {
     super.initState();
 
     if (!MenuCache.isInitialized) {
-      _initializeData();
+      _initializeMenuCache();
       // Set temporary values while loading
       dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
       dayText = "Loading...";
@@ -48,7 +48,10 @@ class _WfdPageState extends State<WfdPage> {
       dateText = MenuCache.dayMenus[todayIndex].dayDate;
     }
 
-    initializeFoodItems();
+    initializeLocalMealItems();
+
+    _fetchMenusFromServer();
+    _fetchMealsFromServer();
     NotiService().refreshNotifications();
   }
 
@@ -58,9 +61,9 @@ class _WfdPageState extends State<WfdPage> {
     super.dispose();
   }
 
-  Future<void> _initializeData() async {
+  Future<void> _initializeMenuCache() async {
     // Load from local storage
-    await _loadFromLocal();
+    await _loadDayMenusFromLocal();
 
     if (MenuCache.dayMenus.isNotEmpty) {
       final todayIndex = _findTodayIndex();
@@ -75,12 +78,9 @@ class _WfdPageState extends State<WfdPage> {
         });
       }
     }
-
-    // Fetch from server in background
-    _fetchFromServer();
   }
 
-  Future<void> _loadFromLocal() async {
+  Future<void> _loadDayMenusFromLocal() async {
     try {
       final data = menuBox.get('dayMenus');
       if (data == null) return;
@@ -100,7 +100,7 @@ class _WfdPageState extends State<WfdPage> {
     }
   }
 
-  Future<void> _fetchFromServer() async {
+  Future<void> _fetchMenusFromServer() async {
     try {
       QuerySnapshot snapshot = await firestoreService.getMenusOnce();
 
@@ -111,7 +111,7 @@ class _WfdPageState extends State<WfdPage> {
 
       final newDayMenus = generateFullDayMenusList(fetchedMenus);
 
-      debugPrint("Fetched data from server, updating cache...");
+      debugPrint("Fetched menus from server, updating MenuCache...");
       final todayIndex = _findTodayIndexForList(newDayMenus);
 
       // Recreate PageController with new data and today's index
@@ -130,16 +130,14 @@ class _WfdPageState extends State<WfdPage> {
         });
       }
 
-      await _saveToLocal();
+      await _saveMenusToLocal();
       debugPrint("Updated menus from server, initial page: $todayIndex");
-      initializeFoodItems();
-      NotiService().refreshNotifications();
     } catch (e) {
       debugPrint("Error fetching from server: $e");
     }
   }
 
-  Future<void> _saveToLocal() async {
+  Future<void> _saveMenusToLocal() async {
     try {
       final jsonList =
           MenuCache.dayMenus.map((dayMenu) {
@@ -147,10 +145,11 @@ class _WfdPageState extends State<WfdPage> {
               "dayMenu": {
                 "dayName": dayMenu.dayName,
                 "dayDate": dayMenu.dayDate,
-                "breakfast": dayMenu.breakfast.map((m) => m.toJson()).toList(),
-                "brunch": dayMenu.brunch?.map((m) => m.toJson()).toList(),
-                "lunch": dayMenu.lunch.map((m) => m.toJson()).toList(),
-                "dinner": dayMenu.dinner.map((m) => m.toJson()).toList(),
+                "breakfast": dayMenu.breakfast,
+                if (dayMenu.brunch != null) "brunch": dayMenu.brunch,
+                "lunch": dayMenu.lunch,
+                "dinner": dayMenu.dinner,
+                "hasEarlyDinner": dayMenu.hasEarlyDinner,
               },
             };
           }).toList();
@@ -161,6 +160,49 @@ class _WfdPageState extends State<WfdPage> {
       debugPrint("Error saving to local: $e");
     }
   }
+
+Future<void> _fetchMealsFromServer() async {
+  try {
+    final snapshot = await firestoreService.getMealsOnce();
+
+      final fetchedMeals =
+        snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+
+          return Meal(
+            name: data['name'],
+            rating: (data['communityRating'] as num).toDouble(),
+          );
+        }).toList();
+
+    debugPrint("Fetched meals from server, updating MealItemsCache...");
+
+    mergeMealItems(fetchedMeals);
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    await _saveMealsToLocal();
+  } catch (e) {
+    debugPrint("Error fetching from server: $e");
+  }
+}
+
+
+Future<void> _saveMealsToLocal() async {
+  try {
+    final jsonList =
+        MealItemsCache.items.map((item) => item.toJson()).toList();
+
+    await menuBox.put('mealItems', jsonEncode(jsonList));
+
+    debugPrint("Saved ${jsonList.length} meal items to local storage");
+  } catch (e) {
+    debugPrint("Error saving to local: $e");
+  }
+}
+
 
   // void _resetCache() async {
   //   // Clear static cache
@@ -571,7 +613,7 @@ class _WfdPageState extends State<WfdPage> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  Widget _mealSection(String title, List<MealItem> items) {
+  Widget _mealSection(String title, List<String> mealItemNames) {
     String sectionTitle = title;
     if (settingsBox.get("showTimesOnMenu", defaultValue: true)) {
       sectionTitle = "$title ${mealToTimeString(title)}";
@@ -585,11 +627,11 @@ class _WfdPageState extends State<WfdPage> {
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
-        ...items.map(
-          (item) => Padding(
+        ...mealItemNames.map(
+          (mealItemName) => Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 4),
             child: Text(
-              item.name,
+              mealItemName,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 14,
@@ -603,7 +645,7 @@ class _WfdPageState extends State<WfdPage> {
     );
   }
 
-String asciiArt = '''
+  String asciiArt = '''
                               _.-.
                              /  99\\
                             (     `\\
@@ -623,7 +665,7 @@ String asciiArt = '''
                       "  "  
 ''';
 
-String asciiArt2 = '''
+  String asciiArt2 = '''
 
                                               ____
   ___                                      .-~. /_"-._
@@ -655,7 +697,11 @@ l  .                _.^   ___     _>-y~
       children: [
         Text(
           asciiArt,
-          style: const TextStyle(fontFamily: "Courier New", fontSize: 8, fontWeight: FontWeight.w900),
+          style: const TextStyle(
+            fontFamily: "Courier New",
+            fontSize: 8,
+            fontWeight: FontWeight.w900,
+          ),
         ),
         Divider(
           color: Theme.of(context).colorScheme.surface,
@@ -676,7 +722,11 @@ l  .                _.^   ___     _>-y~
         ),
         Text(
           asciiArt2,
-          style: const TextStyle(fontFamily: "Courier New", fontSize: 8, fontWeight: FontWeight.w900),
+          style: const TextStyle(
+            fontFamily: "Courier New",
+            fontSize: 8,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ],
     );
@@ -747,18 +797,10 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
                 'dd/MM/yyyy',
               ).format(date.add(Duration(days: diff ~/ 2))),
               breakfast: [
-                MealItem(
-                  name: "$diff days between ${menu.name} and ${nextMenu.name}",
-                  rating: -1,
-                ),
+                "$diff days between ${menu.name} and ${nextMenu.name}",
               ],
-              lunch: [
-                MealItem(
-                  name: "Whatever you can get your hands on",
-                  rating: -1,
-                ),
-              ],
-              dinner: [MealItem(name: "Nothing", rating: -1)],
+              lunch: ["Whatever you can get your hands on"],
+              dinner: ["Nothing"],
             ),
           );
         }

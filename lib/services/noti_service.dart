@@ -124,12 +124,12 @@ class NotiService {
     if (!_isInitialized) await initNotification();
 
     final dayMenus = getDayMenuCache();
-    final foodItems = getFoodItemsCache();
+    final mealItems = getMealItemsCache();
     final notificationsBox = Hive.box('notificationsBox');
 
     int counter = 0;
 
-    for (final foodItem in foodItems.where((f) => f.isFavourite)) {
+    for (final foodItem in mealItems.where((f) => f.isFavourite)) {
       for (final dayMenu in dayMenus) {
         final DateTime dayDate = DateFormat(
           'dd/MM/yyyy',
@@ -147,7 +147,7 @@ class NotiService {
           final mealType = entry.key;
           final mealList = entry.value;
 
-          if (!mealList.any((meal) => meal.name == foodItem.name)) continue;
+          if (!mealList.any((mealName) => mealName == foodItem.name)) continue;
 
           final scheduledDate = DateTime(
                 dayDate.year,

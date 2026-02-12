@@ -43,7 +43,7 @@ class Menu {
 class DayMenuException {
   final String dayDate; // dd/MM/yyyy
   final String meal; // "breakfast" | "brunch" | "lunch" | "dinner"
-  final List<MealItem> mealItems;
+  final List<String> mealItems;
 
   final String notifTitle;
   final String notifBody;
@@ -62,7 +62,7 @@ class DayMenuException {
       meal: json['meal'] ?? '',
       mealItems:
           (json['mealItems'] as List<dynamic>? ?? [])
-              .map((e) => MealItem.fromJson(e))
+              .map((e) => e.toString())
               .toList(),
       notifTitle: json['notifTitle'] ?? '',
       notifBody: json['notifBody'] ?? '',
@@ -73,7 +73,7 @@ class DayMenuException {
     return {
       "dayDate": dayDate,
       "meal": meal,
-      "mealItems": mealItems.map((m) => m.toJson()).toList(),
+      "mealItems": mealItems,
       "notifTitle": notifTitle,
       "notifBody": notifBody,
     };
@@ -83,22 +83,23 @@ class DayMenuException {
   void applyTo(DayMenu dayMenu) {
     switch (meal.toLowerCase()) {
       case 'breakfast':
-        dayMenu.breakfast = mealItems.map((m) => m.copy()).toList();
+        dayMenu.breakfast = [...mealItems];
         break;
 
       case 'brunch':
-        dayMenu.brunch = mealItems.map((m) => m.copy()).toList();
+        dayMenu.brunch = [...mealItems];
         break;
 
       case 'lunch':
-        dayMenu.lunch = mealItems.map((m) => m.copy()).toList();
+        dayMenu.lunch = [...mealItems];
         break;
 
       case 'dinner':
-        dayMenu.dinner = mealItems.map((m) => m.copy()).toList();
+        dayMenu.dinner = [...mealItems];
         break;
+
       case 'early dinner':
-        dayMenu.dinner = mealItems.map((m) => m.copy()).toList();
+        dayMenu.dinner = [...mealItems];
         dayMenu.hasEarlyDinner = true;
         break;
     }
@@ -132,10 +133,10 @@ class Week {
 class DayMenu {
   String dayName;
   String dayDate = "";
-  List<MealItem> breakfast;
-  List<MealItem>? brunch; // empty Mon–Fri
-  List<MealItem> lunch;
-  List<MealItem> dinner;
+  List<String> breakfast;
+  List<String>? brunch; // empty Mon–Fri
+  List<String> lunch;
+  List<String> dinner;
   bool hasEarlyDinner;
 
   DayMenu({
@@ -175,36 +176,55 @@ class DayMenu {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "dayName": dayName,
-      "dayDate": dayDate,
-      "breakfast": breakfast.map((m) => m.toJson()).toList(),
-      if (brunch != null) "brunch": brunch!.map((m) => m.toJson()).toList(),
-      "lunch": lunch.map((m) => m.toJson()).toList(),
-      "dinner": dinner.map((m) => m.toJson()).toList(),
-      "hasEarlyDinner": hasEarlyDinner, // <-- include in JSON
-    };
+Map<String, dynamic> toJson() {
+  return {
+    "dayName": dayName,
+    "dayDate": dayDate,
+    "breakfast": breakfast,
+    if (brunch != null) "brunch": brunch,
+    "lunch": lunch,
+    "dinner": dinner,
+    "hasEarlyDinner": hasEarlyDinner,
+  };
+}
+
+static List<String> _parseMeal(dynamic data) {
+  if (data == null) return [];
+  return (data as List<dynamic>)
+      .map((item) => item.toString())
+      .toList();
+}
+
+}
+
+class MenuItem {
+  final String name;
+
+  MenuItem({required this.name});
+
+  MenuItem copy() => MenuItem(name: name);
+
+  factory MenuItem.fromJson(Map<String, dynamic> json) {
+    return MenuItem(
+      name: json['name'] ?? '',
+    );
   }
 
-  static List<MealItem> _parseMeal(dynamic data) {
-    if (data == null) return [];
-    return (data as List<dynamic>)
-        .map((item) => MealItem.fromJson(item))
-        .toList();
+  Map<String, dynamic> toJson() {
+    return {"name": name};
   }
 }
 
-class MealItem {
+class Meal {
   final String name;
   final double rating;
 
-  MealItem({required this.name, required this.rating});
+  Meal({required this.name, required this.rating});
 
-  MealItem copy() => MealItem(name: name, rating: rating);
+  Meal copy() => Meal(name: name, rating: rating);
 
-  factory MealItem.fromJson(Map<String, dynamic> json) {
-    return MealItem(
+  factory Meal.fromJson(Map<String, dynamic> json) {
+    return Meal(
       name: json['name'] ?? '',
       rating: (json['rating'] as num).toDouble(),
     );

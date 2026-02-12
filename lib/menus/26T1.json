@@ -9,47 +9,162 @@
       "days": [
         {
           "dayName": "Monday",
-          "breakfast": [{ "name": "Week 1 Monday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Monday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Monday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Monday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Monday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Monday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Tuesday",
-          "breakfast": [{ "name": "Week 1 Tuesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Tuesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Tuesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Tuesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Tuesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Tuesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Wednesday",
-          "breakfast": [{ "name": "Week 1 Wednesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Wednesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Wednesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Wednesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Wednesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Wednesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Thursday",
-          "breakfast": [{ "name": "Week 1 Thursday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Thursday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Thursday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Thursday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Thursday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Thursday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Friday",
-          "breakfast": [{ "name": "Week 1 Friday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Friday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Friday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Friday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Friday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Friday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Saturday",
-          "breakfast": [{ "name": "Week 1 Saturday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 1 Saturday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Saturday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Saturday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Saturday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 1 Saturday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Saturday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Saturday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Sunday",
-          "breakfast": [{ "name": "Week 1 Sunday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 1 Sunday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 1 Sunday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 1 Sunday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 1 Sunday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 1 Sunday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 1 Sunday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 1 Sunday Dinner",
+              "rating": -1
+            }
+          ]
         }
       ]
     },
@@ -58,47 +173,162 @@
       "days": [
         {
           "dayName": "Monday",
-          "breakfast": [{ "name": "Week 2 Monday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Monday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Monday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Monday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Monday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Monday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Tuesday",
-          "breakfast": [{ "name": "Week 2 Tuesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Tuesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Tuesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Tuesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Tuesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Tuesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Wednesday",
-          "breakfast": [{ "name": "Week 2 Wednesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Wednesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Wednesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Wednesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Wednesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Wednesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Thursday",
-          "breakfast": [{ "name": "Week 2 Thursday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Thursday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Thursday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Thursday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Thursday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Thursday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Friday",
-          "breakfast": [{ "name": "Week 2 Friday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Friday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Friday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Friday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Friday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Friday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Saturday",
-          "breakfast": [{ "name": "Week 2 Saturday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 2 Saturday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Saturday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Saturday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Saturday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 2 Saturday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Saturday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Saturday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Sunday",
-          "breakfast": [{ "name": "Week 2 Sunday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 2 Sunday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 2 Sunday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 2 Sunday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 2 Sunday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 2 Sunday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 2 Sunday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 2 Sunday Dinner",
+              "rating": -1
+            }
+          ]
         }
       ]
     },
@@ -107,47 +337,162 @@
       "days": [
         {
           "dayName": "Monday",
-          "breakfast": [{ "name": "Week 3 Monday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Monday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Monday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Monday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Monday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Monday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Tuesday",
-          "breakfast": [{ "name": "Week 3 Tuesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Tuesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Tuesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Tuesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Tuesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Tuesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Wednesday",
-          "breakfast": [{ "name": "Week 3 Wednesday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Wednesday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Wednesday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Wednesday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Wednesday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Wednesday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Thursday",
-          "breakfast": [{ "name": "Week 3 Thursday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Thursday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Thursday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Thursday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Thursday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Thursday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Friday",
-          "breakfast": [{ "name": "Week 3 Friday Breakfast", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Friday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Friday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Friday Breakfast",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Friday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Friday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Saturday",
-          "breakfast": [{ "name": "Week 3 Saturday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 3 Saturday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Saturday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Saturday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Saturday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 3 Saturday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Saturday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Saturday Dinner",
+              "rating": -1
+            }
+          ]
         },
         {
           "dayName": "Sunday",
-          "breakfast": [{ "name": "Week 3 Sunday Breakfast", "rating": -1 }],
-          "brunch": [{ "name": "Week 3 Sunday Brunch", "rating": -1 }],
-          "lunch": [{ "name": "Week 3 Sunday Lunch", "rating": -1 }],
-          "dinner": [{ "name": "Week 3 Sunday Dinner", "rating": -1 }]
+          "breakfast": [
+            {
+              "name": "Week 3 Sunday Breakfast",
+              "rating": -1
+            }
+          ],
+          "brunch": [
+            {
+              "name": "Week 3 Sunday Brunch",
+              "rating": -1
+            }
+          ],
+          "lunch": [
+            {
+              "name": "Week 3 Sunday Lunch",
+              "rating": -1
+            }
+          ],
+          "dinner": [
+            {
+              "name": "Week 3 Sunday Dinner",
+              "rating": -1
+            }
+          ]
         }
       ]
     }

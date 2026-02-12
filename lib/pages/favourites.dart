@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:whats_for_dino_2/services/food_cache.dart';
+import 'package:whats_for_dino_2/services/meals_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
 
-Future<void> _uploadRating(FoodItem item) async {
+Future<void> _uploadRating(LocalMealItem item) async {
   if (item.myRating == null) return;
 
   final installId = await getInstallId();
@@ -25,13 +25,53 @@ Future<void> _uploadRating(FoodItem item) async {
   }, SetOptions(merge: true));
 }
 
-class FoodItem {
+Future<void> removeStaleRatings(List<String> validMealNames) async {
+  final installId = await getInstallId();
+  final firestore = FirebaseFirestore.instance;
+
+  // Fetch current ratings
+  final installRef = firestore.collection('installs').doc(installId);
+  final installSnap = await installRef.get();
+
+  if (!installSnap.exists) {
+    debugPrint("No install document found, nothing to clean");
+    return;
+  }
+
+  final data = installSnap.data();
+  final ratings = data?['ratings'] as Map<String, dynamic>?;
+
+  if (ratings == null || ratings.isEmpty) {
+    debugPrint("No ratings found, nothing to clean");
+    return;
+  }
+
+  // Find stale ratings
+  final Map<String, dynamic> deletions = {};
+
+  for (final ratingName in ratings.keys) {
+    if (!validMealNames.contains(ratingName)) {
+      deletions['ratings.$ratingName'] = FieldValue.delete();
+      debugPrint("Removing stale rating: $ratingName");
+    }
+  }
+
+  // Apply deletions
+  if (deletions.isNotEmpty) {
+    await installRef.update(deletions);
+    debugPrint("Removed ${deletions.length} stale ratings");
+  } else {
+    debugPrint("No stale ratings found");
+  }
+}
+
+class LocalMealItem {
   final String name;
   double communityRating; // can map to menu rating if needed
   bool isFavourite;
   int? myRating;
 
-  FoodItem({
+  LocalMealItem({
     required this.name,
     required this.communityRating,
     this.isFavourite = true,
@@ -45,7 +85,7 @@ class FoodItem {
     "myRating": myRating,
   };
 
-  factory FoodItem.fromJson(Map<String, dynamic> json) => FoodItem(
+  factory LocalMealItem.fromJson(Map<String, dynamic> json) => LocalMealItem(
     name: json["name"],
     communityRating: json["communityRating"].toDouble(),
     isFavourite: json["isFavourite"] ?? true,
@@ -54,13 +94,13 @@ class FoodItem {
 }
 
 /// Public accessor
-List<FoodItem> getFoodItemsCache() {
-  return FoodItemsCache.items;
+List<LocalMealItem> getMealItemsCache() {
+  return MealItemsCache.items;
 }
 
 // The page
 class FavouritesPage extends StatefulWidget {
-  final void Function(FoodItem)? onItemChanged;
+  final void Function(LocalMealItem)? onItemChanged;
 
   const FavouritesPage({super.key, this.onItemChanged});
 
@@ -72,7 +112,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
   final TextEditingController _searchController = TextEditingController();
   late Box favouritesBox;
   late Box menuBox;
-  List<FoodItem> _filteredItems = [];
+  List<LocalMealItem> _filteredItems = [];
 
   final Map<int, String> ratingLabels = {
     1: 'I don\'t like it at all',
@@ -95,11 +135,11 @@ class _FavouritesPageState extends State<FavouritesPage> {
   }
 
   Future<void> _loadItems() async {
-  await initializeFoodItems(); // <-- ensure cache is ready
+  // await initializeFoodItems(); // <-- ensure cache is ready
   if (!mounted) return;
 
   setState(() {
-    _filteredItems = List.from(FoodItemsCache.items);
+    _filteredItems = List.from(MealItemsCache.items);
   });
 }
 
@@ -116,7 +156,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
   void _saveToHive() {
     favouritesBox.put(
       'favourites',
-      FoodItemsCache.items.map((e) => e.toJson()).toList(),
+      MealItemsCache.items.map((e) => e.toJson()).toList(),
     );
   }
 
@@ -124,18 +164,18 @@ class _FavouritesPageState extends State<FavouritesPage> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredItems =
-          FoodItemsCache.items
+          MealItemsCache.items
               .where((item) => item.name.toLowerCase().contains(query))
               .toList();
     });
   }
 
-  void _updateItem(FoodItem item) {
+  void _updateItem(LocalMealItem item) {
     widget.onItemChanged?.call(item);
     _saveToHive();
   }
 
-  void _showRatingPicker(FoodItem item) {
+  void _showRatingPicker(LocalMealItem item) {
     final List<int> reversedRatings = [5, 4, 3, 2, 1];
 
     ColorScheme currentColourScheme = Theme.of(context).colorScheme;
