@@ -25,6 +25,7 @@ class _WfdPageState extends State<WfdPage> {
 
   late String dateText;
   late String dayText;
+  late bool todayText = false;
   int _pageViewKey = 0; // Add this to force PageView rebuild
   bool menuLoading = true;
 
@@ -40,8 +41,12 @@ class _WfdPageState extends State<WfdPage> {
     } else {
       // Data already exists, recreate PageController with today's index
       final todayIndex = _findTodayIndex();
-      MenuCache.pageController?.dispose();
-      MenuCache.pageController = PageController(initialPage: todayIndex);
+      final ogFraction = MenuCache.pageController.viewportFraction;
+      MenuCache.pageController.dispose();
+      MenuCache.pageController = PageController(
+        initialPage: todayIndex,
+        viewportFraction: ogFraction,
+      );
 
       // Initialize labels immediately to match the page being displayed
       dayText = MenuCache.dayMenus[todayIndex].dayName;
@@ -61,15 +66,40 @@ class _WfdPageState extends State<WfdPage> {
     super.dispose();
   }
 
+  late double centreMenuFraction;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    centreMenuFraction = _calcPageFraction(context);
+
+    if (!MenuCache.isInitialized && MenuCache.dayMenus.isNotEmpty) {
+      final todayIndex = _findTodayIndex();
+      MenuCache.pageController.dispose();
+      MenuCache.pageController = PageController(
+        initialPage: todayIndex,
+        viewportFraction: centreMenuFraction,
+      );
+      setState(() {
+        dayText = MenuCache.dayMenus[todayIndex].dayName;
+        dateText = MenuCache.dayMenus[todayIndex].dayDate;
+      });
+    }
+  }
+
   Future<void> _initializeMenuCache() async {
     // Load from local storage
     await _loadDayMenusFromLocal();
 
     if (MenuCache.dayMenus.isNotEmpty) {
-      final todayIndex = _findTodayIndex();
-      MenuCache.pageController = PageController(initialPage: todayIndex);
-
       if (mounted) {
+        final todayIndex = _findTodayIndex();
+        final pageFraction = _calcPageFraction(context);
+        MenuCache.pageController = PageController(
+          initialPage: todayIndex,
+          viewportFraction: pageFraction,
+        );
         setState(() {
           MenuCache.isInitialized = true;
           // Set the correct labels
@@ -114,11 +144,15 @@ class _WfdPageState extends State<WfdPage> {
       debugPrint("Fetched menus from server, updating MenuCache...");
       final todayIndex = _findTodayIndexForList(newDayMenus);
 
-      // Recreate PageController with new data and today's index
-      MenuCache.pageController?.dispose();
-      MenuCache.pageController = PageController(initialPage: todayIndex);
-
       if (mounted) {
+        // Recreate PageController with new data and today's index
+        MenuCache.pageController.dispose();
+        final pageFraction = _calcPageFraction(context);
+        MenuCache.pageController = PageController(
+          initialPage: todayIndex,
+          viewportFraction: pageFraction,
+        );
+
         setState(() {
           MenuCache.menus = fetchedMenus;
           MenuCache.dayMenus = newDayMenus;
@@ -161,48 +195,46 @@ class _WfdPageState extends State<WfdPage> {
     }
   }
 
-Future<void> _fetchMealsFromServer() async {
-  try {
-    final snapshot = await firestoreService.getMealsOnce();
+  Future<void> _fetchMealsFromServer() async {
+    try {
+      final snapshot = await firestoreService.getMealsOnce();
 
       final fetchedMeals =
-        snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
 
-          return Meal(
-            name: data['name'],
-            rating: (data['communityRating'] as num).toDouble(),
-          );
-        }).toList();
+            return Meal(
+              name: data['name'],
+              rating: (data['communityRating'] as num).toDouble(),
+            );
+          }).toList();
 
-    debugPrint("Fetched meals from server, updating MealItemsCache...");
+      debugPrint("Fetched meals from server, updating MealItemsCache...");
 
-    mergeMealItems(fetchedMeals);
+      mergeMealItems(fetchedMeals);
 
-    if (mounted) {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
+
+      await _saveMealsToLocal();
+    } catch (e) {
+      debugPrint("Error fetching from server: $e");
     }
-
-    await _saveMealsToLocal();
-  } catch (e) {
-    debugPrint("Error fetching from server: $e");
   }
-}
 
+  Future<void> _saveMealsToLocal() async {
+    try {
+      final jsonList =
+          MealItemsCache.items.map((item) => item.toJson()).toList();
 
-Future<void> _saveMealsToLocal() async {
-  try {
-    final jsonList =
-        MealItemsCache.items.map((item) => item.toJson()).toList();
+      await menuBox.put('mealItems', jsonEncode(jsonList));
 
-    await menuBox.put('mealItems', jsonEncode(jsonList));
-
-    debugPrint("Saved ${jsonList.length} meal items to local storage");
-  } catch (e) {
-    debugPrint("Error saving to local: $e");
+      debugPrint("Saved ${jsonList.length} meal items to local storage");
+    } catch (e) {
+      debugPrint("Error saving to local: $e");
+    }
   }
-}
-
 
   // void _resetCache() async {
   //   // Clear static cache
@@ -230,9 +262,7 @@ Future<void> _saveMealsToLocal() async {
   Widget build(BuildContext context) {
     ColorScheme currentColourScheme = Theme.of(context).colorScheme;
 
-    if (!MenuCache.isInitialized ||
-        MenuCache.dayMenus.isEmpty ||
-        MenuCache.pageController == null) {
+    if (!MenuCache.isInitialized || MenuCache.dayMenus.isEmpty) {
       menuLoading = true;
       return Scaffold(
         backgroundColor: currentColourScheme.surface,
@@ -444,9 +474,8 @@ Future<void> _saveMealsToLocal() async {
                               int targetIndex = MenuCache.dayMenus.indexWhere(
                                 (d) => d.dayDate == selectedDateStr,
                               );
-                              if (targetIndex != -1 &&
-                                  MenuCache.pageController != null) {
-                                MenuCache.pageController!.animateToPage(
+                              if (targetIndex != -1) {
+                                MenuCache.pageController.animateToPage(
                                   targetIndex,
                                   duration: Duration(milliseconds: 1000),
                                   curve: Curves.easeInOutCubic,
@@ -454,27 +483,24 @@ Future<void> _saveMealsToLocal() async {
                               }
                             }
                           },
+
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text(
-                          dayText,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                        if (centreMenuFraction <= 0.7) Expanded(
+                          flex: (50 - (centreMenuFraction * 50).toInt()),
+                          child: _rowText(_dayBefore(dayText), centreMenuFraction < 0.5 ? TextAlign.left : TextAlign.center),
                         ),
-                        Text(
-                          dateText,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
+                        Expanded(
+                          flex: (centreMenuFraction * 100).toInt(),
+                          child: _dayDateRow(dayText, dateText),
+                        ),
+                        if (centreMenuFraction <= 0.7) Expanded(
+                          flex: (50 - (centreMenuFraction * 50).toInt()),
+                          child: _rowText(_dayAfter(dayText), centreMenuFraction < 0.5 ? TextAlign.right : TextAlign.center),
                         ),
                       ],
                     ),
@@ -487,8 +513,9 @@ Future<void> _saveMealsToLocal() async {
             flex: 94,
             child: PageView.builder(
               key: ValueKey(_pageViewKey), // Add key to force rebuild
-              controller: MenuCache.pageController!,
+              controller: MenuCache.pageController,
               scrollDirection: Axis.horizontal,
+              physics: const PageScrollPhysics(),
               itemCount: MenuCache.dayMenus.length,
               itemBuilder: (context, index) {
                 final dayMenu = MenuCache.dayMenus[index];
@@ -534,7 +561,10 @@ Future<void> _saveMealsToLocal() async {
                   dayText = MenuCache.dayMenus[index].dayName;
                   dateText = MenuCache.dayMenus[index].dayDate;
                   if (todayIndex == index && dayText.contains("||") == false) {
-                    dayText += " (Today)";
+                    todayText = true;
+                  }
+                  else {
+                    todayText = false;
                   }
                 });
               },
@@ -609,6 +639,22 @@ Future<void> _saveMealsToLocal() async {
     return 0;
   }
 
+  double _calcPageFraction(BuildContext context) {
+    // Reference "phone width" in logical pixels
+    const double phoneWidth = 500;
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    // If the screen is smaller than phoneWidth, show full page
+    if (screenWidth <= phoneWidth) return 1.0;
+
+    // Otherwise, calculate fraction so page width is ~phoneWidth
+    double fraction = phoneWidth / screenWidth;
+
+    // Clamp fraction to a reasonable minimum so pages are not tiny
+    return fraction.clamp(1 / 3, 1.0);
+  }
+
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -644,6 +690,72 @@ Future<void> _saveMealsToLocal() async {
       ],
     );
   }
+
+  Widget _dayDateRow(String rowDayText, String rowDateText) {
+    if (todayText) rowDayText += " (Today)";
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [_rowText(rowDayText), _rowText(rowDateText)],
+      ),
+    );
+  }
+
+  Widget _rowText(String text, [TextAlign? textAlign]) {
+    return Text(
+      text,
+      textAlign: textAlign,
+      style: TextStyle(
+        fontSize: 26,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+    );
+  }
+
+String _dayBefore(String day) {
+  switch (day) {
+    case "Monday":
+      return "Sunday";
+    case "Tuesday":
+      return "Monday";
+    case "Wednesday":
+      return "Tuesday";
+    case "Thursday":
+      return "Wednesday";
+    case "Friday":
+      return "Thursday";
+    case "Saturday":
+      return "Friday";
+    case "Sunday":
+      return "Saturday";
+    default:
+      return "idk before";
+  }
+}
+
+String _dayAfter(String day) {
+  switch (day) {
+    case "Monday":
+      return "Tuesday";
+    case "Tuesday":
+      return "Wednesday";
+    case "Wednesday":
+      return "Thursday";
+    case "Thursday":
+      return "Friday";
+    case "Friday":
+      return "Saturday";
+    case "Saturday":
+      return "Sunday";
+    case "Sunday":
+      return "Monday";
+    default:
+      return "idk after";
+  }
+}
 
   String asciiArt = '''
                               _.-.

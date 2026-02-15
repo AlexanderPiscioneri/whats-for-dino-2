@@ -6,7 +6,7 @@ import 'package:whats_for_dino_2/models/menu.dart';
 class MenuCache {
   static List<Menu> menus = [];
   static List<DayMenu> dayMenus = [];
-  static PageController? pageController;
+  static PageController pageController = PageController(initialPage: 0, viewportFraction: 1);
   static bool isInitialized = false;
 }
 

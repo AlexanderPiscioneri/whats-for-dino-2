@@ -143,6 +143,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         Provider.of<ThemeProvider>(context).themeData.colorScheme;
 
     return MaterialApp(
+      title: "What's For Dino 2",
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
