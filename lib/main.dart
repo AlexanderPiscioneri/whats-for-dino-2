@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_for_dino_2/models/server_message.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
@@ -16,6 +18,10 @@ import 'package:whats_for_dino_2/services/utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
+
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> ensureInstallDocument() async {
   final installId = await getInstallId();
@@ -31,6 +37,123 @@ Future<void> ensureInstallDocument() async {
   }, SetOptions(merge: true));
 }
 
+Future<void> checkServerMessages() async {
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final version = packageInfo.version;
+    final metaDataBox = Hive.box('metaDataBox');
+
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('metadata')
+            .doc('messages')
+            .get();
+
+    if (!doc.exists) return;
+
+    final rawMessages = doc.data()?['messages'] as List<dynamic>? ?? [];
+    // final rawMessages = [
+    //   {
+    //     "id": "test_info",
+    //     "title": "Sorry For A Bad Launch",
+    //     "text": "If you downloaded the app early on you would've found loading the menu to be impossible - sorry for that - if you're seeing this message it means you've updated, and that you'll never see that loading circle ever again.",
+    //     "type": "info",
+    //     "conditions": {},
+    //   },
+    //   {
+    //     "id": "test_warning",
+    //     "title": "Heads Up",
+    //     "text": "This is a test warning message. Dismiss this one to see the next.",
+    //     "type": "warning",
+    //     "conditions": {},
+    //   },
+    //   {
+    //     "id": "show_once",
+    //     "title": "Heads Up",
+    //     "text": "You should only ever see me once",
+    //     "type": "warning",
+    //     "showOnce": true,
+    //     "buttonText": "Alright I believe you",
+    //     "conditions": {},
+    //   },
+    // ];
+    final now = DateTime.now();
+
+    // Load previously seen one-time message IDs
+    final seenIds = Set<String>.from(
+      metaDataBox.get('seenMessageIds', defaultValue: []) as List,
+    );
+
+    final messages =
+        rawMessages
+            .map((m) => ServerMessage.fromJson(Map<String, dynamic>.from(m)))
+            .where((message) {
+              if (!message.isActive(now, version)) return false;
+              if (message.showOnce && seenIds.contains(message.id)) return false;
+              return true;
+            })
+            .toList();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    for (final message in messages) {
+      final context = navigatorKey.currentContext;
+      if (context == null) return;
+
+      final icon = switch (message.type) {
+        'warning' => (Icons.warning_amber_rounded, Colors.orange),
+        'error' => (Icons.error_rounded, Colors.red),
+        _ => (Icons.info_rounded, Colors.blue),
+      };
+
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (ctx) => AlertDialog(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              icon: Icon(icon.$1, color: icon.$2, size: 36),
+              title: Text(
+                message.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              content: Text(
+                message.text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white70, fontSize: 15),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  child: Text(message.buttonText, style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+      );
+      // Mark as seen after dismissal if it's a one-time message
+      if (message.showOnce) {
+        seenIds.add(message.id);
+        await metaDataBox.put('seenMessageIds', seenIds.toList());
+      }
+    }
+  } catch (e) {
+    debugPrint("Error checking server messages: $e");
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,10 +163,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotiService().initNotification();
 
+  await Hive.openBox('metaDataBox');
   await Hive.openBox('menuBox');
+  await Hive.openBox('mealsBox');
   await Hive.openBox('settingsBox');
   await Hive.openBox('notificationsBox');
-  await Hive.openBox('favouritesBox');
 
   runApp(
     ChangeNotifierProvider(
@@ -130,6 +254,10 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
       currentPage = 2; // default to WFD
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkServerMessages();
+    });
   }
 
   @override
@@ -145,6 +273,8 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
     return MaterialApp(
       title: "What's For Dino 2",
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: scaffoldMessengerKey,
+      navigatorKey: navigatorKey,
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
         backgroundColor: currentColourScheme.surface,

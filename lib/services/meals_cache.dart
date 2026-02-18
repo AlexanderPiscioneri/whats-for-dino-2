@@ -10,18 +10,18 @@ class MealItemsCache {
 
 // Initialize food items
 Future<void> initializeLocalMealItems() async {
-  final favouritesBox = Hive.box('favouritesBox');
+  final mealsBox = Hive.box('mealsBox');
 
-  // Load persisted favourites
-  final stored = favouritesBox.get('favourites', defaultValue: []);
+  // Load persisted meals
+  final stored = mealsBox.get('meals', defaultValue: []);
   MealItemsCache.items =
       (stored as List)
           .map((e) => LocalMealItem.fromJson(Map<String, dynamic>.from(e)))
           .toList();
 
   // Save back to Hive
-  favouritesBox.put(
-    'favourites',
+  mealsBox.put(
+    'meals',
     MealItemsCache.items.map((e) => e.toJson()).toList(),
   );
 }

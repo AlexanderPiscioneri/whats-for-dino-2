@@ -110,7 +110,7 @@ class FavouritesPage extends StatefulWidget {
 
 class _FavouritesPageState extends State<FavouritesPage> {
   final TextEditingController _searchController = TextEditingController();
-  late Box favouritesBox;
+  late Box mealsBox;
   late Box menuBox;
   List<LocalMealItem> _filteredItems = [];
 
@@ -125,7 +125,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
   @override
   void initState() {
     super.initState();
-    favouritesBox = Hive.box('favouritesBox');
+    mealsBox = Hive.box('mealsBox');
     menuBox = Hive.box('menuBox');
 
     _searchController.addListener(_onSearchChanged);
@@ -147,14 +147,14 @@ class _FavouritesPageState extends State<FavouritesPage> {
   //   setState(() {
   //     FoodItemsCache.items.clear();
   //     FoodItemsCache.isInitialized = false;
-  //     favouritesBox.delete('favourites');
+  //     mealsBox.delete('favourites');
   //   });
 
   //   initializeFoodItems();
   // }
 
   void _saveToHive() {
-    favouritesBox.put(
+    mealsBox.put(
       'favourites',
       MealItemsCache.items.map((e) => e.toJson()).toList(),
     );

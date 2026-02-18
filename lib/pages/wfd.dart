@@ -20,6 +20,7 @@ class WfdPage extends StatefulWidget {
 
 class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
+  final metaDataBox = Hive.box('metaDataBox');
   final menuBox = Hive.box('menuBox');
   final settingsBox = Hive.box('settingsBox');
 
@@ -55,9 +56,17 @@ class _WfdPageState extends State<WfdPage> {
 
     initializeLocalMealItems();
 
-    _fetchMenusFromServer();
-    _fetchMealsFromServer();
+    _fetchDataIfNeeded();
     NotiService().refreshNotifications();
+  }
+
+  Future<void> _fetchDataIfNeeded() async {
+    final DateTime? serverLastUpdated = await firestoreService.getLastUpdated();
+    final int localLastUpdated =
+        metaDataBox.get('lastUpdated', defaultValue: 0) as int;
+
+    await _fetchMenusFromServer(serverLastUpdated, localLastUpdated);
+    await _fetchMealsFromServer(serverLastUpdated);
   }
 
   @override
@@ -130,7 +139,19 @@ class _WfdPageState extends State<WfdPage> {
     }
   }
 
-  Future<void> _fetchMenusFromServer() async {
+  Future<void> _fetchMenusFromServer(
+    DateTime? serverLastUpdated,
+    int localLastUpdated,
+  ) async {
+    if (serverLastUpdated != null &&
+        serverLastUpdated.millisecondsSinceEpoch <= localLastUpdated &&
+        MenuCache.dayMenus.isNotEmpty) {
+      debugPrint("Data unchanged on server, skipping full fetch");
+      if (mounted) setState(() {});
+      return;
+    }
+
+    // Data has changed — do the full fetch
     try {
       QuerySnapshot snapshot = await firestoreService.getMenusOnce();
 
@@ -164,6 +185,11 @@ class _WfdPageState extends State<WfdPage> {
         });
       }
 
+      await metaDataBox.put(
+        'lastUpdated',
+        serverLastUpdated?.millisecondsSinceEpoch ??
+            DateTime.now().millisecondsSinceEpoch,
+      );
       await _saveMenusToLocal();
       debugPrint("Updated menus from server, initial page: $todayIndex");
     } catch (e) {
@@ -195,7 +221,24 @@ class _WfdPageState extends State<WfdPage> {
     }
   }
 
-  Future<void> _fetchMealsFromServer() async {
+  Future<void> _fetchMealsFromServer(DateTime? serverLastUpdated) async {
+    final int lastMealFetch =
+        metaDataBox.get('lastMealFetch', defaultValue: 0) as int;
+
+    // debugPrint("lastMealFetch: $lastMealFetch");
+    // debugPrint(
+    //   "serverLastUpdated ms: ${serverLastUpdated?.millisecondsSinceEpoch}",
+    // );
+    // debugPrint(
+    //   "MealItemsCache.items.isNotEmpty: ${MealItemsCache.items.isNotEmpty}",
+    // );
+
+    if (serverLastUpdated != null &&
+        lastMealFetch >= serverLastUpdated.millisecondsSinceEpoch &&
+        MealItemsCache.items.isNotEmpty) {
+      debugPrint("Meals unchanged, skipping fetch");
+      return;
+    }
     try {
       final snapshot = await firestoreService.getMealsOnce();
 
@@ -217,6 +260,11 @@ class _WfdPageState extends State<WfdPage> {
         setState(() {});
       }
 
+      await metaDataBox.put(
+        'lastMealFetch',
+        serverLastUpdated?.millisecondsSinceEpoch ??
+            DateTime.now().millisecondsSinceEpoch,
+      );
       await _saveMealsToLocal();
     } catch (e) {
       debugPrint("Error fetching from server: $e");
@@ -225,10 +273,14 @@ class _WfdPageState extends State<WfdPage> {
 
   Future<void> _saveMealsToLocal() async {
     try {
+      final mealsBox = Hive.box('mealsBox');
       final jsonList =
           MealItemsCache.items.map((item) => item.toJson()).toList();
 
-      await menuBox.put('mealItems', jsonEncode(jsonList));
+      await mealsBox.put(
+        'meals',
+        jsonList,
+      ); // no need for jsonEncode, Hive stores lists natively
 
       debugPrint("Saved ${jsonList.length} meal items to local storage");
     } catch (e) {
@@ -490,18 +542,30 @@ class _WfdPageState extends State<WfdPage> {
                       mainAxisSize: MainAxisSize.max,
                       // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        if (centreMenuFraction <= 0.7) Expanded(
-                          flex: (50 - (centreMenuFraction * 50).toInt()),
-                          child: _rowText(_dayBefore(dayText), centreMenuFraction < 0.5 ? TextAlign.left : TextAlign.center),
-                        ),
+                        if (centreMenuFraction <= 0.7)
+                          Expanded(
+                            flex: (50 - (centreMenuFraction * 50).toInt()),
+                            child: _rowText(
+                              _dayBefore(dayText),
+                              centreMenuFraction < 0.5
+                                  ? TextAlign.left
+                                  : TextAlign.center,
+                            ),
+                          ),
                         Expanded(
                           flex: (centreMenuFraction * 100).toInt(),
                           child: _dayDateRow(dayText, dateText),
                         ),
-                        if (centreMenuFraction <= 0.7) Expanded(
-                          flex: (50 - (centreMenuFraction * 50).toInt()),
-                          child: _rowText(_dayAfter(dayText), centreMenuFraction < 0.5 ? TextAlign.right : TextAlign.center),
-                        ),
+                        if (centreMenuFraction <= 0.7)
+                          Expanded(
+                            flex: (50 - (centreMenuFraction * 50).toInt()),
+                            child: _rowText(
+                              _dayAfter(dayText),
+                              centreMenuFraction < 0.5
+                                  ? TextAlign.right
+                                  : TextAlign.center,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -562,8 +626,7 @@ class _WfdPageState extends State<WfdPage> {
                   dateText = MenuCache.dayMenus[index].dayDate;
                   if (todayIndex == index && dayText.contains("||") == false) {
                     todayText = true;
-                  }
-                  else {
+                  } else {
                     todayText = false;
                   }
                 });
@@ -715,47 +778,47 @@ class _WfdPageState extends State<WfdPage> {
     );
   }
 
-String _dayBefore(String day) {
-  switch (day) {
-    case "Monday":
-      return "Sunday";
-    case "Tuesday":
-      return "Monday";
-    case "Wednesday":
-      return "Tuesday";
-    case "Thursday":
-      return "Wednesday";
-    case "Friday":
-      return "Thursday";
-    case "Saturday":
-      return "Friday";
-    case "Sunday":
-      return "Saturday";
-    default:
-      return "idk before";
+  String _dayBefore(String day) {
+    switch (day) {
+      case "Monday":
+        return "Sunday";
+      case "Tuesday":
+        return "Monday";
+      case "Wednesday":
+        return "Tuesday";
+      case "Thursday":
+        return "Wednesday";
+      case "Friday":
+        return "Thursday";
+      case "Saturday":
+        return "Friday";
+      case "Sunday":
+        return "Saturday";
+      default:
+        return "idk before";
+    }
   }
-}
 
-String _dayAfter(String day) {
-  switch (day) {
-    case "Monday":
-      return "Tuesday";
-    case "Tuesday":
-      return "Wednesday";
-    case "Wednesday":
-      return "Thursday";
-    case "Thursday":
-      return "Friday";
-    case "Friday":
-      return "Saturday";
-    case "Saturday":
-      return "Sunday";
-    case "Sunday":
-      return "Monday";
-    default:
-      return "idk after";
+  String _dayAfter(String day) {
+    switch (day) {
+      case "Monday":
+        return "Tuesday";
+      case "Tuesday":
+        return "Wednesday";
+      case "Wednesday":
+        return "Thursday";
+      case "Thursday":
+        return "Friday";
+      case "Friday":
+        return "Saturday";
+      case "Saturday":
+        return "Sunday";
+      case "Sunday":
+        return "Monday";
+      default:
+        return "idk after";
+    }
   }
-}
 
   String asciiArt = '''
                               _.-.
