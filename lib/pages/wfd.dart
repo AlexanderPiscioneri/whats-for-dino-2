@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,14 @@ class WfdPage extends StatefulWidget {
   @override
   State<WfdPage> createState() => _WfdPageState();
 }
+
+int wishPage = -1;
+
+bool isDesktopWeb =
+    kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux);
 
 class _WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
@@ -58,6 +68,8 @@ class _WfdPageState extends State<WfdPage> {
 
     _fetchDataIfNeeded();
     NotiService().refreshNotifications();
+
+    wishPage = -1;
   }
 
   Future<void> _fetchDataIfNeeded() async {
@@ -343,297 +355,344 @@ class _WfdPageState extends State<WfdPage> {
     menuLoading = false;
     final todayIndex = _findTodayIndex();
 
-    return Scaffold(
-      backgroundColor: currentColourScheme.surface,
-      // Uncomment for development
-      // floatingActionButton: FloatingActionButton(
-      //   mini: true,
-      //   onPressed: _resetCache,
-      //   child: Icon(Icons.refresh),
-      //   backgroundColor: Colors.red.withOpacity(0.7),
-      // ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Container(
-              color: Colors.transparent,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap:
-                      MenuCache.menus.isEmpty
-                          ? null
-                          : () async {
-                            DateTime? selectedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateFormat(
-                                'dd/MM/yyyy',
-                              ).parse(MenuCache.dayMenus[todayIndex].dayDate),
-                              firstDate: MenuCache.menus.first.startDate,
-                              lastDate: MenuCache.menus.last.endDate,
-                              selectableDayPredicate: (date) {
-                                return MenuCache.dayMenus.any((d) {
-                                  try {
-                                    if (d.dayDate.isEmpty) return false;
-                                    var parts = d.dayDate.split('/');
-                                    if (parts.length != 3) return false;
-                                    int dayInt = int.parse(parts[0].trim());
-                                    int monthInt = int.parse(parts[1].trim());
-                                    int yearInt = int.parse(parts[2].trim());
-                                    return date.day == dayInt &&
-                                        date.month == monthInt &&
-                                        date.year == yearInt;
-                                  } catch (e) {
-                                    return false;
-                                  }
-                                });
-                              },
-                              builder: (context, child) {
-                                final baseTheme = Theme.of(context);
+    final currentIndex =
+        MenuCache.pageController.hasClients
+            ? MenuCache.pageController.page?.round() ??
+                MenuCache.pageController.initialPage
+            : 0;
 
-                                return Theme(
-                                  data: baseTheme.copyWith(
-                                    // This controls "January 2026"
-                                    colorScheme: baseTheme.colorScheme.copyWith(
-                                      onSurface: Colors.white,
-                                      surfaceTint:
-                                          Colors
-                                              .transparent, // Doesn't seem to do anything
-                                      outline: Colors.transparent,
-                                    ),
+    final allDates =
+        MenuCache.dayMenus
+            .where((d) => d.dayDate.isNotEmpty)
+            .map((d) => DateFormat('dd/MM/yyyy').parse(d.dayDate))
+            .toList();
 
-                                    // OK / CANCEL colour
-                                    textButtonTheme: TextButtonThemeData(
-                                      style: ButtonStyle(
-                                        foregroundColor:
-                                            WidgetStateProperty.all(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  child: DatePickerTheme(
-                                    data: DatePickerThemeData(
-                                      headerBackgroundColor:
-                                          currentColourScheme
-                                              .primary, // top bar
+    allDates.sort();
 
-                                      headerForegroundColor:
-                                          Colors
-                                              .white, // header icons + some header text
+    return Focus(
+      autofocus: true, // automatically focus when page loads
+      onKeyEvent: (FocusNode node, KeyEvent event) {
+        // Only handle key down events
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            _goToPreviousDay();
+            return KeyEventResult.handled;
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            _goToNextDay();
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Scaffold(
+        backgroundColor: currentColourScheme.surface,
+        // Uncomment for development
+        // floatingActionButton: FloatingActionButton(
+        //   mini: true,
+        //   onPressed: _resetCache,
+        //   child: Icon(Icons.refresh),
+        //   backgroundColor: Colors.red.withOpacity(0.7),
+        // ),
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Expanded(
+                  flex: 6,
+                  // child: Container(
+                  // color: Colors.transparent,
+                  // child: Material(
+                  // color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () async {
+                      DateTime? selectedDate = await showDatePicker(
+                        context: context,
 
-                                      backgroundColor:
-                                          currentColourScheme
-                                              .surface, // calendar body
-
-                                      dividerColor: Colors.transparent,
-
-                                      // These styles only affect secondary header text
-                                      headerHelpStyle: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                      headerHeadlineStyle: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-
-                                      // Weekday letters styling
-                                      weekdayStyle: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-
-                                      dayForegroundColor:
-                                          WidgetStateColor.resolveWith((
-                                            states,
-                                          ) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.white;
-                                            }
-                                            if (states.contains(
-                                              WidgetState.disabled,
-                                            )) {
-                                              return Colors.white24;
-                                            }
-                                            return Colors.white70;
-                                          }),
-
-                                      todayForegroundColor:
-                                          WidgetStateColor.resolveWith((
-                                            states,
-                                          ) {
-                                            return Colors.white;
-                                          }),
-
-                                      confirmButtonStyle: ButtonStyle(
-                                        shape: WidgetStateProperty.all(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ), // smaller radius
-                                          ),
-                                        ),
-                                      ),
-
-                                      cancelButtonStyle: ButtonStyle(
-                                        shape: WidgetStateProperty.all(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      yearForegroundColor:
-                                          WidgetStateColor.resolveWith((
-                                            states,
-                                          ) {
-                                            if (states.contains(
-                                              WidgetState.selected,
-                                            )) {
-                                              return Colors.white;
-                                            }
-                                            if (states.contains(
-                                              WidgetState.disabled,
-                                            )) {
-                                              return Colors.white24;
-                                            }
-                                            return Colors.white70;
-                                          }),
-
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                    ),
-                                    child: child!,
-                                  ),
-                                );
-                              },
-                            );
-
-                            if (selectedDate != null) {
-                              String selectedDateStr = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(selectedDate);
-                              int targetIndex = MenuCache.dayMenus.indexWhere(
-                                (d) => d.dayDate == selectedDateStr,
-                              );
-                              if (targetIndex != -1) {
-                                MenuCache.pageController.animateToPage(
-                                  targetIndex,
-                                  duration: Duration(milliseconds: 1000),
-                                  curve: Curves.easeInOutCubic,
-                                );
-                              }
+                        initialDate: DateFormat(
+                          'dd/MM/yyyy',
+                        ).parse(MenuCache.dayMenus[currentIndex].dayDate),
+                        firstDate: allDates.first,
+                        lastDate: allDates.last,
+                        selectableDayPredicate: (date) {
+                          return MenuCache.dayMenus.any((d) {
+                            try {
+                              if (d.dayDate.isEmpty) return false;
+                              var parts = d.dayDate.split('/');
+                              if (parts.length != 3) return false;
+                              int dayInt = int.parse(parts[0].trim());
+                              int monthInt = int.parse(parts[1].trim());
+                              int yearInt = int.parse(parts[2].trim());
+                              return date.day == dayInt &&
+                                  date.month == monthInt &&
+                                  date.year == yearInt;
+                            } catch (e) {
+                              return false;
                             }
-                          },
+                          });
+                        },
+                        builder: (context, child) {
+                          final baseTheme = Theme.of(context);
 
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        if (centreMenuFraction <= 0.7)
-                          Expanded(
-                            flex: (50 - (centreMenuFraction * 50).toInt()),
-                            child: _rowText(
-                              _dayBefore(dayText),
-                              centreMenuFraction < 0.5
-                                  ? TextAlign.left
-                                  : TextAlign.center,
+                          return Theme(
+                            data: baseTheme.copyWith(
+                              // This controls "January 2026"
+                              colorScheme: baseTheme.colorScheme.copyWith(
+                                onSurface: Colors.white,
+                                surfaceTint:
+                                    Colors
+                                        .transparent, // Doesn't seem to do anything
+                                outline: Colors.transparent,
+                              ),
+
+                              // OK / CANCEL colour
+                              textButtonTheme: TextButtonThemeData(
+                                style: ButtonStyle(
+                                  foregroundColor: WidgetStateProperty.all(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        Expanded(
-                          flex: (centreMenuFraction * 100).toInt(),
-                          child: _dayDateRow(dayText, dateText),
-                        ),
-                        if (centreMenuFraction <= 0.7)
-                          Expanded(
-                            flex: (50 - (centreMenuFraction * 50).toInt()),
-                            child: _rowText(
-                              _dayAfter(dayText),
-                              centreMenuFraction < 0.5
-                                  ? TextAlign.right
-                                  : TextAlign.center,
+                            child: DatePickerTheme(
+                              data: DatePickerThemeData(
+                                headerBackgroundColor:
+                                    currentColourScheme.primary, // top bar
+
+                                headerForegroundColor:
+                                    Colors
+                                        .white, // header icons + some header text
+
+                                backgroundColor:
+                                    currentColourScheme
+                                        .surface, // calendar body
+
+                                dividerColor: Colors.transparent,
+
+                                // These styles only affect secondary header text
+                                headerHelpStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                headerHeadlineStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.normal,
+                                ),
+
+                                // Weekday letters styling
+                                weekdayStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+
+                                dayForegroundColor:
+                                    WidgetStateColor.resolveWith((states) {
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return Colors.white;
+                                      }
+                                      if (states.contains(
+                                        WidgetState.disabled,
+                                      )) {
+                                        return Colors.white24;
+                                      }
+                                      return Colors.white70;
+                                    }),
+
+                                todayForegroundColor:
+                                    WidgetStateColor.resolveWith((states) {
+                                      return Colors.white;
+                                    }),
+
+                                confirmButtonStyle: ButtonStyle(
+                                  shape: WidgetStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        4,
+                                      ), // smaller radius
+                                    ),
+                                  ),
+                                ),
+
+                                cancelButtonStyle: ButtonStyle(
+                                  shape: WidgetStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                ),
+
+                                yearForegroundColor:
+                                    WidgetStateColor.resolveWith((states) {
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return Colors.white;
+                                      }
+                                      if (states.contains(
+                                        WidgetState.disabled,
+                                      )) {
+                                        return Colors.white24;
+                                      }
+                                      return Colors.white70;
+                                    }),
+
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                ),
+                              ),
+                              child: child!,
                             ),
+                          );
+                        },
+                      );
+
+                      if (selectedDate != null) {
+                        String selectedDateStr = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(selectedDate);
+                        int targetIndex = MenuCache.dayMenus.indexWhere(
+                          (d) => d.dayDate == selectedDateStr,
+                        );
+                        if (targetIndex != -1) {
+                          MenuCache.pageController.animateToPage(
+                            targetIndex,
+                            duration: Duration(milliseconds: 1000),
+                            curve: Curves.easeInOutCubic,
+                          );
+                        }
+                      }
+                    },
+
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (centreMenuFraction <= 0.7)
+                            Expanded(
+                              flex: (50 - (centreMenuFraction * 50).toInt()),
+                              child: _rowText(
+                                _dayBefore(dayText),
+                                centreMenuFraction < 0.5
+                                    ? TextAlign.left
+                                    : TextAlign.center,
+                              ),
+                            ),
+                          Expanded(
+                            flex: (centreMenuFraction * 100).toInt(),
+                            child: _dayDateRow(dayText, dateText),
                           ),
-                      ],
+                          if (centreMenuFraction <= 0.7)
+                            Expanded(
+                              flex: (50 - (centreMenuFraction * 50).toInt()),
+                              child: _rowText(
+                                _dayAfter(dayText),
+                                centreMenuFraction < 0.5
+                                    ? TextAlign.right
+                                    : TextAlign.center,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
+                  // ),
+                  // ),
                 ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 94,
-            child: PageView.builder(
-              key: ValueKey(_pageViewKey), // Add key to force rebuild
-              controller: MenuCache.pageController,
-              scrollDirection: Axis.horizontal,
-              physics: const PageScrollPhysics(),
-              itemCount: MenuCache.dayMenus.length,
-              itemBuilder: (context, index) {
-                final dayMenu = MenuCache.dayMenus[index];
+                Expanded(
+                  flex: 94,
+                  child: PageView.builder(
+                    key: ValueKey(_pageViewKey), // Add key to force rebuild
+                    controller: MenuCache.pageController,
+                    scrollDirection: Axis.horizontal,
+                    physics:
+                        isDesktopWeb
+                            ? const NeverScrollableScrollPhysics()
+                            : const PageScrollPhysics(),
+                    itemCount: MenuCache.dayMenus.length,
+                    itemBuilder: (context, index) {
+                      final dayMenu = MenuCache.dayMenus[index];
 
-                String dinnerSectionName = "Dinner";
-                if (dayMenu.hasEarlyDinner == true) {
-                  dinnerSectionName = "E. Dinner";
-                  if (settingsBox.get("showTimesOnMenu", defaultValue: true) ==
-                      false) {
-                    dinnerSectionName =
-                        "Early Dinner"; // there is space bc times aren't showing
-                  }
-                }
+                      String dinnerSectionName = "Dinner";
+                      if (dayMenu.hasEarlyDinner == true) {
+                        dinnerSectionName = "E. Dinner";
+                        if (settingsBox.get(
+                              "showTimesOnMenu",
+                              defaultValue: true,
+                            ) ==
+                            false) {
+                          dinnerSectionName =
+                              "Early Dinner"; // there is space bc times aren't showing
+                        }
+                      }
 
-                bool isBetweenMenusPage =
-                    dayMenu.dayName.contains("||") == false;
+                      bool isBetweenMenusPage =
+                          dayMenu.dayName.contains("||") == false;
 
-                return Padding(
-                  padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
-                  child: Container(
-                    color:
-                        Provider.of<ThemeProvider>(
-                          context,
-                        ).themeData.colorScheme.secondary,
-                    child:
-                        isBetweenMenusPage
-                            ? ListView(
-                              padding: const EdgeInsets.all(16),
-                              children: [
-                                _mealSection("Breakfast", dayMenu.breakfast),
-                                if (dayMenu.brunch != null)
-                                  _mealSection("Brunch", dayMenu.brunch!),
-                                _mealSection("Lunch", dayMenu.lunch),
-                                _mealSection(dinnerSectionName, dayMenu.dinner),
-                              ],
-                            )
-                            : _betweenMenusPage(dayMenu.dayName),
+                      final viewportFraction =
+                          MenuCache.pageController.viewportFraction;
+                      final double rightPadding = viewportFraction < 1 ? 2 : 4;
+
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: 4,
+                          right: rightPadding,
+                          bottom: 4,
+                        ),
+                        child: Container(
+                          color:
+                              Provider.of<ThemeProvider>(
+                                context,
+                              ).themeData.colorScheme.secondary,
+                          child:
+                              isBetweenMenusPage
+                                  ? ListView(
+                                    padding: const EdgeInsets.all(16),
+                                    children: [
+                                      _mealSection(
+                                        "Breakfast",
+                                        dayMenu.breakfast,
+                                      ),
+                                      if (dayMenu.brunch != null)
+                                        _mealSection("Brunch", dayMenu.brunch!),
+                                      _mealSection("Lunch", dayMenu.lunch),
+                                      _mealSection(
+                                        dinnerSectionName,
+                                        dayMenu.dinner,
+                                      ),
+                                    ],
+                                  )
+                                  : _betweenMenusPage(dayMenu.dayName),
+                        ),
+                      );
+                    },
+                    onPageChanged: (index) {
+                      setState(() {
+                        dayText = MenuCache.dayMenus[index].dayName;
+                        dateText = MenuCache.dayMenus[index].dayDate;
+                        if (todayIndex == index &&
+                            dayText.contains("||") == false) {
+                          todayText = true;
+                        } else {
+                          todayText = false;
+                        }
+                      });
+                    },
                   ),
-                );
-              },
-              onPageChanged: (index) {
-                setState(() {
-                  dayText = MenuCache.dayMenus[index].dayName;
-                  dateText = MenuCache.dayMenus[index].dayDate;
-                  if (todayIndex == index && dayText.contains("||") == false) {
-                    todayText = true;
-                  } else {
-                    todayText = false;
-                  }
-                });
-              },
+                ),
+              ],
             ),
-          ),
-        ],
+            if (isDesktopWeb) ...[
+              _buildLeftArrow(currentColourScheme),
+              _buildRightArrow(currentColourScheme),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -984,4 +1043,72 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
   }
 
   return newDayMenus;
+}
+
+Widget _buildLeftArrow(ColorScheme currentColourScheme) {
+  return Positioned(
+    left: 0,
+    bottom: 0,
+    child: Center(
+      child: IconButton(
+        splashColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        iconSize: 48,
+        color: currentColourScheme.onSurface,
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          _goToPreviousDay();
+        },
+      ),
+    ),
+  );
+}
+
+Widget _buildRightArrow(ColorScheme currentColourScheme) {
+  return Positioned(
+    right: 0,
+    bottom: 0,
+    child: Center(
+      child: IconButton(
+        splashColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        iconSize: 48,
+        color: currentColourScheme.onSurface,
+        icon: const Icon(Icons.arrow_forward),
+        onPressed: () {
+          _goToNextDay();
+        },
+      ),
+    ),
+  );
+}
+
+void _goToNextDay() {
+  if (wishPage == -1) {
+    wishPage = MenuCache.pageController.page?.round() ?? 0;
+  }
+  wishPage += 1;
+  if (wishPage > 0) {
+    MenuCache.pageController.animateToPage(
+      wishPage,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+}
+
+void _goToPreviousDay() {
+  if (wishPage == -1) {
+    wishPage = MenuCache.pageController.page?.round() ?? 0;
+  }
+  wishPage -= 1;
+  if (wishPage > 0) {
+    MenuCache.pageController.animateToPage(
+      wishPage,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
 }

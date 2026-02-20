@@ -9,9 +9,9 @@ ThemeData lightMode = ThemeData(
 
   brightness: Brightness.light,
   colorScheme: ColorScheme.light(
-    surface: defaultSurface,
-    primary: defaultPrimary,
-    secondary: Colors.white,
+    surface: defaultSurface, // Background
+    primary: defaultPrimary, // Top and bottom bars
+    secondary: Colors.white, // Page background
   ),
 
   navigationBarTheme: NavigationBarThemeData(
