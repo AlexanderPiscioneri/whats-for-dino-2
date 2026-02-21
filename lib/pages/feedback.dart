@@ -26,7 +26,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             Divider(color: Theme.of(context).colorScheme.primary),
             ElevatedButton(
-              onPressed: () => openLink("https://example.com"),
+              onPressed: () => openLink("https://forms.office.com/Pages/ResponsePage.aspx?id=pM_2PxXn20i44Qhnufn7o91DYUQ6lW9MsGLk8aV9AgNUNlFXTDUwUEgwVzJQNUVYRjdMQVdJNkxSMS4u&origin=QRCode"),
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,

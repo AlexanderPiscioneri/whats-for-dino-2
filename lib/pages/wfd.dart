@@ -36,7 +36,7 @@ class WfdPageState extends State<WfdPage> {
 
   late String dateText;
   late String dayText;
-  late bool todayText = false;
+  late bool showTodayLogo = true;
   int _pageViewKey = 0; // Add this to force PageView rebuild
   bool menuLoading = true;
 
@@ -105,6 +105,7 @@ class WfdPageState extends State<WfdPage> {
       setState(() {
         dayText = MenuCache.dayMenus[todayIndex].dayName;
         dateText = MenuCache.dayMenus[todayIndex].dayDate;
+        showTodayLogo = true;
       });
     }
   }
@@ -126,6 +127,7 @@ class WfdPageState extends State<WfdPage> {
           // Set the correct labels
           dayText = MenuCache.dayMenus[todayIndex].dayName;
           dateText = MenuCache.dayMenus[todayIndex].dayDate;
+          showTodayLogo = true;
         });
       }
     }
@@ -374,14 +376,17 @@ class WfdPageState extends State<WfdPage> {
       onKeyEvent: (FocusNode node, KeyEvent event) {
         // Only handle key down events
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowLeft || event.logicalKey == LogicalKeyboardKey.keyA) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+              event.logicalKey == LogicalKeyboardKey.keyA) {
             _goToPreviousDay();
             return KeyEventResult.handled;
-          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight || event.logicalKey == LogicalKeyboardKey.keyD) {
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight ||
+              event.logicalKey == LogicalKeyboardKey.keyD) {
             _goToNextDay();
             return KeyEventResult.handled;
-          }
-          else if (event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.keyS || event.logicalKey == LogicalKeyboardKey.space) {
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowDown ||
+              event.logicalKey == LogicalKeyboardKey.keyS ||
+              event.logicalKey == LogicalKeyboardKey.space) {
             animateToToday();
             return KeyEventResult.handled;
           }
@@ -401,215 +406,224 @@ class WfdPageState extends State<WfdPage> {
           children: [
             Column(
               children: [
-                Expanded(
+                Flexible(
                   flex: 6,
+                  fit: FlexFit.loose,
                   // child: Container(
                   // color: Colors.transparent,
                   // child: Material(
                   // color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () async {
-                      DateTime? selectedDate = await showDatePicker(
-                        context: context,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 50,
+                      // maxHeight: 1000,
+                    ),
+                    child: InkWell(
+                      onTap: () async {
+                        DateTime? selectedDate = await showDatePicker(
+                          context: context,
 
-                        initialDate: DateFormat(
-                          'dd/MM/yyyy',
-                        ).parse(MenuCache.dayMenus[currentIndex].dayDate),
-                        firstDate: allDates.first,
-                        lastDate: allDates.last,
-                        selectableDayPredicate: (date) {
-                          return MenuCache.dayMenus.any((d) {
-                            try {
-                              if (d.dayDate.isEmpty) return false;
-                              var parts = d.dayDate.split('/');
-                              if (parts.length != 3) return false;
-                              int dayInt = int.parse(parts[0].trim());
-                              int monthInt = int.parse(parts[1].trim());
-                              int yearInt = int.parse(parts[2].trim());
-                              return date.day == dayInt &&
-                                  date.month == monthInt &&
-                                  date.year == yearInt;
-                            } catch (e) {
-                              return false;
-                            }
-                          });
-                        },
-                        builder: (context, child) {
-                          final baseTheme = Theme.of(context);
+                          initialDate: DateFormat(
+                            'dd/MM/yyyy',
+                          ).parse(MenuCache.dayMenus[currentIndex].dayDate),
+                          firstDate: allDates.first,
+                          lastDate: allDates.last,
+                          selectableDayPredicate: (date) {
+                            return MenuCache.dayMenus.any((d) {
+                              try {
+                                if (d.dayDate.isEmpty) return false;
+                                var parts = d.dayDate.split('/');
+                                if (parts.length != 3) return false;
+                                int dayInt = int.parse(parts[0].trim());
+                                int monthInt = int.parse(parts[1].trim());
+                                int yearInt = int.parse(parts[2].trim());
+                                return date.day == dayInt &&
+                                    date.month == monthInt &&
+                                    date.year == yearInt;
+                              } catch (e) {
+                                return false;
+                              }
+                            });
+                          },
+                          builder: (context, child) {
+                            final baseTheme = Theme.of(context);
 
-                          return Theme(
-                            data: baseTheme.copyWith(
-                              // This controls "January 2026"
-                              colorScheme: baseTheme.colorScheme.copyWith(
-                                onSurface: Colors.white,
-                                surfaceTint:
-                                    Colors
-                                        .transparent, // Doesn't seem to do anything
-                                outline: Colors.transparent,
-                              ),
-
-                              // OK / CANCEL colour
-                              textButtonTheme: TextButtonThemeData(
-                                style: ButtonStyle(
-                                  foregroundColor: WidgetStateProperty.all(
-                                    Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            child: DatePickerTheme(
-                              data: DatePickerThemeData(
-                                headerBackgroundColor:
-                                    currentColourScheme.primary, // top bar
-
-                                headerForegroundColor:
-                                    Colors
-                                        .white, // header icons + some header text
-
-                                backgroundColor:
-                                    currentColourScheme
-                                        .surface, // calendar body
-
-                                dividerColor: Colors.transparent,
-
-                                // These styles only affect secondary header text
-                                headerHelpStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                                headerHeadlineStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.normal,
+                            return Theme(
+                              data: baseTheme.copyWith(
+                                // This controls "January 2026"
+                                colorScheme: baseTheme.colorScheme.copyWith(
+                                  onSurface: Colors.white,
+                                  surfaceTint:
+                                      Colors
+                                          .transparent, // Doesn't seem to do anything
+                                  outline: Colors.transparent,
                                 ),
 
-                                // Weekday letters styling
-                                weekdayStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-
-                                dayForegroundColor:
-                                    WidgetStateColor.resolveWith((states) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return Colors.white;
-                                      }
-                                      if (states.contains(
-                                        WidgetState.disabled,
-                                      )) {
-                                        return Colors.white24;
-                                      }
-                                      return Colors.white70;
-                                    }),
-
-                                todayForegroundColor:
-                                    WidgetStateColor.resolveWith((states) {
-                                      return Colors.white;
-                                    }),
-
-                                confirmButtonStyle: ButtonStyle(
-                                  shape: WidgetStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        4,
-                                      ), // smaller radius
+                                // OK / CANCEL colour
+                                textButtonTheme: TextButtonThemeData(
+                                  style: ButtonStyle(
+                                    foregroundColor: WidgetStateProperty.all(
+                                      Colors.white,
                                     ),
                                   ),
                                 ),
+                              ),
+                              child: DatePickerTheme(
+                                data: DatePickerThemeData(
+                                  headerBackgroundColor:
+                                      currentColourScheme.primary, // top bar
 
-                                cancelButtonStyle: ButtonStyle(
-                                  shape: WidgetStateProperty.all(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
+                                  headerForegroundColor:
+                                      Colors
+                                          .white, // header icons + some header text
+
+                                  backgroundColor:
+                                      currentColourScheme
+                                          .surface, // calendar body
+
+                                  dividerColor: Colors.transparent,
+
+                                  // These styles only affect secondary header text
+                                  headerHelpStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                  headerHeadlineStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+
+                                  // Weekday letters styling
+                                  weekdayStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+
+                                  dayForegroundColor:
+                                      WidgetStateColor.resolveWith((states) {
+                                        if (states.contains(
+                                          WidgetState.selected,
+                                        )) {
+                                          return Colors.white;
+                                        }
+                                        if (states.contains(
+                                          WidgetState.disabled,
+                                        )) {
+                                          return Colors.white24;
+                                        }
+                                        return Colors.white70;
+                                      }),
+
+                                  todayForegroundColor:
+                                      WidgetStateColor.resolveWith((states) {
+                                        return Colors.white;
+                                      }),
+
+                                  confirmButtonStyle: ButtonStyle(
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          4,
+                                        ), // smaller radius
+                                      ),
                                     ),
                                   ),
-                                ),
 
-                                yearForegroundColor:
-                                    WidgetStateColor.resolveWith((states) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return Colors.white;
-                                      }
-                                      if (states.contains(
-                                        WidgetState.disabled,
-                                      )) {
-                                        return Colors.white24;
-                                      }
-                                      return Colors.white70;
-                                    }),
+                                  cancelButtonStyle: ButtonStyle(
+                                    shape: WidgetStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
 
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.zero,
+                                  yearForegroundColor:
+                                      WidgetStateColor.resolveWith((states) {
+                                        if (states.contains(
+                                          WidgetState.selected,
+                                        )) {
+                                          return Colors.white;
+                                        }
+                                        if (states.contains(
+                                          WidgetState.disabled,
+                                        )) {
+                                          return Colors.white24;
+                                        }
+                                        return Colors.white70;
+                                      }),
+
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                  ),
                                 ),
+                                child: child!,
                               ),
-                              child: child!,
-                            ),
-                          );
-                        },
-                      );
-
-                      if (selectedDate != null) {
-                        String selectedDateStr = DateFormat(
-                          'dd/MM/yyyy',
-                        ).format(selectedDate);
-                        int targetIndex = MenuCache.dayMenus.indexWhere(
-                          (d) => d.dayDate == selectedDateStr,
+                            );
+                          },
                         );
-                        if (targetIndex != -1) {
-                          MenuCache.pageController.animateToPage(
-                            targetIndex,
-                            duration: Duration(milliseconds: 1000),
-                            curve: Curves.easeInOutCubic,
-                          );
-                        }
-                      }
-                    },
 
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          if (centreMenuFraction <= 0.7)
-                            Expanded(
-                              flex: (50 - (centreMenuFraction * 50).toInt()),
-                              child: _rowText(
-                                _dayBefore(dayText),
-                                centreMenuFraction < 0.5
-                                    ? TextAlign.left
-                                    : TextAlign.center,
+                        if (selectedDate != null) {
+                          String selectedDateStr = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(selectedDate);
+                          int targetIndex = MenuCache.dayMenus.indexWhere(
+                            (d) => d.dayDate == selectedDateStr,
+                          );
+                          if (targetIndex != -1) {
+                            MenuCache.pageController.animateToPage(
+                              targetIndex,
+                              duration: Duration(milliseconds: 1000),
+                              curve: Curves.easeInOutCubic,
+                            );
+                            wishPage = targetIndex;
+                          }
+                        }
+                      },
+
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            if (centreMenuFraction <= 0.7)
+                              Expanded(
+                                flex: (50 - (centreMenuFraction * 50).toInt()),
+                                child: _rowText(
+                                  _dayBefore(dayText),
+                                  centreMenuFraction < 0.5
+                                      ? TextAlign.left
+                                      : TextAlign.center,
+                                ),
                               ),
-                            ),
-                          Expanded(
-                            flex: (centreMenuFraction * 100).toInt(),
-                            child: _dayDateRow(dayText, dateText),
-                          ),
-                          if (centreMenuFraction <= 0.7)
                             Expanded(
-                              flex: (50 - (centreMenuFraction * 50).toInt()),
-                              child: _rowText(
-                                _dayAfter(dayText),
-                                centreMenuFraction < 0.5
-                                    ? TextAlign.right
-                                    : TextAlign.center,
-                              ),
+                              flex: (centreMenuFraction * 100).toInt(),
+                              child: _dayDateRow(dayText, dateText),
                             ),
-                        ],
+                            if (centreMenuFraction <= 0.7)
+                              Expanded(
+                                flex: (50 - (centreMenuFraction * 50).toInt()),
+                                child: _rowText(
+                                  _dayAfter(dayText),
+                                  centreMenuFraction < 0.5
+                                      ? TextAlign.right
+                                      : TextAlign.center,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   // ),
                   // ),
                 ),
-                Expanded(
+                Flexible(
                   flex: 94,
+                  fit: FlexFit.tight,
                   child: PageView.builder(
                     key: ValueKey(_pageViewKey), // Add key to force rebuild
                     controller: MenuCache.pageController,
@@ -681,9 +695,9 @@ class WfdPageState extends State<WfdPage> {
                         dateText = MenuCache.dayMenus[index].dayDate;
                         if (todayIndex == index &&
                             dayText.contains("||") == false) {
-                          todayText = true;
+                          showTodayLogo = true;
                         } else {
-                          todayText = false;
+                          showTodayLogo = false;
                         }
                       });
                     },
@@ -831,13 +845,45 @@ class WfdPageState extends State<WfdPage> {
   }
 
   Widget _dayDateRow(String rowDayText, String rowDateText) {
-    if (todayText) rowDayText += " (Today)";
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [_rowText(rowDayText), _rowText(rowDateText)],
+        children: [
+          Row(
+            children: [
+              Text(
+                "$rowDayText ",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+              if (showTodayLogo)
+                Icon(
+                  Icons.event_available_sharp,
+                  color: Colors.white,
+                  size: 30,
+                ),
+            ],
+          ),
+          Row(
+            children: [
+              Icon(Icons.today_sharp, color: Colors.white, size: 30),
+              Text(
+                " $rowDateText",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          // _centreRowText(rowDateText),
+        ],
       ),
     );
   }

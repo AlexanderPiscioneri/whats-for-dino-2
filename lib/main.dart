@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -165,7 +167,6 @@ void main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotiService().initNotification();
 
   await Hive.openBox('metaDataBox');
@@ -174,6 +175,17 @@ void main() async {
   await Hive.openBox('settingsBox');
   await Hive.openBox('notificationsBox');
 
+  // Initialize Firebase safely
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -181,7 +193,25 @@ void main() async {
     ),
   );
 
+  // Post-run async tasks (can safely use Firebase here)
   ensureInstallDocument();
+}
+
+// Separate async function for Firebase
+Future<void> initializeFirebase() async {
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+
+    // Firestore / server setup can be called safely
+    await ensureInstallDocument();
+    await checkServerMessages();
+  } catch (e) {
+    debugPrint("Firebase init failed: $e");
+  }
 }
 
 class WhatsForDinoApp extends StatefulWidget {
@@ -268,18 +298,23 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
       currentPage = 2; // default to WFD
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkServerMessages();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   checkServerMessages();
+    // });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ThemeProvider>(context, listen: false).setDarkMode(
         Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
       );
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<ThemeProvider>(context, listen: false).setDarkMode(
+    //     Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
+    //   );
+    // });
     ColorScheme currentColourScheme =
         Provider.of<ThemeProvider>(context).themeData.colorScheme;
 
@@ -314,6 +349,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
             highlightColor: Colors.transparent,
             hoverColor: Colors.transparent,
             splashColor: Colors.transparent,
+
             canvasColor: currentColourScheme.primary,
           ),
           child: BottomNavigationBar(
