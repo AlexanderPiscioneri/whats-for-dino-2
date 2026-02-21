@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:whats_for_dino_2/services/utils.dart';
+
 
 class FeedbackPage extends StatelessWidget {
   const FeedbackPage({super.key});
-
-  Future<void> _openLink(url) async {
-    final uri = Uri.parse(url);
-
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $uri');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +26,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             Divider(color: Theme.of(context).colorScheme.primary),
             ElevatedButton(
-              onPressed: () => _openLink("https://example.com"),
+              onPressed: () => openLink("https://example.com"),
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,
@@ -70,7 +63,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed:
-                  () => _openLink("https://forms.gle/mc7dDUUe1d5iCwes9"),
+                  () => openLink("https://forms.gle/mc7dDUUe1d5iCwes9"),
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,
@@ -111,7 +104,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed:
-                  () => _openLink("https://linktr.ee/alexanderpiscioneri"),
+                  () => openLink("https://linktr.ee/alexanderpiscioneri"),
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,

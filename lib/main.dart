@@ -22,6 +22,7 @@ Color containerColour = Color.fromARGB(73, 0, 0, 0);
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<WfdPageState> wfdKey = GlobalKey<WfdPageState>();
 
 Future<void> ensureInstallDocument() async {
   final installId = await getInstallId();
@@ -89,7 +90,8 @@ Future<void> checkServerMessages() async {
             .map((m) => ServerMessage.fromJson(Map<String, dynamic>.from(m)))
             .where((message) {
               if (!message.isActive(now, version)) return false;
-              if (message.showOnce && seenIds.contains(message.id)) return false;
+              if (message.showOnce && seenIds.contains(message.id))
+                return false;
               return true;
             })
             .toList();
@@ -138,7 +140,10 @@ Future<void> checkServerMessages() async {
                       borderRadius: BorderRadius.zero,
                     ),
                   ),
-                  child: Text(message.buttonText, style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    message.buttonText,
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ],
             ),
@@ -190,6 +195,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
   int currentPage = 2;
 
   void navigateToPage(int index) {
+    wfdKey.currentState?.animateToToday();
     setState(() {
       currentPage = index;
     });
@@ -206,7 +212,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
     if (kIsWeb) {
       titles = ["SETTINGS", "WHAT'S FOR DINO", "FEEDBACK"];
 
-      pages = [SettingsPage(), WfdPage(), FeedbackPage()];
+      pages = [SettingsPage(), WfdPage(key: wfdKey), FeedbackPage()];
 
       navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
@@ -218,6 +224,13 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
       ];
 
       currentPage = 1; // default to WFD
+
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        openLink("https://apps.apple.com/au/app/whats-for-dino-2/id6758697602");
+      } else if (defaultTargetPlatform == TargetPlatform.android) {
+        // Android not available yet
+        // openLink("https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2");
+      }
     } else {
       titles = [
         "SETTINGS",
@@ -230,7 +243,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
       pages = [
         SettingsPage(),
         NotificationsPage(),
-        WfdPage(),
+        WfdPage(key: wfdKey),
         FeedbackPage(),
         FavouritesPage(),
       ];
@@ -299,6 +312,8 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
           data: Theme.of(context).copyWith(
             splashFactory: NoSplash.splashFactory,
             highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
             canvasColor: currentColourScheme.primary,
           ),
           child: BottomNavigationBar(

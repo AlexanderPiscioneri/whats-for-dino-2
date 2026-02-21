@@ -47,3 +47,7 @@ app.*.map.json
 # Google API keys
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
+
+# Android keystore
+keystore/
+android/key.properties

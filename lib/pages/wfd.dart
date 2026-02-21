@@ -17,7 +17,7 @@ class WfdPage extends StatefulWidget {
   const WfdPage({super.key});
 
   @override
-  State<WfdPage> createState() => _WfdPageState();
+  State<WfdPage> createState() => WfdPageState();
 }
 
 int wishPage = -1;
@@ -28,7 +28,7 @@ bool isDesktopWeb =
         defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.linux);
 
-class _WfdPageState extends State<WfdPage> {
+class WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
   final metaDataBox = Hive.box('metaDataBox');
   final menuBox = Hive.box('menuBox');
@@ -374,11 +374,15 @@ class _WfdPageState extends State<WfdPage> {
       onKeyEvent: (FocusNode node, KeyEvent event) {
         // Only handle key down events
         if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft || event.logicalKey == LogicalKeyboardKey.keyA) {
             _goToPreviousDay();
             return KeyEventResult.handled;
-          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight || event.logicalKey == LogicalKeyboardKey.keyD) {
             _goToNextDay();
+            return KeyEventResult.handled;
+          }
+          else if (event.logicalKey == LogicalKeyboardKey.arrowDown || event.logicalKey == LogicalKeyboardKey.keyS || event.logicalKey == LogicalKeyboardKey.space) {
+            animateToToday();
             return KeyEventResult.handled;
           }
         }
@@ -781,6 +785,19 @@ class _WfdPageState extends State<WfdPage> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  void animateToToday() {
+    if (!MenuCache.isInitialized || MenuCache.dayMenus.isEmpty) return;
+
+    final todayIndex = _findTodayIndex();
+    wishPage = todayIndex;
+
+    MenuCache.pageController.animateToPage(
+      wishPage,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
   Widget _mealSection(String title, List<String> mealItemNames) {
     String sectionTitle = title;
     if (settingsBox.get("showTimesOnMenu", defaultValue: true)) {
@@ -1090,11 +1107,11 @@ void _goToNextDay() {
     wishPage = MenuCache.pageController.page?.round() ?? 0;
   }
   wishPage += 1;
-  if (wishPage > 0) {
+  if (wishPage >= 0 && wishPage < MenuCache.dayMenus.length) {
     MenuCache.pageController.animateToPage(
       wishPage,
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
+      curve: Curves.easeOutCirc,
     );
   }
 }
@@ -1104,11 +1121,11 @@ void _goToPreviousDay() {
     wishPage = MenuCache.pageController.page?.round() ?? 0;
   }
   wishPage -= 1;
-  if (wishPage > 0) {
+  if (wishPage >= 0 && wishPage < MenuCache.dayMenus.length) {
     MenuCache.pageController.animateToPage(
       wishPage,
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
+      curve: Curves.easeOutCirc,
     );
   }
 }

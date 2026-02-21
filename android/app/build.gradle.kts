@@ -19,7 +19,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.AlexanderPiscioneri.WhatsForDino2"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"   // FIXED
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -40,12 +40,24 @@ android {
         versionName = flutter.versionName
     }
 
-        signingConfigs {
+    signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+            val keyAliasProp = keystoreProperties["keyAlias"]?.toString()
+            val keyPasswordProp = keystoreProperties["keyPassword"]?.toString()
+            val storeFileProp = keystoreProperties["storeFile"]?.toString()
+            val storePasswordProp = keystoreProperties["storePassword"]?.toString()
+
+            if (
+                keyAliasProp != null &&
+                keyPasswordProp != null &&
+                storeFileProp != null &&
+                storePasswordProp != null
+            ) {
+                keyAlias = keyAliasProp
+                keyPassword = keyPasswordProp
+                storeFile = rootProject.file(storeFileProp)
+                storePassword = storePasswordProp
+            }
         }
     }
 
