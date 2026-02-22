@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,7 +24,11 @@ Future<Map<String, dynamic>> getDeviceInfo() async {
 
   final plugin = DeviceInfoPlugin();
 
-  if (Platform.isAndroid) {
+  if (kIsWeb) {
+    _cachedDeviceInfo = {
+      'platform': 'web',
+    };
+  } else if (UniversalPlatform.isAndroid) {
     final info = await plugin.androidInfo;
     _cachedDeviceInfo = {
       'platform': 'android',
@@ -31,7 +36,7 @@ Future<Map<String, dynamic>> getDeviceInfo() async {
       'manufacturer': info.manufacturer,
       'sdk': info.version.sdkInt,
     };
-  } else if (Platform.isIOS) {
+  } else if (UniversalPlatform.isIOS) {
     final info = await plugin.iosInfo;
     _cachedDeviceInfo = {
       'platform': 'ios',

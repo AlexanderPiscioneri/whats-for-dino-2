@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:whats_for_dino_2/models/server_message.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
@@ -17,6 +17,8 @@ import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
+import 'package:web/web.dart' as web;
+
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
@@ -255,9 +257,15 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
       currentPage = 1; // default to WFD
 
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
+      debugPrint(currentUniversalPlatform.toString());
+
+      final userAgent = web.window.navigator.userAgent.toLowerCase();
+
+      if (userAgent.contains('iphone') ||
+          userAgent.contains('ipad') ||
+          userAgent.contains('ipod')) {
         openLink("https://apps.apple.com/au/app/whats-for-dino-2/id6758697602");
-      } else if (defaultTargetPlatform == TargetPlatform.android) {
+      } else if (userAgent.contains('android')) {
         // Android not available yet
         // openLink("https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2");
       }

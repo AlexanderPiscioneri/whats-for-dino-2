@@ -406,9 +406,8 @@ class WfdPageState extends State<WfdPage> {
           children: [
             Column(
               children: [
-                Flexible(
+                Expanded(
                   flex: 6,
-                  fit: FlexFit.loose,
                   // child: Container(
                   // color: Colors.transparent,
                   // child: Material(
@@ -621,9 +620,8 @@ class WfdPageState extends State<WfdPage> {
                   // ),
                   // ),
                 ),
-                Flexible(
+                Expanded(
                   flex: 94,
-                  fit: FlexFit.tight,
                   child: PageView.builder(
                     key: ValueKey(_pageViewKey), // Add key to force rebuild
                     controller: MenuCache.pageController,

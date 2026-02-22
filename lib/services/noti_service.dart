@@ -115,11 +115,17 @@ class NotiService {
 
   // Cancel all notifications
   Future<void> cancelAllNotifications() async {
+    if (kIsWeb) {
+      return;
+    }
     await notificationsPlugin.cancelAll();
   }
 
   Future<void> scheduleFavouritesNotifications() async {
     // debugPrint("scheduling notifications");
+    if (kIsWeb) {
+      return;
+    }
 
     if (!_isInitialized) await initNotification();
 
@@ -139,8 +145,10 @@ class NotiService {
           'Breakfast': dayMenu.breakfast,
           if (dayMenu.brunch != null) 'Brunch': dayMenu.brunch!,
           'Lunch': dayMenu.lunch,
-          if (dayMenu.hasEarlyDinner == false) 'Dinner': dayMenu.dinner
-          else 'Early Dinner': dayMenu.dinner,
+          if (dayMenu.hasEarlyDinner == false)
+            'Dinner': dayMenu.dinner
+          else
+            'Early Dinner': dayMenu.dinner,
         };
 
         for (final entry in meals.entries) {
@@ -197,6 +205,9 @@ class NotiService {
 
   Future<void> scheduleSpecialEventsNotifications() async {
     // debugPrint("scheduling special event notifications");
+    if (kIsWeb) {
+      return;
+    }
 
     if (!_isInitialized) await initNotification();
 
@@ -230,7 +241,7 @@ class NotiService {
         // Don't schedule the notification if it's scheduled to fire in the past
         if (scheduledDate.isBefore(DateTime.now())) continue;
         // debugPrint(exception.notifTitle);
-        
+
         await scheduleNotification(
           id:
               exception.hashCode ^
@@ -256,6 +267,9 @@ class NotiService {
 
   Future<void> refreshNotifications() async {
     final notificationsBox = Hive.box('notificationsBox');
+    if (kIsWeb) {
+      return;
+    }
 
     if (!_isInitialized) await initNotification();
 
