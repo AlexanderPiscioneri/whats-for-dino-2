@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:whats_for_dino_2/models/server_message.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/favourites.dart';
@@ -17,8 +16,7 @@ import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
-import 'package:web/web.dart' as web;
-
+// import 'package:web/web.dart' as web;
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
@@ -61,25 +59,26 @@ Future<void> checkServerMessages() async {
     //   {
     //     "id": "test_info",
     //     "title": "Sorry For A Bad Launch",
-    //     "text": "If you downloaded the app early on you would've found loading the menu to be impossible - sorry for that - if you're seeing this message it means you've updated, and that you'll never see that loading circle ever again.",
+    //     "text":
+    //         "If you downloaded the app early on you would've found loading the menu to be impossible - sorry for that - if you're seeing this message it means you've updated, and that you'll never see that loading circle ever again.",
     //     "type": "info",
     //     "conditions": {},
     //   },
     //   {
     //     "id": "test_warning",
     //     "title": "Heads Up",
-    //     "text": "This is a test warning message. Dismiss this one to see the next.",
+    //     "text":
+    //         "This is a test warning message. Dismiss this one to see the next.",
     //     "type": "warning",
     //     "conditions": {},
     //   },
     //   {
-    //     "id": "show_once",
-    //     "title": "Heads Up",
-    //     "text": "You should only ever see me once",
-    //     "type": "warning",
-    //     "showOnce": true,
-    //     "buttonText": "Alright I believe you",
-    //     "conditions": {},
+    //     "buttonText": "Happy Birthday Jean!",
+    //     "conditions": {"dateFrom": "25/02/2026", "dateTo": "25/02/2026"},
+    //     "id": "hdb-jean",
+    //     "text": "Happy Birthday Jean!",
+    //     "title": "Happy Birthday Jean!",
+    //     "type": "info",
     //   },
     // ];
     final now = DateTime.now();
@@ -99,8 +98,6 @@ Future<void> checkServerMessages() async {
               return true;
             })
             .toList();
-
-    await Future.delayed(const Duration(milliseconds: 500));
 
     for (final message in messages) {
       final context = navigatorKey.currentContext;
@@ -197,23 +194,7 @@ void main() async {
 
   // Post-run async tasks (can safely use Firebase here)
   ensureInstallDocument();
-}
-
-// Separate async function for Firebase
-Future<void> initializeFirebase() async {
-  try {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
-
-    // Firestore / server setup can be called safely
-    await ensureInstallDocument();
-    await checkServerMessages();
-  } catch (e) {
-    debugPrint("Firebase init failed: $e");
-  }
+  checkServerMessages();
 }
 
 class WhatsForDinoApp extends StatefulWidget {
@@ -257,18 +238,16 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
       currentPage = 1; // default to WFD
 
-      debugPrint(currentUniversalPlatform.toString());
+      // final userAgent = web.window.navigator.userAgent.toLowerCase();
 
-      final userAgent = web.window.navigator.userAgent.toLowerCase();
-
-      if (userAgent.contains('iphone') ||
-          userAgent.contains('ipad') ||
-          userAgent.contains('ipod')) {
-        openLink("https://apps.apple.com/au/app/whats-for-dino-2/id6758697602");
-      } else if (userAgent.contains('android')) {
-        // Android not available yet
-        // openLink("https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2");
-      }
+      // if (userAgent.contains('iphone') ||
+      //     userAgent.contains('ipad') ||
+      //     userAgent.contains('ipod')) {
+      //   openLink("https://apps.apple.com/au/app/whats-for-dino-2/id6758697602");
+      // } else if (userAgent.contains('android')) {
+      //   // Android not available yet
+      //   // openLink("https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2");
+      // }
     } else {
       titles = [
         "SETTINGS",

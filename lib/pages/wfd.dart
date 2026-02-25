@@ -843,9 +843,9 @@ class WfdPageState extends State<WfdPage> {
   }
 
   Widget _dayDateRow(String rowDayText, String rowDateText) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
+    double textFontSize = 26;
+    double iconSize = 28;
+    return Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -854,7 +854,7 @@ class WfdPageState extends State<WfdPage> {
               Text(
                 "$rowDayText ",
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: textFontSize,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
@@ -863,26 +863,29 @@ class WfdPageState extends State<WfdPage> {
                 Icon(
                   Icons.event_available_sharp,
                   color: Colors.white,
-                  size: 30,
+                  size: iconSize,
                 ),
             ],
           ),
           Row(
             children: [
-              Icon(Icons.today_sharp, color: Colors.white, size: 30),
-              Text(
-                " $rowDateText",
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+              Icon(Icons.today_sharp, color: Colors.white, size: iconSize),
+              SizedBox(
+                width: 160,
+                child: Text(
+                  rowDateText,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontSize: textFontSize,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
           ),
           // _centreRowText(rowDateText),
         ],
-      ),
     );
   }
 
@@ -1155,7 +1158,7 @@ void _goToNextDay() {
     MenuCache.pageController.animateToPage(
       wishPage,
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutCirc,
+      curve: Curves.easeInOutCirc,
     );
   }
 }
@@ -1169,7 +1172,7 @@ void _goToPreviousDay() {
     MenuCache.pageController.animateToPage(
       wishPage,
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutCirc,
+      curve: Curves.easeInOutCirc,
     );
   }
 }
