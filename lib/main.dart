@@ -16,7 +16,7 @@ import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
-// import 'package:web/web.dart' as web;
+import 'package:whats_for_dino_2/services/web_utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
@@ -104,9 +104,9 @@ Future<void> checkServerMessages() async {
       if (context == null) return;
 
       final icon = switch (message.type) {
-        'warning' => (Icons.warning_amber_rounded, Colors.orange),
-        'error' => (Icons.error_rounded, Colors.red),
-        _ => (Icons.info_rounded, Colors.blue),
+        'warning' => (Icons.warning_amber, Colors.orange),
+        'error' => (Icons.error_outline_sharp, Colors.red),
+        _ => (Icons.info_outline, Colors.white),
       };
 
       await showDialog(
@@ -238,16 +238,24 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
       currentPage = 1; // default to WFD
 
-      // final userAgent = web.window.navigator.userAgent.toLowerCase();
+      final userAgent = getUserAgent();
 
-      // if (userAgent.contains('iphone') ||
-      //     userAgent.contains('ipad') ||
-      //     userAgent.contains('ipod')) {
-      //   openLink("https://apps.apple.com/au/app/whats-for-dino-2/id6758697602");
-      // } else if (userAgent.contains('android')) {
-      //   // Android not available yet
-      //   // openLink("https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2");
-      // }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (userAgent.contains('iphone') ||
+            userAgent.contains('ipad') ||
+            userAgent.contains('ipod')) {
+          _showStorePopup(
+            title: "Download on the App Store",
+            url: "https://apps.apple.com/au/app/whats-for-dino-2/id6758697602",
+          );
+        } else if (userAgent.contains('android')) {
+          // _showStorePopup(
+          //   title: "Download on Google Play",
+          //   url:
+          //       "https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2",
+          // );
+        }
+      });
     } else {
       titles = [
         "SETTINGS",
@@ -293,6 +301,68 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         Hive.box('settingsBox').get("enableDarkMode", defaultValue: false),
       );
     });
+  }
+
+  void _showStorePopup({required String title, required String url}) {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Theme.of(ctx).colorScheme.primary,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          title: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          content: const Text(
+            "WFD is better as a native mobile app.\n\nWould you like to download it now?",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 15),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white70,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, // <-- THIS makes it square
+                ),
+              ),
+              child: const Text("Not Now"),
+            ),
+
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                openLink(url);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, // <-- square
+                ),
+              ),
+              child: const Text(
+                "Download",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

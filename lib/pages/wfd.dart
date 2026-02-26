@@ -458,6 +458,31 @@ class WfdPageState extends State<WfdPage> {
                                   outline: Colors.transparent,
                                 ),
 
+                                inputDecorationTheme:
+                                    const InputDecorationTheme(
+                                      labelStyle: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      hintStyle: TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white54,
+                                        ),
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+
+                                textTheme: baseTheme.textTheme.apply(
+                                  bodyColor: Colors.white,
+                                  displayColor: Colors.white,
+                                ),
+
                                 // OK / CANCEL colour
                                 textButtonTheme: TextButtonThemeData(
                                   style: ButtonStyle(
@@ -558,6 +583,7 @@ class WfdPageState extends State<WfdPage> {
                                     borderRadius: BorderRadius.zero,
                                   ),
                                 ),
+
                                 child: child!,
                               ),
                             );
@@ -846,46 +872,46 @@ class WfdPageState extends State<WfdPage> {
     double textFontSize = 26;
     double iconSize = 28;
     return Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Text(
-                "$rowDayText ",
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Text(
+              "$rowDayText ",
+              style: TextStyle(
+                fontSize: textFontSize,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            if (showTodayLogo)
+              Icon(
+                Icons.event_available_sharp,
+                color: Colors.white,
+                size: iconSize,
+              ),
+          ],
+        ),
+        Row(
+          children: [
+            Icon(Icons.today_sharp, color: Colors.white, size: iconSize),
+            SizedBox(
+              width: 160,
+              child: Text(
+                rowDateText,
+                textAlign: TextAlign.right,
                 style: TextStyle(
                   fontSize: textFontSize,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
               ),
-              if (showTodayLogo)
-                Icon(
-                  Icons.event_available_sharp,
-                  color: Colors.white,
-                  size: iconSize,
-                ),
-            ],
-          ),
-          Row(
-            children: [
-              Icon(Icons.today_sharp, color: Colors.white, size: iconSize),
-              SizedBox(
-                width: 160,
-                child: Text(
-                  rowDateText,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: textFontSize,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          // _centreRowText(rowDateText),
-        ],
+            ),
+          ],
+        ),
+        // _centreRowText(rowDateText),
+      ],
     );
   }
 

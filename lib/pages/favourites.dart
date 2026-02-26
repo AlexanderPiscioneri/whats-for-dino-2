@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:whats_for_dino_2/models/menu.dart';
 import 'package:whats_for_dino_2/services/meals_cache.dart';
+import 'package:whats_for_dino_2/services/menu_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
 
@@ -135,29 +138,26 @@ class _FavouritesPageState extends State<FavouritesPage> {
   }
 
   Future<void> _loadItems() async {
-  // await initializeFoodItems(); // <-- ensure cache is ready
-  if (!mounted) return;
+    if (!mounted) return;
 
-  setState(() {
-    _filteredItems = List.from(MealItemsCache.items);
-  });
-}
+    setState(() {
+      _filteredItems = List.from(MealItemsCache.items);
+      _sortByTodaysMenu();
+    });
+  }
 
   // void _resetFavouritesCache() {
   //   setState(() {
   //     FoodItemsCache.items.clear();
   //     FoodItemsCache.isInitialized = false;
-  //     mealsBox.delete('favourites');
+  //     mealsBox.delete('meals');
   //   });
 
   //   initializeFoodItems();
   // }
 
   void _saveToHive() {
-    mealsBox.put(
-      'favourites',
-      MealItemsCache.items.map((e) => e.toJson()).toList(),
-    );
+    mealsBox.put('meals', MealItemsCache.items.map((e) => e.toJson()).toList());
   }
 
   void _onSearchChanged() {
@@ -167,6 +167,50 @@ class _FavouritesPageState extends State<FavouritesPage> {
           MealItemsCache.items
               .where((item) => item.name.toLowerCase().contains(query))
               .toList();
+    });
+  }
+
+  void _sortByTodaysMenu() {
+    if (MenuCache.dayMenus.isEmpty) return;
+
+    final today = DateTime.now();
+    DayMenu? todayMenu;
+
+    for (final day in MenuCache.dayMenus) {
+      if (day.dayDate.isEmpty) continue;
+
+      final parsed = DateFormat('dd/MM/yyyy').parse(day.dayDate);
+      if (parsed.year == today.year &&
+          parsed.month == today.month &&
+          parsed.day == today.day) {
+        todayMenu = day;
+        break;
+      }
+    }
+
+    if (todayMenu == null) return;
+
+    final List<String> priorityOrder = [
+      ...todayMenu.lunch,
+      ...todayMenu.dinner,
+    ];
+
+    final Map<String, int> priorityIndex = {
+      for (int i = 0; i < priorityOrder.length; i++) priorityOrder[i]: i,
+    };
+
+    _filteredItems.sort((a, b) {
+      final aPriority = priorityIndex[a.name];
+      final bPriority = priorityIndex[b.name];
+
+      if (aPriority != null && bPriority != null) {
+        return aPriority.compareTo(bPriority);
+      }
+
+      if (aPriority != null) return -1;
+      if (bPriority != null) return 1;
+
+      return 0;
     });
   }
 
@@ -185,9 +229,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
       isScrollControlled: true,
       backgroundColor: currentColourScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(0),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
       ),
       builder:
           (_) => SafeArea(
