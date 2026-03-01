@@ -94231,11 +94231,11 @@ A.N3.prototype={
 J(a){var s,r,q,p,o,n=null,m=A.V(a).ax,l=A.V(a),k=A.ce("The breakfast of champions.",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,40,n,n,B.C,n,n,!0,n,n,n,n,n,n,n,n),B.aI,n,n),j=A.A4(A.V(a).ax.b,n,n,n,n),i=t._o,h=t.x0,g=t.N5,f=A.lt(n,n,n,A.n5(new A.a8c(m)),new A.bb(new A.a8d(),g),n,n,n,n,n,n,n,n,new A.bl(new A.O(170,60),h),n,n,n,n,new A.bl(new A.cS(B.V,B.o),i),n,n,n,n,n,n)
 f=A.aAS(A.ce("Dino Feedback Form",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.c7,n,n,!0,n,n,n,n,n,n,n,n),n,n,n),new A.a8e(),f)
 s=A.A4(A.V(a).ax.b,n,n,n,n)
-r=A.ce("Found something wrong with the app?\nHave an idea for another feature?",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.C,n,n,!0,n,n,n,n,n,n,n,n),B.aI,n,n)
+r=A.ce("Something wrong with the app?\nHave an idea for another feature?",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.C,n,n,!0,n,n,n,n,n,n,n,n),B.aI,n,n)
 q=A.lt(n,n,n,A.n5(new A.a8f(m)),new A.bb(new A.a8g(),g),n,n,n,n,n,n,n,n,new A.bl(new A.O(170,60),h),n,n,n,n,new A.bl(new A.cS(B.V,B.o),i),n,n,n,n,n,n)
 q=A.aAS(A.ce("Anonymous App Feedback Form",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.c7,n,n,!0,n,n,n,n,n,n,n,n),n,n,n),new A.a8h(),q)
 p=A.A4(A.V(a).ax.b,20,n,20,n)
-o=A.ce("Want to get in touch?\nAre you ambitious?",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.C,n,n,!0,n,n,n,n,n,n,n,n),B.aI,n,n)
+o=A.ce("Something else?",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.C,n,n,!0,n,n,n,n,n,n,n,n),B.aI,n,n)
 i=A.lt(n,n,n,A.n5(new A.a8i(m)),new A.bb(new A.a8j(),g),n,n,n,n,n,n,n,n,new A.bl(new A.O(170,60),h),n,n,n,n,new A.bl(new A.cS(B.V,B.o),i),n,n,n,n,n,n)
 return A.QZ(n,l.ax.k2,A.hP(A.fg(A.c([k,j,f,s,r,q,p,o,A.aAS(A.ce("Reach Out To Me Directly",n,n,n,A.dD(n,n,B.j,n,n,n,n,n,n,n,n,20,n,n,B.c7,n,n,!0,n,n,n,n,n,n,n,n),n,n,n),new A.a8k(),i)],t.p),B.a0,B.kO,B.al),n,n),n)}}
 A.a8e.prototype={
