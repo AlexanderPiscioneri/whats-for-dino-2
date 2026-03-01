@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/widgets/standard_switch_list_tile.dart';
 
@@ -26,21 +27,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
               'enableNotifications',
               defaultValue: false,
             ),
-            onChanged: (value) {
-              notificationsBox.put('enableNotifications', value);
-              if (value == true) {
+            onChanged: (value) async {
+              final granted =
+                  await NotiService().requestNotificationPermission();
+              if (value == true && granted == true) {
+                notificationsBox.put('enableNotifications', true);
                 NotiService().showNotification(
                   title: "Dinos are green, violets are blue...",
                   body: "I just sent a notification to you!",
                 );
                 NotiService().refreshNotifications();
-              }
-              else {
+              } else if (value == true && granted == false) {
+                _showNotificationPopup();
+                notificationsBox.put('enableNotifications', false);
                 NotiService().cancelAllNotifications();
               }
-              setState(() {
-                
-              });
+              else {
+                notificationsBox.put('enableNotifications', false);
+                NotiService().cancelAllNotifications();
+              }
+              setState(() {});
             },
             activeColour: Theme.of(context).colorScheme.primary,
           ),
@@ -63,6 +69,67 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
+  void _showNotificationPopup() {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) {
+      return AlertDialog(
+        backgroundColor: Theme.of(ctx).colorScheme.primary,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        title: Text(
+          "'Allow Notifications' is Off",
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        content: const Text(
+          "Notifications are currently disabled for WFD2 in your settings.\n\n"
+          "To receive notifications for favourite meals and special events, "
+          "enable notifications in your device settings.",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white70, fontSize: 15),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white70,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            child: const Text("Dismiss"),
+          ),
+
+          TextButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await openAppSettings();
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            child: const Text(
+              "Open Settings",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
   StandardSwitchListTile notificationsSwitchListTile(
     String title,
     String variableName,
@@ -73,15 +140,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
       onChanged: (value) {
         notificationsBox.put(variableName, value);
         NotiService().refreshNotifications();
-        setState(() {
-
-        });
+        setState(() {});
       },
       activeColour: Theme.of(context).colorScheme.primary,
     );
   }
 
-    Widget favMealReminderTime() {
+  Widget favMealReminderTime() {
     double currentValue = notificationsBox.get(
       'notifFavMealTime',
       defaultValue: 0.0,

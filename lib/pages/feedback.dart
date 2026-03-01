@@ -53,7 +53,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             Divider(color: Theme.of(context).colorScheme.primary),
             Text(
-              'Found something wrong with the app?\nHave an idea for another feature?',
+              'Something wrong with the app?\nHave an idea for another feature?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -94,7 +94,7 @@ class FeedbackPage extends StatelessWidget {
               endIndent: 20,
             ),
             Text(
-              'Want to get in touch?\nAre you ambitious?',
+              'Something else?',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,

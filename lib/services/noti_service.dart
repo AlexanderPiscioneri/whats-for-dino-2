@@ -37,9 +37,9 @@ class NotiService {
 
     // iOS initialization
     const initSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const initSettings = InitializationSettings(
@@ -49,14 +49,32 @@ class NotiService {
 
     await notificationsPlugin.initialize(initSettings);
 
-    // Android 13+ permission request
-    if (!kIsWeb && Platform.isAndroid) {
-      if (await Permission.notification.isDenied) {
-        await Permission.notification.request();
-      }
+    _isInitialized = true;
+  }
+
+  Future<bool> requestNotificationPermission() async {
+    if (kIsWeb) return false;
+
+    if (Platform.isAndroid) {
+      final status = await Permission.notification.status;
+
+      if (status.isGranted) return true;
+
+      final result = await Permission.notification.request();
+      return result.isGranted;
     }
 
-    _isInitialized = true;
+    if (Platform.isIOS) {
+      final result = await notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+
+      return result ?? false;
+    }
+
+    return false;
   }
 
   NotificationDetails notificationDetails() {
