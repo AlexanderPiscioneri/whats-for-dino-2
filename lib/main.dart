@@ -27,6 +27,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<WfdPageState> wfdKey = GlobalKey<WfdPageState>();
 
 Future<void> ensureInstallDocument() async {
+  if (kIsWeb) return;
   final installId = await getInstallId();
   final deviceInfo = await getDeviceInfo();
 
