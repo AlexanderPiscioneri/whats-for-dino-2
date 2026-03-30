@@ -250,11 +250,11 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
             url: "https://apps.apple.com/au/app/whats-for-dino-2/id6758697602",
           );
         } else if (userAgent.contains('android')) {
-          // _showStorePopup(
-          //   title: "Download on Google Play",
-          //   url:
-          //       "https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2",
-          // );
+          _cryForHelp(
+            title: "I need your help",
+            url: "https://linktr.ee/alexanderpiscioneri",
+            // "https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2",
+          );
         }
       });
     } else {
@@ -357,6 +357,68 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
               ),
               child: const Text(
                 "Download",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _cryForHelp({required String title, required String url}) {
+    final context = navigatorKey.currentContext;
+    if (context == null) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: Theme.of(ctx).colorScheme.primary,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          title: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          content: const Text(
+            "Dearest Android user,\n\n I have been diligently trying to get WFD2 onto Google Play for the past 3 months now, but I've been rejected two times for infuriatingly vague reasons. I believe if I have more Android users in the test group of the app it should help.\n\nPlease reach out if you'd like to download the 'test' version of the app (it's the same as the full version complete with notifications and ratings), I'd really appreciate it!",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 15),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white70,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, // <-- THIS makes it square
+                ),
+              ),
+              child: const Text("Not Now"),
+            ),
+
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                openLink(url);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, // <-- square
+                ),
+              ),
+              child: const Text(
+                "Reach Out",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
