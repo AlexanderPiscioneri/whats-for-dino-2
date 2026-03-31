@@ -1088,7 +1088,11 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
 
     List<DayMenu> cycle = [for (var w in menu.weeks) ...w.days];
 
-    DateTime date = menu.startDate;
+    DateTime date = DateTime(
+      menu.startDate.year,
+      menu.startDate.month,
+      menu.startDate.day,
+    );
     int totalDays = menu.endDate.difference(menu.startDate).inDays + 1;
 
     for (int i = 0; i < totalDays; i++) {
@@ -1106,7 +1110,7 @@ List<DayMenu> generateFullDayMenusList(List<Menu> menus) {
       }
 
       newDayMenus.add(todayMenu);
-      date = date.add(const Duration(days: 1));
+      date = DateTime(date.year, date.month, date.day + 1);
     }
 
     if (m < menus.length - 1) {
