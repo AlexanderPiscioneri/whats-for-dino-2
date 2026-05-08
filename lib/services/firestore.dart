@@ -6,16 +6,17 @@ class FirestoreService {
   final CollectionReference menus = FirebaseFirestore.instance.collection(
     'menus',
   );
-  final CollectionReference meals = FirebaseFirestore.instance.collection(
-    'meals',
-  );
+
+  final DocumentReference mealsDoc = FirebaseFirestore.instance
+    .collection('metadata')
+    .doc('meals');
 
   Future<QuerySnapshot> getMenusOnce() {
     return menus.orderBy('startDate', descending: true).get();
   }
 
-  Future<QuerySnapshot> getMealsOnce() {
-    return meals.orderBy('name', descending: false).get();
+  Future<DocumentSnapshot> getMealsDocOnce() {
+    return mealsDoc.get();
   }
 
   // Just 1 read to check if anything changed

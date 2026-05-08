@@ -239,34 +239,40 @@ class WfdPageState extends State<WfdPage> {
     final int lastMealFetch =
         metaDataBox.get('lastMealFetch', defaultValue: 0) as int;
 
-    // debugPrint("lastMealFetch: $lastMealFetch");
-    // debugPrint(
-    //   "serverLastUpdated ms: ${serverLastUpdated?.millisecondsSinceEpoch}",
-    // );
-    // debugPrint(
-    //   "MealItemsCache.items.isNotEmpty: ${MealItemsCache.items.isNotEmpty}",
-    // );
+    final mealsDoc = await firestoreService.getMealsDocOnce();
+    if (!mealsDoc.exists) return;
 
-    if (serverLastUpdated != null &&
-        lastMealFetch >= serverLastUpdated.millisecondsSinceEpoch &&
-        MealItemsCache.items.isNotEmpty) {
+    final data = mealsDoc.data() as Map<String, dynamic>;
+    final serverMeals = Map<String, dynamic>.from(data['meals'] ?? {});
+
+    final int serverUpdatedMs =
+        (data['lastUpdated'] as Timestamp?)?.millisecondsSinceEpoch ??
+        DateTime.now().millisecondsSinceEpoch;
+
+    final bool unchanged =
+        lastMealFetch >= serverUpdatedMs && MealItemsCache.items.isNotEmpty;
+
+    if (unchanged) {
       debugPrint("Meals unchanged, skipping fetch");
       return;
     }
+
     try {
-      final snapshot = await firestoreService.getMealsOnce();
+      final List<Meal> fetchedMeals = [];
 
-      final fetchedMeals =
-          snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
+      serverMeals.forEach((id, value) {
+        final mealData = Map<String, dynamic>.from(value);
 
-            return Meal(
-              name: data['name'],
-              rating: (data['communityRating'] as num).toDouble(),
-            );
-          }).toList();
+        fetchedMeals.add(
+          Meal(
+            name: mealData['name'] ?? '',
+            likes: (mealData['likes'] ?? 0) as int,
+            dislikes: (mealData['dislikes'] ?? 0) as int,
+          ),
+        );
+      });
 
-      debugPrint("Fetched meals from server, updating MealItemsCache...");
+      debugPrint("Fetched meals from server (likes/dislikes model)");
 
       mergeMealItems(fetchedMeals);
 
@@ -274,14 +280,10 @@ class WfdPageState extends State<WfdPage> {
         setState(() {});
       }
 
-      await metaDataBox.put(
-        'lastMealFetch',
-        serverLastUpdated?.millisecondsSinceEpoch ??
-            DateTime.now().millisecondsSinceEpoch,
-      );
+      await metaDataBox.put('lastMealFetch', serverUpdatedMs);
       await _saveMealsToLocal();
     } catch (e) {
-      debugPrint("Error fetching from server: $e");
+      debugPrint("Error fetching meals: $e");
     }
   }
 

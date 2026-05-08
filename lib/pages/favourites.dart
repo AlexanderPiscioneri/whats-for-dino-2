@@ -9,7 +9,6 @@ import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
 
 Future<void> _uploadRating(LocalMealItem item) async {
-  if (item.myRating == null) return;
 
   final installId = await getInstallId();
 
@@ -21,14 +20,14 @@ Future<void> _uploadRating(LocalMealItem item) async {
     'ratings': {
       item.name: {
         'isFavourite': item.isFavourite,
-        'rating': item.myRating,
+        'vote': item.myVote,
         'updatedAt': FieldValue.serverTimestamp(),
       },
     },
   }, SetOptions(merge: true));
 }
 
-Future<void> removeStaleRatings(List<String> validMealNames) async {
+Future<void> removeStaleRatings(Set<String> validMealNames) async {
   final installId = await getInstallId();
   final firestore = FirebaseFirestore.instance;
 
@@ -68,32 +67,52 @@ Future<void> removeStaleRatings(List<String> validMealNames) async {
   }
 }
 
+enum MealVote { none, like, dislike }
+
 class LocalMealItem {
   final String name;
-  double communityRating; // can map to menu rating if needed
+
+  int likes;
+  int dislikes;
+
   bool isFavourite;
-  int? myRating;
+
+  MealVote myVote;
 
   LocalMealItem({
     required this.name,
-    required this.communityRating,
-    this.isFavourite = true,
-    this.myRating,
+    required this.likes,
+    required this.dislikes,
+    this.isFavourite = false,
+    this.myVote = MealVote.none,
   });
 
   Map<String, dynamic> toJson() => {
     "name": name,
-    "communityRating": communityRating,
+    "likes": likes,
+    "dislikes": dislikes,
     "isFavourite": isFavourite,
-    "myRating": myRating,
+    "myVote": myVote.name,
   };
 
   factory LocalMealItem.fromJson(Map<String, dynamic> json) => LocalMealItem(
-    name: json["name"],
-    communityRating: json["communityRating"].toDouble(),
-    isFavourite: json["isFavourite"] ?? true,
-    myRating: json["myRating"],
+    name: json["name"] ?? "",
+    likes: json["likes"] ?? 0,
+    dislikes: json["dislikes"] ?? 0,
+    isFavourite: json["isFavourite"] ?? false,
+    myVote: _voteFromString(json["myVote"]),
   );
+
+  static MealVote _voteFromString(dynamic value) {
+    switch (value) {
+      case "like":
+        return MealVote.like;
+      case "dislike":
+        return MealVote.dislike;
+      default:
+        return MealVote.none;
+    }
+  }
 }
 
 /// Public accessor
@@ -263,12 +282,12 @@ class _FavouritesPageState extends State<FavouritesPage> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     onTap: () {
-                      setState(() {
-                        item.myRating = r;
-                        _updateItem(item);
-                      });
-                      Navigator.pop(context);
-                      _uploadRating(item);
+                      // setState(() {
+                      //   item.myVote = r;
+                      //   _updateItem(item);
+                      // });
+                      // Navigator.pop(context);
+                      // _uploadRating(item);
                     },
                   );
                 }),
@@ -321,7 +340,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
-                      'Community Rating: ${item.communityRating.toStringAsFixed(1)}',
+                      'Community Rating: ${(item.likes - item.dislikes).toStringAsFixed(1)}',
                       style: const TextStyle(color: Colors.white70),
                     ),
                     trailing: Row(
@@ -339,7 +358,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              item.myRating?.toString() ?? '-',
+                              item.myVote.toString(),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,

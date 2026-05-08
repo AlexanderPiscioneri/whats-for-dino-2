@@ -217,20 +217,22 @@ class MenuItem {
 
 class Meal {
   final String name;
-  final double rating;
+  final int likes;
+  final int dislikes;
 
-  Meal({required this.name, required this.rating});
+  Meal({required this.name, required this.likes, required this.dislikes});
 
-  Meal copy() => Meal(name: name, rating: rating);
+  Meal copy() => Meal(name: name, likes: likes, dislikes: dislikes);
 
   factory Meal.fromJson(Map<String, dynamic> json) {
     return Meal(
       name: json['name'] ?? '',
-      rating: (json['rating'] as num).toDouble(),
+      likes: (json['likes'] ?? 0) as int,
+      dislikes: (json['dislikes'] ?? 0) as int,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {"name": name, "rating": rating};
+    return {"name": name, "likes": likes, "dislikes": dislikes};
   }
 }

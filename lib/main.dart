@@ -55,33 +55,18 @@ Future<void> checkServerMessages() async {
 
     if (!doc.exists) return;
 
-    final rawMessages = doc.data()?['messages'] as List<dynamic>? ?? [];
-    // final rawMessages = [
-    //   {
-    //     "id": "test_info",
-    //     "title": "Sorry For A Bad Launch",
-    //     "text":
-    //         "If you downloaded the app early on you would've found loading the menu to be impossible - sorry for that - if you're seeing this message it means you've updated, and that you'll never see that loading circle ever again.",
-    //     "type": "info",
-    //     "conditions": {},
-    //   },
-    //   {
-    //     "id": "test_warning",
-    //     "title": "Heads Up",
-    //     "text":
-    //         "This is a test warning message. Dismiss this one to see the next.",
-    //     "type": "warning",
-    //     "conditions": {},
-    //   },
-    //   {
-    //     "buttonText": "Happy Birthday Jean!",
-    //     "conditions": {"dateFrom": "25/02/2026", "dateTo": "25/02/2026"},
-    //     "id": "hdb-jean",
-    //     "text": "Happy Birthday Jean!",
-    //     "title": "Happy Birthday Jean!",
-    //     "type": "info",
-    //   },
-    // ];
+    // final rawMessages = doc.data()?['messages'] as List<dynamic>? ?? [];
+    final rawMessages = [
+      {
+        "id": "test_info",
+        "title": "Test Message",
+        "text":
+            "This message is a test message",
+        "type": "info",
+        "conditions": {},
+        "imageName": "26T1_BandNight.png"
+      },
+    ];
     final now = DateTime.now();
 
     // Load previously seen one-time message IDs
@@ -127,10 +112,27 @@ Future<void> checkServerMessages() async {
                   fontSize: 20,
                 ),
               ),
-              content: Text(
-                message.text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white70, fontSize: 15),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (message.imageUrl != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        message.imageUrl!,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                  ],
+
+                  Text(
+                    message.text,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70, fontSize: 15),
+                  ),
+                ],
               ),
               actionsAlignment: MainAxisAlignment.center,
               actions: [

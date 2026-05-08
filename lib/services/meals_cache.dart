@@ -28,36 +28,38 @@ Future<void> initializeLocalMealItems() async {
 
 // Given a list of meals, merge them into the local cache, and update 
 void mergeMealItems(List<Meal> meals) {
-  for (var meal in meals) {
+  final Map<String, Meal> incoming = {for (final m in meals) m.name: m};
+
+  final Set<String> incomingNames = incoming.keys.toSet();
+
+  // 1. Update existing + add new
+  for (final meal in meals) {
     final index = MealItemsCache.items.indexWhere((m) => m.name == meal.name);
 
     if (index == -1) {
       MealItemsCache.items.add(
         LocalMealItem(
           name: meal.name,
-          communityRating: meal.rating,
+          likes: meal.likes,
+          dislikes: meal.dislikes,
           isFavourite: false,
         ),
       );
       continue;
     }
 
-    if (index != -1) {
-      if (meal.rating == -1) {
-        MealItemsCache.items.removeAt(index);
-      } else if (MealItemsCache.items[index].communityRating != meal.rating) {
-        MealItemsCache.items[index].communityRating = meal.rating;
-      }
-    }
+    final existing = MealItemsCache.items[index];
+
+    // update ONLY server-side fields
+    existing.likes = meal.likes;
+    existing.dislikes = meal.dislikes;
   }
 
-  // Remove any meals from the local cache that are not present in the current list of meals
-  final List<String> currentMealNames = meals.map((meal) => meal.name).toList();
+  // 2. Remove stale meals
   MealItemsCache.items.removeWhere(
-    (item) =>
-        !currentMealNames.contains(item.name) || item.communityRating == -1,
+    (item) => !incomingNames.contains(item.name),
   );
 
-  // Remove any ratings this user has made for meals that no longer exist
-  removeStaleRatings(currentMealNames);
+  // 3. Remove stale user preferences
+  removeStaleRatings(incomingNames);
 }
