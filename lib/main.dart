@@ -55,18 +55,17 @@ Future<void> checkServerMessages() async {
 
     if (!doc.exists) return;
 
-    // final rawMessages = doc.data()?['messages'] as List<dynamic>? ?? [];
-    final rawMessages = [
-      {
-        "id": "test_info",
-        "title": "Test Message",
-        "text":
-            "This message is a test message",
-        "type": "info",
-        "conditions": {},
-        "imageName": "26T1_BandNight.png"
-      },
-    ];
+    final rawMessages = doc.data()?['messages'] as List<dynamic>? ?? [];
+    // final rawMessages = [
+    //   {
+    //     "id": "26T1_BandNight",
+    //     "title": "",
+    //     "text": "Special menu and live performances this evening.",
+    //     "type": "",
+    //     "conditions": {"dateFrom": "08/05/2026", "dateTo": "08/05/2026"},
+    //     "imageName": "26T1_BandNight.png",
+    //   },
+    // ];
     final now = DateTime.now();
 
     // Load previously seen one-time message IDs
@@ -92,7 +91,8 @@ Future<void> checkServerMessages() async {
       final icon = switch (message.type) {
         'warning' => (Icons.warning_amber, Colors.orange),
         'error' => (Icons.error_outline_sharp, Colors.red),
-        _ => (Icons.info_outline, Colors.white),
+        'info' => (Icons.info_outline, Colors.white),
+        _ => null,
       };
 
       await showDialog(
@@ -100,58 +100,119 @@ Future<void> checkServerMessages() async {
         barrierDismissible: false,
         builder:
             (ctx) => AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-              icon: Icon(icon.$1, color: icon.$2, size: 36),
-              title: Text(
-                message.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
               ),
+              icon: null,
+              title: null,
+              contentPadding: EdgeInsets.zero,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (message.imageUrl != null) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        message.imageUrl!,
-                        fit: BoxFit.cover,
+                  if (icon != null || message.title.isNotEmpty)
+                    Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      padding: const EdgeInsets.all(4),
+                      child: Container(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (icon != null)
+                              Icon(icon.$1, color: icon.$2, size: 36),
+                            if (message.title.isNotEmpty)
+                              Text(
+                                message.title,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-                  ],
-
-                  Text(
-                    message.text,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 15),
+                  if (icon == null && message.title.isEmpty)
+                    Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      height: 4,
+                    ),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        left: 4,
+                        right: 4,
+                        top: 0,
+                        bottom: 0,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (message.imageUrl != null)
+                            Image.network(
+                              message.imageUrl!,
+                              fit: BoxFit.scaleDown,
+                            ),
+                          if (message.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                message.text,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
               actionsAlignment: MainAxisAlignment.center,
+              actionsPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 4,
+              ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        style: TextButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            message.buttonText,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    message.buttonText,
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  ],
                 ),
               ],
             ),
       );
+
       // Mark as seen after dismissal if it's a one-time message
       if (message.showOnce) {
         seenIds.add(message.id);
@@ -254,7 +315,8 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         } else if (userAgent.contains('android')) {
           _showStorePopup(
             title: "Download on Google Play",
-            url: "https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2",
+            url:
+                "https://play.google.com/store/apps/details?id=com.AlexanderPiscioneri.WhatsForDino2",
           );
         }
       });

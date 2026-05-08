@@ -389,6 +389,22 @@ class _FavouritesPageState extends State<FavouritesPage> {
                 },
               ),
             ),
+            Positioned(
+              top: 100,
+              right: 20,
+              child: IgnorePointer(
+                child: Image.asset('assets/misc/Demolition.webp', width: 200),
+              ),
+            ),
+
+            // Image 2 - bottom left
+            Positioned(
+              bottom: 100,
+              left: 20,
+              child: IgnorePointer(
+                child: Image.asset('assets/misc/DinoConstruct.png', width: 200),
+              ),
+            ),
           ],
         ),
       ),
