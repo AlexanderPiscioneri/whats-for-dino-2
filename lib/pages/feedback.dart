@@ -16,7 +16,7 @@ class FeedbackPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(
-              'The breakfast of champions.',
+              'All feedback is always welcome.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,

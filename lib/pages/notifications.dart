@@ -55,14 +55,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
             notificationsSwitchListTile("Special Events", 'notifSpecialEvents'),
           if (notificationsBox.get('enableNotifications', defaultValue: false))
             notificationsSwitchListTile(
-              "Favourite Menu Items",
-              'notifFavouriteMeals',
+              "Menu Items",
+              'notifMeals',
             ),
           if (notificationsBox.get(
                 'enableNotifications',
                 defaultValue: false,
               ) &&
-              notificationsBox.get('notifFavouriteMeals', defaultValue: false))
+              notificationsBox.get('notifMeals', defaultValue: false))
             favMealReminderTime(),
         ],
       ),
@@ -148,7 +148,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget favMealReminderTime() {
     double currentValue = notificationsBox.get(
-      'notifFavMealTime',
+      'notifMealTime',
       defaultValue: 0.0,
     );
 
@@ -184,7 +184,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           max: 90,
           divisions: 6,
           onChanged: (value) {
-            notificationsBox.put('notifFavMealTime', value);
+            notificationsBox.put('notifMealTime', value);
             setState(() {});
           },
           onChangeEnd: (value) {

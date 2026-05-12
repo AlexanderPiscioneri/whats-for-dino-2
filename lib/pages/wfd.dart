@@ -7,11 +7,14 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
+import 'package:whats_for_dino_2/pages/catalogue.dart';
 import 'package:whats_for_dino_2/services/menu_cache.dart';
 import 'package:whats_for_dino_2/services/firestore.dart';
 import 'package:whats_for_dino_2/services/meals_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
+import 'package:whats_for_dino_2/services/utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
+import 'package:whats_for_dino_2/widgets/ratings_widget.dart';
 
 class WfdPage extends StatefulWidget {
   const WfdPage({super.key});
@@ -32,6 +35,7 @@ class WfdPageState extends State<WfdPage> {
   final FirestoreService firestoreService = FirestoreService();
   final metaDataBox = Hive.box('metaDataBox');
   final menuBox = Hive.box('menuBox');
+  final Box mealsBox = Hive.box('mealsBox');
   final settingsBox = Hive.box('settingsBox');
 
   late String dateText;
@@ -64,7 +68,7 @@ class WfdPageState extends State<WfdPage> {
       dateText = MenuCache.dayMenus[todayIndex].dayDate;
     }
 
-    initializeLocalMealItems();
+    initializeMealItemsCache();
 
     _fetchDataIfNeeded();
     NotiService().refreshNotifications();
@@ -77,7 +81,15 @@ class WfdPageState extends State<WfdPage> {
     final int localLastUpdated =
         metaDataBox.get('lastUpdated', defaultValue: 0) as int;
 
-    await _fetchMenusFromServer(serverLastUpdated, localLastUpdated);
+    if (serverLastUpdated != null &&
+        serverLastUpdated.millisecondsSinceEpoch <= localLastUpdated &&
+        MenuCache.dayMenus.isNotEmpty) {
+      debugPrint("Data unchanged on server, skipping full fetch");
+      if (mounted) setState(() {});
+      return;
+    }
+
+    await _fetchMenusFromServer(serverLastUpdated);
     await _fetchMealsFromServer(serverLastUpdated);
   }
 
@@ -153,19 +165,7 @@ class WfdPageState extends State<WfdPage> {
     }
   }
 
-  Future<void> _fetchMenusFromServer(
-    DateTime? serverLastUpdated,
-    int localLastUpdated,
-  ) async {
-    if (serverLastUpdated != null &&
-        serverLastUpdated.millisecondsSinceEpoch <= localLastUpdated &&
-        MenuCache.dayMenus.isNotEmpty) {
-      debugPrint("Data unchanged on server, skipping full fetch");
-      if (mounted) setState(() {});
-      return;
-    }
-
-    // Data has changed — do the full fetch
+  Future<void> _fetchMenusFromServer(DateTime? serverLastUpdated) async {
     try {
       QuerySnapshot snapshot = await firestoreService.getMenusOnce();
 
@@ -177,12 +177,14 @@ class WfdPageState extends State<WfdPage> {
       final newDayMenus = generateFullDayMenusList(fetchedMenus);
 
       debugPrint("Fetched menus from server, updating MenuCache...");
+
       final todayIndex = _findTodayIndexForList(newDayMenus);
 
       if (mounted) {
-        // Recreate PageController with new data and today's index
         MenuCache.pageController.dispose();
+
         final pageFraction = _calcPageFraction(context);
+
         MenuCache.pageController = PageController(
           initialPage: todayIndex,
           viewportFraction: pageFraction,
@@ -192,10 +194,10 @@ class WfdPageState extends State<WfdPage> {
           MenuCache.menus = fetchedMenus;
           MenuCache.dayMenus = newDayMenus;
           MenuCache.isInitialized = true;
-          _pageViewKey++; // Force PageView to rebuild
-          // Update labels
-          dayText = MenuCache.dayMenus[todayIndex].dayName;
-          dateText = MenuCache.dayMenus[todayIndex].dayDate;
+          _pageViewKey++;
+
+          dayText = newDayMenus[todayIndex].dayName;
+          dateText = newDayMenus[todayIndex].dayDate;
         });
       }
 
@@ -204,7 +206,9 @@ class WfdPageState extends State<WfdPage> {
         serverLastUpdated?.millisecondsSinceEpoch ??
             DateTime.now().millisecondsSinceEpoch,
       );
+
       await _saveMenusToLocal();
+
       debugPrint("Updated menus from server, initial page: $todayIndex");
     } catch (e) {
       debugPrint("Error fetching from server: $e");
@@ -289,6 +293,7 @@ class WfdPageState extends State<WfdPage> {
 
   Future<void> _saveMealsToLocal() async {
     try {
+      updateOccurrencesFromLatestMenu(MenuCache.menus);
       final mealsBox = Hive.box('mealsBox');
       final jsonList =
           MealItemsCache.items.map((item) => item.toJson()).toList();
@@ -301,6 +306,43 @@ class WfdPageState extends State<WfdPage> {
       debugPrint("Saved ${jsonList.length} meal items to local storage");
     } catch (e) {
       debugPrint("Error saving to local: $e");
+    }
+  }
+
+  void updateOccurrencesFromLatestMenu(List<Menu> menus) {
+    if (menus.isEmpty) return;
+
+    String norm(String s) => s.trim().toLowerCase();
+
+    // Ensure correct ordering (latest menu first)
+    menus.sort((a, b) => b.startDate.compareTo(a.startDate));
+    final latestMenu = menus.first;
+
+    final Map<String, int> map = {};
+
+    void add(List<String> meals) {
+      for (final m in meals) {
+        final key = norm(m);
+        map[key] = (map[key] ?? 0) + 1;
+      }
+    }
+
+    // Build frequency map from full cycle
+    for (final week in latestMenu.weeks) {
+      for (final day in week.days) {
+        add(day.breakfast);
+        add(day.lunch);
+        add(day.dinner);
+
+        if (day.brunch != null) {
+          add(day.brunch!);
+        }
+      }
+    }
+
+    for (final item in MealItemsCache.items) {
+      final key = norm(item.name);
+      item.numOccurrences = map[key] ?? 0;
     }
   }
 
@@ -696,7 +738,24 @@ class WfdPageState extends State<WfdPage> {
                           child:
                               isBetweenMenusPage
                                   ? ListView(
-                                    padding: const EdgeInsets.all(16),
+                                    padding: EdgeInsets.only(
+                                      top: 16,
+                                      bottom: 16,
+                                      left:
+                                          settingsBox.get(
+                                                "showNotifButtons",
+                                                defaultValue: true,
+                                              )
+                                              ? 8
+                                              : 16,
+                                      right:
+                                          settingsBox.get(
+                                                "showRatingsButtons",
+                                                defaultValue: true,
+                                              )
+                                              ? 8
+                                              : 16,
+                                    ),
                                     children: [
                                       _mealSection(
                                         "Breakfast",
@@ -840,9 +899,11 @@ class WfdPageState extends State<WfdPage> {
 
   Widget _mealSection(String title, List<String> mealItemNames) {
     String sectionTitle = title;
+
     if (settingsBox.get("showTimesOnMenu", defaultValue: true)) {
       sectionTitle = "$title ${mealToTimeString(title)}";
     }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -851,23 +912,273 @@ class WfdPageState extends State<WfdPage> {
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
+
         const SizedBox(height: 6),
-        ...mealItemNames.map(
-          (mealItemName) => Padding(
+
+        ...mealItemNames.map((mealItemName) {
+          final meal = MealItemsCache.items.firstWhere(
+            (m) => m.name == mealItemName,
+            orElse:
+                () => LocalMealItem(name: mealItemName, likes: 0, dislikes: 0),
+          );
+
+          return Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 4),
-            child: Text(
-              mealItemName,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (settingsBox.get("showNotifButtons", defaultValue: true) &&
+                    !kIsWeb)
+                  Expanded(
+                    flex: 10,
+                    child: IconButton(
+                      icon: Icon(
+                        meal.notify
+                            ? Icons.notifications_active
+                            : Icons.notifications_none_outlined,
+                      ),
+                      iconSize: 20,
+                      onPressed: () {
+                        setState(() {
+                          setMealNotif(mealItemName, !meal.notify);
+                        });
+                        NotiService().refreshNotifications();
+                      },
+                    ),
+                  ),
+
+                Expanded(
+                  flex: 60,
+                  child: Text(
+                    mealItemName,
+                    textAlign:
+                        settingsBox.get("centerMealText", defaultValue: false)
+                            ? TextAlign.center
+                            : TextAlign.left,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+
+                if (settingsBox.get("showRatings", defaultValue: true))
+                  RatingsWidget(
+                    meal: meal,
+                    onVote: (newVote) {
+                      setState(() {
+                        rateMeal(mealItemName, newVote);
+                      });
+                    },
+                  ),
+              ],
             ),
-          ),
-        ),
+          );
+        }),
+
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  Expanded ratingsWidget(meal, void Function(MealVote vote) onVote) {
+    final ratioText =
+        (() {
+          if (meal.dislikes == 0) {
+            return "${meal.likes}:0";
+          }
+
+          if (meal.likes == 0) {
+            return "0:${meal.dislikes}";
+          }
+
+          int gcd(int x, int y) {
+            while (y != 0) {
+              final temp = y;
+              y = x % y;
+              x = temp;
+            }
+            return x;
+          }
+
+          final divisor = gcd(meal.likes, meal.dislikes);
+
+          return "${meal.likes ~/ divisor}:${meal.dislikes ~/ divisor}";
+        })();
+
+    final left = ratioText.split(":")[0];
+    final right = ratioText.split(":")[1];
+
+    return Expanded(
+      flex: 20,
+      child: SizedBox(
+        height: 32,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Flexible(
+                  flex: 50,
+                  child: IconButton(
+                    icon: Icon(
+                      meal.myVote == MealVote.like
+                          ? Icons.thumb_up
+                          : Icons.thumb_up_alt_outlined,
+                    ),
+                    iconSize: 18,
+                    onPressed: () {
+                      onVote(
+                        meal.myVote == MealVote.like
+                            ? MealVote.none
+                            : MealVote.like,
+                      );
+                    },
+                  ),
+                ),
+
+                Flexible(
+                  flex: 50,
+                  child: IconButton(
+                    icon: Icon(
+                      meal.myVote == MealVote.dislike
+                          ? Icons.thumb_down
+                          : Icons.thumb_down_alt_outlined,
+                    ),
+                    iconSize: 18,
+                    onPressed: () {
+                      onVote(
+                        meal.myVote == MealVote.dislike
+                            ? MealVote.none
+                            : MealVote.dislike,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            Positioned(
+              bottom: -10,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 20,
+                    child: Text(
+                      left,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    ":",
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(
+                    width: 20,
+                    child: Text(
+                      right,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void rateMeal(String mealName, MealVote newVote) {
+    final index = MealItemsCache.items.indexWhere((m) => m.name == mealName);
+
+    if (index == -1) return;
+
+    final meal = MealItemsCache.items[index];
+
+    int likes = meal.likes;
+    int dislikes = meal.dislikes;
+
+    // remove previous vote
+    switch (meal.myVote) {
+      case MealVote.like:
+        likes--;
+        break;
+
+      case MealVote.dislike:
+        dislikes--;
+        break;
+
+      case MealVote.none:
+        break;
+    }
+
+    // apply new vote
+    switch (newVote) {
+      case MealVote.like:
+        likes++;
+        break;
+
+      case MealVote.dislike:
+        dislikes++;
+        break;
+
+      case MealVote.none:
+        break;
+    }
+
+    meal.likes = likes;
+    meal.dislikes = dislikes;
+    meal.myVote = newVote;
+
+    _uploadRating(meal);
+    _saveMealItemsCacheToHive();
+    setState(() {});
+  }
+
+  Future<void> _uploadRating(LocalMealItem item) async {
+    final installId = await getInstallId();
+
+    final docRef = FirebaseFirestore.instance
+        .collection('installs')
+        .doc(installId);
+
+    await docRef.set({
+      'ratings': {
+        item.name: {
+          'notify': item.notify,
+          'vote': item.myVote.name,
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+      },
+    }, SetOptions(merge: true));
+  }
+
+  void setMealNotif(String mealName, bool value) {
+    final index = MealItemsCache.items.indexWhere((m) => m.name == mealName);
+
+    if (index == -1) return;
+
+    final meal = MealItemsCache.items[index];
+    meal.notify = value;
+
+    _saveMealItemsCacheToHive();
+    setState(() {});
+  }
+
+  void _saveMealItemsCacheToHive() {
+    mealsBox.put('meals', MealItemsCache.items.map((e) => e.toJson()).toList());
   }
 
   Widget _dayDateRow(String rowDayText, String rowDateText) {

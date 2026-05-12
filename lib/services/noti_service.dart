@@ -8,7 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
-import 'package:whats_for_dino_2/pages/favourites.dart';
+import 'package:whats_for_dino_2/pages/catalogue.dart';
 import 'package:whats_for_dino_2/services/menu_cache.dart';
 
 class NotiService {
@@ -139,7 +139,7 @@ class NotiService {
     await notificationsPlugin.cancelAll();
   }
 
-  Future<void> scheduleFavouritesNotifications() async {
+  Future<void> scheduleMealsNotifications() async {
     // debugPrint("scheduling notifications");
     if (kIsWeb) {
       return;
@@ -153,7 +153,7 @@ class NotiService {
 
     int counter = 0;
 
-    for (final foodItem in mealItems.where((f) => f.isFavourite)) {
+    for (final foodItem in mealItems.where((f) => f.notify)) {
       for (final dayMenu in dayMenus) {
         final DateTime dayDate = DateFormat(
           'dd/MM/yyyy',
@@ -185,7 +185,7 @@ class NotiService {
                 Duration(
                   minutes:
                       ((notificationsBox.get(
-                                'notifFavMealTime',
+                                'notifMealTime',
                                 defaultValue: 0.0,
                               )
                               as double)
@@ -202,7 +202,7 @@ class NotiService {
                 foodItem.hashCode ^
                 dayMenu.dayDate.hashCode ^
                 mealType.hashCode,
-            title: "Favourite Meal",
+            title: "Meal Notification",
             body: "${foodItem.name} for ${mealType.toLowerCase()}!",
             year: scheduledDate.year,
             month: scheduledDate.month,
@@ -300,8 +300,8 @@ class NotiService {
 
     await Future.delayed(Duration.zero);
 
-    if (notificationsBox.get('notifFavouriteMeals', defaultValue: false)) {
-      await scheduleFavouritesNotifications();
+    if (notificationsBox.get('notifMeals', defaultValue: false)) {
+      await scheduleMealsNotifications();
     }
 
     // final List<PendingNotificationRequest> pending =

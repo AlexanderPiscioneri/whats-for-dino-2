@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:whats_for_dino_2/models/menu.dart';
-import 'package:whats_for_dino_2/pages/favourites.dart';
+import 'package:whats_for_dino_2/pages/catalogue.dart';
 
 // Public cache
 class MealItemsCache {
@@ -9,7 +9,7 @@ class MealItemsCache {
 }
 
 // Initialize food items
-Future<void> initializeLocalMealItems() async {
+Future<void> initializeMealItemsCache() async {
   final mealsBox = Hive.box('mealsBox');
 
   // Load persisted meals
@@ -42,7 +42,7 @@ void mergeMealItems(List<Meal> meals) {
           name: meal.name,
           likes: meal.likes,
           dislikes: meal.dislikes,
-          isFavourite: false,
+          notify: false,
         ),
       );
       continue;

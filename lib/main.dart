@@ -9,7 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/server_message.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
-import 'package:whats_for_dino_2/pages/favourites.dart';
+import 'package:whats_for_dino_2/pages/catalogue.dart';
 import 'package:whats_for_dino_2/pages/feedback.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
 import 'package:whats_for_dino_2/pages/settings.dart';
@@ -326,7 +326,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         "NOTIFICATIONS",
         "WHAT'S FOR DINO",
         "FEEDBACK",
-        "FAVOURITES",
+        "CATALOGUE",
       ];
 
       pages = [
@@ -334,7 +334,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         NotificationsPage(),
         WfdPage(key: wfdKey),
         FeedbackPage(),
-        FavouritesPage(),
+        CataloguePage(),
       ];
 
       navItems = const [
@@ -349,8 +349,8 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
         ),
         BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
         BottomNavigationBarItem(
-          icon: Icon(Icons.favorite),
-          label: "Favourites",
+          icon: Icon(Icons.list),
+          label: "Catalogue",
         ),
       ];
 
