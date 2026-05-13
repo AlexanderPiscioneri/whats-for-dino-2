@@ -95,6 +95,14 @@ Future<void> checkServerMessages() async {
         _ => null,
       };
 
+      ImageProvider? imageProvider;
+
+      if (message.imageUrl != null) {
+        imageProvider = NetworkImage(message.imageUrl!);
+
+        await precacheImage(imageProvider, context);
+      }
+      
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -153,11 +161,8 @@ Future<void> checkServerMessages() async {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (message.imageUrl != null)
-                            Image.network(
-                              message.imageUrl!,
-                              fit: BoxFit.scaleDown,
-                            ),
+                          if (imageProvider != null)
+                            Image(image: imageProvider, fit: BoxFit.scaleDown),
                           if (message.text.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.all(8),
@@ -287,20 +292,20 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
     super.initState();
 
     if (kIsWeb) {
-      titles = ["SETTINGS", "WHAT'S FOR DINO", "FEEDBACK"];
+      // titles = ["SETTINGS", "WHAT'S FOR DINO", "FEEDBACK"];
 
-      pages = [SettingsPage(), WfdPage(key: wfdKey), FeedbackPage()];
+      // pages = [SettingsPage(), WfdPage(key: wfdKey), FeedbackPage()];
 
-      navItems = const [
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.food_bank),
-          label: "What's For Dino",
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
-      ];
+      // navItems = const [
+      //   BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+      //   BottomNavigationBarItem(
+      //     icon: Icon(Icons.food_bank),
+      //     label: "What's For Dino",
+      //   ),
+      //   BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
+      // ];
 
-      currentPage = 1; // default to WFD
+      // currentPage = 1; // default to WFD
 
       final userAgent = getUserAgent();
 
@@ -320,42 +325,39 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
           );
         }
       });
-    } else {
-      titles = [
-        "SETTINGS",
-        "NOTIFICATIONS",
-        "WHAT'S FOR DINO",
-        "FEEDBACK",
-        "CATALOGUE",
-      ];
-
-      pages = [
-        SettingsPage(),
-        NotificationsPage(),
-        WfdPage(key: wfdKey),
-        FeedbackPage(),
-        CataloguePage(),
-      ];
-
-      navItems = const [
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.notifications),
-          label: "Notifications",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.food_bank),
-          label: "What's For Dino",
-        ),
-        BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.list),
-          label: "Catalogue",
-        ),
-      ];
-
-      currentPage = 2; // default to WFD
     }
+
+    titles = [
+      "SETTINGS",
+      "NOTIFICATIONS",
+      "WHAT'S FOR DINO",
+      "FEEDBACK",
+      "CATALOGUE",
+    ];
+
+    pages = [
+      SettingsPage(),
+      NotificationsPage(),
+      WfdPage(key: wfdKey),
+      FeedbackPage(),
+      CataloguePage(),
+    ];
+
+    navItems = const [
+      BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.notifications),
+        label: "Notifications",
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.food_bank),
+        label: "What's For Dino",
+      ),
+      BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
+      BottomNavigationBarItem(icon: Icon(Icons.list), label: "Catalogue"),
+    ];
+
+    currentPage = 2; // default to WFD
 
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   checkServerMessages();

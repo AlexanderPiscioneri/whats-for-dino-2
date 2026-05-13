@@ -15,13 +15,16 @@ class FeedbackPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(
-              'All feedback is always welcome.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 40,
-                fontWeight: FontWeight.w400,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                'All feedback is always welcome.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ),
             Divider(color: Theme.of(context).colorScheme.primary),
@@ -44,6 +47,7 @@ class FeedbackPage extends StatelessWidget {
               ),
               child: Text(
                 'Dino Feedback Form',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -81,6 +85,7 @@ class FeedbackPage extends StatelessWidget {
               ),
               child: Text(
                 'Anonymous App Feedback Form',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -122,6 +127,7 @@ class FeedbackPage extends StatelessWidget {
               ),
               child: Text(
                 'Reach Out To Me Directly',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,

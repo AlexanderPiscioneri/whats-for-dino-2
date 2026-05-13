@@ -37,6 +37,7 @@ class WfdPageState extends State<WfdPage> {
   final menuBox = Hive.box('menuBox');
   final Box mealsBox = Hive.box('mealsBox');
   final settingsBox = Hive.box('settingsBox');
+  final notificationsBox = Hive.box('notificationsBox');
 
   late String dateText;
   late String dayText;
@@ -745,7 +746,7 @@ class WfdPageState extends State<WfdPage> {
                                           settingsBox.get(
                                                 "showNotifButtons",
                                                 defaultValue: true,
-                                              )
+                                              ) && !kIsWeb
                                               ? 8
                                               : 16,
                                       right:
@@ -933,14 +934,29 @@ class WfdPageState extends State<WfdPage> {
                     flex: 10,
                     child: IconButton(
                       icon: Icon(
-                        meal.notify
-                            ? Icons.notifications_active
-                            : Icons.notifications_none_outlined,
+                        notificationsBox.get(
+                              "enableNotifications",
+                              defaultValue: false,
+                            ) && notificationsBox.get(
+                                  "notifMeals",
+                                  defaultValue: false,
+                                )
+                            ? meal.notify
+                                ? Icons.notifications_active
+                                : Icons.notifications_none_outlined
+                            : Icons.notifications_off_outlined,
                       ),
                       iconSize: 20,
                       onPressed: () {
                         setState(() {
-                          setMealNotif(mealItemName, !meal.notify);
+                          if (notificationsBox.get(
+                            "enableNotifications",
+                            defaultValue: false,
+                          ) && notificationsBox.get(
+                                "notifMeals",
+                                defaultValue: false,
+                              ))
+                            setMealNotif(mealItemName, !meal.notify);
                         });
                         NotiService().refreshNotifications();
                       },
@@ -967,7 +983,7 @@ class WfdPageState extends State<WfdPage> {
                     meal: meal,
                     onVote: (newVote) {
                       setState(() {
-                        rateMeal(mealItemName, newVote);
+                        if (!kIsWeb) rateMeal(mealItemName, newVote);
                       });
                     },
                   ),

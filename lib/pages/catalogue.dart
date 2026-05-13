@@ -204,21 +204,15 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   void _applySort() {
-    int compareBool(bool a, bool b) {
-      if (a == b) return 0;
-      return a ? -1 : 1; // true first
-    }
-
     _filteredItems.sort((a, b) {
-      int result = 0;
+      int result;
 
       switch (_sortKey) {
         case SortKey.notifications:
-          // ON first
-          result = compareBool(a.notify, b.notify);
-          if (result == 0) {
-            result = a.name.compareTo(b.name);
-          }
+          result =
+              a.notify == b.notify
+                  ? a.name.compareTo(b.name)
+                  : (a.notify ? 1 : 0).compareTo(b.notify ? 1 : 0);
           break;
 
         case SortKey.name:
@@ -229,9 +223,9 @@ class _CataloguePageState extends State<CataloguePage> {
           final sa = _score(a);
           final sb = _score(b);
 
-          // HIGH ratio first
-          result = sb.compareTo(sa);
+          result = sa.compareTo(sb);
 
+          // tie-breakers for stability
           if (result == 0) {
             result = a.likes.compareTo(b.likes);
           }
@@ -454,6 +448,8 @@ class _CataloguePageState extends State<CataloguePage> {
 
   @override
   Widget build(BuildContext context) {
+    final notificationsBox = Hive.box('notificationsBox');
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -493,6 +489,7 @@ class _CataloguePageState extends State<CataloguePage> {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
               child: Row(
                 children: [
+                  if (!kIsWeb)
                   _SortButton(
                     label: "Notif",
                     active: _sortKey == SortKey.notifications,
@@ -503,7 +500,7 @@ class _CataloguePageState extends State<CataloguePage> {
                           _sortAsc = !_sortAsc;
                         } else {
                           _sortKey = SortKey.notifications;
-                          _sortAsc = true;
+                          _sortAsc = false; // default: true first
                         }
                         _applySort();
                       });
@@ -525,7 +522,7 @@ class _CataloguePageState extends State<CataloguePage> {
                         _applySort();
                       });
                     },
-                    flex: 50,
+                    flex: !kIsWeb ? 50 : 60,
                   ),
                   _SortButton(
                     label: "Ratio",
@@ -537,7 +534,7 @@ class _CataloguePageState extends State<CataloguePage> {
                           _sortAsc = !_sortAsc;
                         } else {
                           _sortKey = SortKey.ratio;
-                          _sortAsc = true;
+                          _sortAsc = false; // high ratio first
                         }
                         _applySort();
                       });
@@ -555,7 +552,7 @@ class _CataloguePageState extends State<CataloguePage> {
                   return Padding(
                     padding: const EdgeInsets.only(
                       top: 0,
-                      left: 8,
+                      left: !kIsWeb ? 8 : 16,
                       right: 8,
                       bottom: 8,
                     ),
@@ -575,7 +572,16 @@ class _CataloguePageState extends State<CataloguePage> {
                               iconSize: 20,
                               onPressed: () {
                                 setState(() {
-                                  setMealNotif(meal.name, !meal.notify);
+                                  if (notificationsBox.get(
+                                        "enableNotifications",
+                                        defaultValue: false,
+                                      ) &&
+                                      notificationsBox.get(
+                                        "notifMeals",
+                                        defaultValue: false,
+                                      )) {
+                                    setMealNotif(meal.name, !meal.notify);
+                                  }
                                 });
                                 NotiService().refreshNotifications();
                               },
@@ -610,7 +616,7 @@ class _CataloguePageState extends State<CataloguePage> {
                           meal: meal,
                           onVote: (newVote) {
                             setState(() {
-                              rateMeal(meal.name, newVote);
+                              if (!kIsWeb) rateMeal(meal.name, newVote);
                             });
                           },
                           colourOverride: Colors.white,
@@ -715,7 +721,10 @@ class _SortButton extends StatelessWidget {
           children: [
             Text(
               label,
-              style: TextStyle(color: active ? Colors.white : Colors.white70, fontSize: 16),
+              style: TextStyle(
+                color: active ? Colors.white : Colors.white70,
+                fontSize: 16,
+              ),
             ),
             if (active)
               Icon(
