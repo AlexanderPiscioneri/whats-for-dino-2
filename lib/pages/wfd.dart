@@ -744,9 +744,10 @@ class WfdPageState extends State<WfdPage> {
                                       bottom: 16,
                                       left:
                                           settingsBox.get(
-                                                "showNotifButtons",
-                                                defaultValue: true,
-                                              ) && !kIsWeb
+                                                    "showNotifButtons",
+                                                    defaultValue: true,
+                                                  ) &&
+                                                  !kIsWeb
                                               ? 8
                                               : 16,
                                       right:
@@ -782,8 +783,18 @@ class WfdPageState extends State<WfdPage> {
                         if (todayIndex == index &&
                             dayText.contains("||") == false) {
                           showTodayLogo = true;
+                          if (settingsBox.get(
+                            "hapticFeedback",
+                            defaultValue: true,
+                          ))
+                            HapticFeedback.heavyImpact();
                         } else {
                           showTodayLogo = false;
+                          if (settingsBox.get(
+                            "hapticFeedback",
+                            defaultValue: true,
+                          ))
+                            HapticFeedback.mediumImpact();
                         }
                       });
                     },
@@ -935,9 +946,10 @@ class WfdPageState extends State<WfdPage> {
                     child: IconButton(
                       icon: Icon(
                         notificationsBox.get(
-                              "enableNotifications",
-                              defaultValue: false,
-                            ) && notificationsBox.get(
+                                  "enableNotifications",
+                                  defaultValue: false,
+                                ) &&
+                                notificationsBox.get(
                                   "notifMeals",
                                   defaultValue: false,
                                 )
@@ -950,9 +962,10 @@ class WfdPageState extends State<WfdPage> {
                       onPressed: () {
                         setState(() {
                           if (notificationsBox.get(
-                            "enableNotifications",
-                            defaultValue: false,
-                          ) && notificationsBox.get(
+                                "enableNotifications",
+                                defaultValue: false,
+                              ) &&
+                              notificationsBox.get(
                                 "notifMeals",
                                 defaultValue: false,
                               ))
@@ -1036,80 +1049,115 @@ class WfdPageState extends State<WfdPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Flexible(
-                  flex: 50,
-                  child: IconButton(
-                    icon: Icon(
-                      meal.myVote == MealVote.like
-                          ? Icons.thumb_up
-                          : Icons.thumb_up_alt_outlined,
+                Column(
+                  children: [
+                    Flexible(
+                      flex: 50,
+                      child: IconButton(
+                        icon: Icon(
+                          meal.myVote == MealVote.like
+                              ? Icons.thumb_up
+                              : Icons.thumb_up_alt_outlined,
+                        ),
+                        iconSize: 18,
+                        onPressed: () {
+                          onVote(
+                            meal.myVote == MealVote.like
+                                ? MealVote.none
+                                : MealVote.like,
+                          );
+                          if (settingsBox.get(
+                            "hapticFeedback",
+                            defaultValue: true,
+                          ))
+                            HapticFeedback.mediumImpact();
+                        },
+                      ),
                     ),
-                    iconSize: 18,
-                    onPressed: () {
-                      onVote(
-                        meal.myVote == MealVote.like
-                            ? MealVote.none
-                            : MealVote.like,
-                      );
-                    },
-                  ),
+                    SizedBox(
+                      width: 20,
+                      child: Text(
+                        meal.likes,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
-                Flexible(
-                  flex: 50,
-                  child: IconButton(
-                    icon: Icon(
-                      meal.myVote == MealVote.dislike
-                          ? Icons.thumb_down
-                          : Icons.thumb_down_alt_outlined,
+                Column(
+                  children: [
+                    Flexible(
+                      flex: 50,
+                      child: IconButton(
+                        icon: Icon(
+                          meal.myVote == MealVote.dislike
+                              ? Icons.thumb_down
+                              : Icons.thumb_down_alt_outlined,
+                        ),
+                        iconSize: 18,
+                        onPressed: () {
+                          onVote(
+                            meal.myVote == MealVote.dislike
+                                ? MealVote.none
+                                : MealVote.dislike,
+                          );
+                        },
+                      ),
                     ),
-                    iconSize: 18,
-                    onPressed: () {
-                      onVote(
-                        meal.myVote == MealVote.dislike
-                            ? MealVote.none
-                            : MealVote.dislike,
-                      );
-                    },
-                  ),
+                    SizedBox(
+                      width: 20,
+                      child: Text(
+                        meal.dislikes,
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
 
-            Positioned(
-              bottom: -10,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      left,
-                      textAlign: TextAlign.right,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const Text(
-                    ":",
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      right,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Positioned(
+            //   bottom: -10,
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       SizedBox(
+            //         width: 20,
+            //         child: Text(
+            //           left,
+            //           textAlign: TextAlign.right,
+            //           style: const TextStyle(
+            //             fontSize: 11,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       ),
+            //       const Text(
+            //         ":",
+            //         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            //       ),
+            //       SizedBox(
+            //         width: 20,
+            //         child: Text(
+            //           right,
+            //           textAlign: TextAlign.left,
+            //           style: const TextStyle(
+            //             fontSize: 11,
+            //             fontWeight: FontWeight.w600,
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

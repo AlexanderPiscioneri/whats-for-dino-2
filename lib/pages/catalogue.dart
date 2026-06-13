@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -140,8 +141,9 @@ enum SortKey { notifications, name, ratio }
 
 class _CataloguePageState extends State<CataloguePage> {
   final TextEditingController _searchController = TextEditingController();
-  late Box mealsBox;
-  late Box menuBox;
+  late Box mealsBox = Hive.box('mealsBox');
+  late Box menuBox = Hive.box('menuBox');
+  final settingsBox = Hive.box('settingsBox');
   List<LocalMealItem> _filteredItems = [];
 
   SortKey _sortKey = SortKey.name;
@@ -158,8 +160,6 @@ class _CataloguePageState extends State<CataloguePage> {
   @override
   void initState() {
     super.initState();
-    mealsBox = Hive.box('mealsBox');
-    menuBox = Hive.box('menuBox');
 
     _searchController.addListener(_onSearchChanged);
     // _filteredItems = List.from(FoodItemsCache.items);
@@ -200,12 +200,16 @@ class _CataloguePageState extends State<CataloguePage> {
   }
 
   double _score(LocalMealItem m) {
-    return (m.likes + 1) / (m.dislikes + 1);
+    // return (m.likes + 1) / (m.dislikes + 1);
+    return (m.likes - m.dislikes).toDouble();
   }
 
   void _applySort() {
     _filteredItems.sort((a, b) {
       int result;
+
+      if (settingsBox.get("hapticFeedback", defaultValue: true))
+        HapticFeedback.mediumImpact();
 
       switch (_sortKey) {
         case SortKey.notifications:
@@ -525,7 +529,7 @@ class _CataloguePageState extends State<CataloguePage> {
                     flex: !kIsWeb ? 50 : 60,
                   ),
                   _SortButton(
-                    label: "Ratio",
+                    label: "Diff",
                     active: _sortKey == SortKey.ratio,
                     asc: _sortAsc,
                     onTap: () {

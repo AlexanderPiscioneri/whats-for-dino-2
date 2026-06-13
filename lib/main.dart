@@ -278,6 +278,8 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
 
   void navigateToPage(int index) {
     wfdKey.currentState?.animateToToday();
+    if (settingsBox.get("hapticFeedback", defaultValue: true))
+      HapticFeedback.mediumImpact();
     setState(() {
       currentPage = index;
     });

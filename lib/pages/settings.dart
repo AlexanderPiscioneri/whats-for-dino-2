@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +14,9 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-final settingsBox = Hive.box('settingsBox');
-
 class _SettingsPageState extends State<SettingsPage> {
   String _appVersionText = "";
+  final settingsBox = Hive.box('settingsBox');
 
   @override
   void initState() {
@@ -50,35 +50,61 @@ class _SettingsPageState extends State<SettingsPage> {
                     context,
                     listen: false,
                   ).setDarkMode(value);
+                  if (settingsBox.get("hapticFeedback", defaultValue: true))
+                    HapticFeedback.mediumImpact();
                 },
                 activeColour: Theme.of(context).colorScheme.primary,
+              ),
+              StandardSwitchListTile(
+                title: "Haptic Feedback",
+                value: settingsBox.get("hapticFeedback", defaultValue: true),
+                onChanged: (value) {
+                  settingsBox.put("hapticFeedback", value);
+                  setState(() {});
+                  if (settingsBox.get("hapticFeedback", defaultValue: true))
+                    HapticFeedback.mediumImpact();
+                },
+                activeColour: Theme.of(context).colorScheme.primary,
+              ),
+              Divider(
+                color: Theme.of(context).colorScheme.primary,
+                indent: 20,
+                endIndent: 20,
               ),
               StandardSwitchListTile(
                 title: "Show Meal Times",
                 value: settingsBox.get("showTimesOnMenu", defaultValue: true),
                 onChanged: (value) {
                   settingsBox.put("showTimesOnMenu", value);
-                  setState(() {
-                    
-                  });
-                },
-                activeColour: Theme.of(context).colorScheme.primary,
-              ),
-              if (!kIsWeb) StandardSwitchListTile(
-                title: "Show Notification Buttons",
-                value: settingsBox.get("showNotifButtons", defaultValue: true),
-                onChanged: (value) {
-                  settingsBox.put("showNotifButtons", value);
                   setState(() {});
+                  if (settingsBox.get("hapticFeedback", defaultValue: true))
+                    HapticFeedback.mediumImpact();
                 },
                 activeColour: Theme.of(context).colorScheme.primary,
               ),
+              if (!kIsWeb)
+                StandardSwitchListTile(
+                  title: "Show Notif Buttons",
+                  value: settingsBox.get(
+                    "showNotifButtons",
+                    defaultValue: true,
+                  ),
+                  onChanged: (value) {
+                    settingsBox.put("showNotifButtons", value);
+                    setState(() {});
+                    if (settingsBox.get("hapticFeedback", defaultValue: true))
+                      HapticFeedback.mediumImpact();
+                  },
+                  activeColour: Theme.of(context).colorScheme.primary,
+                ),
               StandardSwitchListTile(
                 title: "Center Meal Text",
                 value: settingsBox.get("centerMealText", defaultValue: false),
                 onChanged: (value) {
                   settingsBox.put("centerMealText", value);
                   setState(() {});
+                  if (settingsBox.get("hapticFeedback", defaultValue: true))
+                    HapticFeedback.mediumImpact();
                 },
                 activeColour: Theme.of(context).colorScheme.primary,
               ),
@@ -88,6 +114,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 onChanged: (value) {
                   settingsBox.put("showRatings", value);
                   setState(() {});
+                  if (settingsBox.get("hapticFeedback", defaultValue: true))
+                    HapticFeedback.mediumImpact();
                 },
                 activeColour: Theme.of(context).colorScheme.primary,
               ),
@@ -95,13 +123,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              _appVersionText,
-              style: TextStyle(
-                color: Colors.white
-              ),
-            ),
-          )
+            child: Text(_appVersionText, style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );
@@ -120,6 +143,8 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() {
           //enableNotifications = value;
         });
+        if (settingsBox.get("hapticFeedback", defaultValue: true))
+          HapticFeedback.mediumImpact();
       },
       activeColour: Theme.of(context).colorScheme.primary,
     );

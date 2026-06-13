@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:whats_for_dino_2/pages/catalogue.dart';
+import 'package:whats_for_dino_2/services/meals_cache.dart';
 
 class RatingsWidget extends StatelessWidget {
-  final dynamic meal;
+  final LocalMealItem meal;
   final void Function(MealVote vote) onVote;
   final Color? colourOverride;
 
@@ -17,9 +20,15 @@ class RatingsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveColor = colourOverride; // null means "use theme"
 
-    final ratioText = _ratio();
-    final left = ratioText.split(":")[0];
-    final right = ratioText.split(":")[1];
+    // final ratioText = _ratio();
+    // final left = ratioText.split(":")[0];
+    // final right = ratioText.split(":")[1];
+
+    final settingsBox = Hive.box('settingsBox');
+
+    bool hasVotedOnThisMeal = false;
+    final index = MealItemsCache.items.indexWhere((m) => m.name == meal.name);
+    if (index != -1) hasVotedOnThisMeal = true;
 
     return Expanded(
       flex: 20,
@@ -34,89 +43,160 @@ class RatingsWidget extends StatelessWidget {
               children: [
                 Flexible(
                   flex: 50,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    iconSize: 18,
-                    icon: Icon(
-                      meal.myVote == MealVote.like
-                          ? Icons.thumb_up
-                          : Icons.thumb_up_alt_outlined,
-                      color: effectiveColor,
-                    ),
-                    onPressed: () {
-                      onVote(
-                        meal.myVote == MealVote.like
-                            ? MealVote.none
-                            : MealVote.like,
-                      );
-                    },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: AlignmentGeometry.center,
+                    children: [
+
+                       IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 18,
+                          icon: Icon(
+                            meal.myVote == MealVote.like
+                                ? Icons.thumb_up
+                                : Icons.thumb_up_alt_outlined,
+                            color: effectiveColor,
+                          ),
+                          onPressed: () {
+                            onVote(
+                              meal.myVote == MealVote.like
+                                  ? MealVote.none
+                                  : MealVote.like,
+                            );
+                            if (settingsBox.get(
+                              "hapticFeedback",
+                              defaultValue: true,
+                            ))
+                              HapticFeedback.mediumImpact();
+                          },
+                        ),
+                      Positioned(
+                        bottom: -10,
+                        child: SizedBox(
+                          width: 20,
+                          child: Text(
+                            meal.likes.toString(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: effectiveColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Flexible(
                   flex: 50,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    iconSize: 18,
-                    icon: Icon(
-                      meal.myVote == MealVote.dislike
-                          ? Icons.thumb_down
-                          : Icons.thumb_down_alt_outlined,
-                      color: effectiveColor,
-                    ),
-                    onPressed: () {
-                      onVote(
-                        meal.myVote == MealVote.dislike
-                            ? MealVote.none
-                            : MealVote.dislike,
-                      );
-                    },
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: AlignmentGeometry.center,
+                    children: [
+
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          iconSize: 18,
+                          icon: Icon(
+                            meal.myVote == MealVote.dislike
+                                ? Icons.thumb_down
+                                : Icons.thumb_down_alt_outlined,
+                            color: effectiveColor,
+                          ),
+                          onPressed: () {
+                            onVote(
+                              meal.myVote == MealVote.dislike
+                                  ? MealVote.none
+                                  : MealVote.dislike,
+                            );
+                          },
+                        ),
+
+                      Positioned(
+                        bottom: -10,
+                        child: SizedBox(
+                          width: 20,
+                          child: Text(
+                            meal.dislikes.toString(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: effectiveColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
 
-            Positioned(
-              bottom: -10,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      left,
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: effectiveColor,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    ":",
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: effectiveColor,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      right,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: effectiveColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Positioned(
+            //   bottom: -20,
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       SizedBox(
+            //         width: 40,
+            //         child: Text(
+            //           meal.likes != 0 || meal.dislikes != 0 ? "${(meal.likes / (meal.likes + meal.dislikes) * 100).truncate()}%" : "-%",
+            //           textAlign: TextAlign.center,
+            //           style: TextStyle(
+            //             fontSize: 11,
+            //             fontWeight: FontWeight.w600,
+            //             color: effectiveColor,
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+
+            // OLD RATIOS
+            // Positioned(
+            //   bottom: -10,
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       SizedBox(
+            //         width: 20,
+            //         child: Text(
+            //           left,
+            //           textAlign: TextAlign.right,
+            //           style: TextStyle(
+            //             fontSize: 11,
+            //             fontWeight: FontWeight.w600,
+            //             color: effectiveColor,
+            //           ),
+            //         ),
+            //       ),
+            //       Text(
+            //         " | ",
+            //         style: TextStyle(
+            //           fontSize: 11,
+            //           fontWeight: FontWeight.w600,
+            //           color: effectiveColor,
+            //         ),
+            //       ),
+            //       SizedBox(
+            //         width: 20,
+            //         child: Text(
+            //           right,
+            //           textAlign: TextAlign.left,
+            //           style: TextStyle(
+            //             fontSize: 11,
+            //             fontWeight: FontWeight.w600,
+            //             color: effectiveColor,
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -137,6 +217,6 @@ class RatingsWidget extends StatelessWidget {
     }
 
     final d = gcd(meal.likes, meal.dislikes);
-    return "${meal.likes ~/ d}:${meal.dislikes ~/ d}";
+    return "${meal.likes}:${meal.dislikes}";
   }
 }

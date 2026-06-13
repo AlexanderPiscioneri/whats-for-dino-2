@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
-
 
 class FeedbackPage extends StatelessWidget {
   const FeedbackPage({super.key});
@@ -8,6 +9,7 @@ class FeedbackPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ColorScheme currentColourScheme = Theme.of(context).colorScheme;
+    final settingsBox = Hive.box('settingsBox');
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -29,7 +31,13 @@ class FeedbackPage extends StatelessWidget {
             ),
             Divider(color: Theme.of(context).colorScheme.primary),
             ElevatedButton(
-              onPressed: () => openLink("https://forms.office.com/Pages/ResponsePage.aspx?id=pM_2PxXn20i44Qhnufn7o91DYUQ6lW9MsGLk8aV9AgNUNlFXTDUwUEgwVzJQNUVYRjdMQVdJNkxSMS4u&origin=QRCode"),
+              onPressed: () {
+                if (settingsBox.get("hapticFeedback", defaultValue: true))
+                  HapticFeedback.mediumImpact();
+                openLink(
+                  "https://forms.office.com/Pages/ResponsePage.aspx?id=pM_2PxXn20i44Qhnufn7o91DYUQ6lW9MsGLk8aV9AgNUNlFXTDUwUEgwVzJQNUVYRjdMQVdJNkxSMS4u&origin=QRCode",
+                );
+              },
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,
@@ -66,8 +74,11 @@ class FeedbackPage extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed:
-                  () => openLink("https://forms.gle/mc7dDUUe1d5iCwes9"),
+              onPressed: () {
+                if (settingsBox.get("hapticFeedback", defaultValue: true))
+                  HapticFeedback.mediumImpact();
+                openLink("https://forms.gle/mc7dDUUe1d5iCwes9");
+              },
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,
@@ -108,8 +119,11 @@ class FeedbackPage extends StatelessWidget {
               ),
             ),
             ElevatedButton(
-              onPressed:
-                  () => openLink("https://linktr.ee/alexanderpiscioneri"),
+              onPressed: () {
+                if (settingsBox.get("hapticFeedback", defaultValue: true))
+                  HapticFeedback.mediumImpact();
+                openLink("https://linktr.ee/alexanderpiscioneri");
+              },
               style: ButtonStyle(
                 backgroundColor: WidgetStateColor.resolveWith(
                   (_) => currentColourScheme.primary,

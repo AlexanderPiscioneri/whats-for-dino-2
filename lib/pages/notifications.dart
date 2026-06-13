@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
@@ -15,6 +16,7 @@ class NotificationsPage extends StatefulWidget {
 }
 
 final notificationsBox = Hive.box('notificationsBox');
+final settingsBox = Hive.box('settingsBox');
 
 class _NotificationsPageState extends State<NotificationsPage> {
   @override
@@ -176,6 +178,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   notificationsBox.put('enableNotifications', false);
                   NotiService().cancelAllNotifications();
                 }
+                if (settingsBox.get("hapticFeedback", defaultValue: true))
+                  HapticFeedback.mediumImpact();
                 setState(() {});
               },
               activeColour: Theme.of(context).colorScheme.primary,
@@ -277,6 +281,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       onChanged: (value) {
         notificationsBox.put(variableName, value);
         NotiService().refreshNotifications();
+        if (settingsBox.get("hapticFeedback", defaultValue: true))
+          HapticFeedback.mediumImpact();
         setState(() {});
       },
       activeColour: Theme.of(context).colorScheme.primary,
@@ -322,6 +328,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           divisions: 6,
           onChanged: (value) {
             notificationsBox.put('notifMealTime', value);
+            if (settingsBox.get("hapticFeedback", defaultValue: true))
+              HapticFeedback.mediumImpact();
             setState(() {});
           },
           onChangeEnd: (value) {
