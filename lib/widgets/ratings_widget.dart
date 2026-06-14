@@ -30,6 +30,9 @@ class RatingsWidget extends StatelessWidget {
     final index = MealItemsCache.items.indexWhere((m) => m.name == meal.name);
     if (index != -1) hasVotedOnThisMeal = true;
 
+    double bottomButtonOffset = -10;
+    double leftRightOffset = 0;
+
     return Expanded(
       flex: 20,
       child: SizedBox(
@@ -50,6 +53,14 @@ class RatingsWidget extends StatelessWidget {
 
                        IconButton(
                           padding: EdgeInsets.zero,
+                          style: ButtonStyle(
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+                        hoverColor: Colors.transparent,
                           iconSize: 18,
                           icon: Icon(
                             meal.myVote == MealVote.like
@@ -71,12 +82,13 @@ class RatingsWidget extends StatelessWidget {
                           },
                         ),
                       Positioned(
-                        bottom: -10,
+                        right: leftRightOffset,
+                        bottom: bottomButtonOffset,
                         child: SizedBox(
                           width: 20,
                           child: Text(
                             meal.likes.toString(),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -97,7 +109,12 @@ class RatingsWidget extends StatelessWidget {
 
                         IconButton(
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
+                          style: ButtonStyle(
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                            ),
+                          ),
+                          hoverColor: Colors.transparent,
                           iconSize: 18,
                           icon: Icon(
                             meal.myVote == MealVote.dislike
@@ -115,12 +132,13 @@ class RatingsWidget extends StatelessWidget {
                         ),
 
                       Positioned(
-                        bottom: -10,
+                        bottom: bottomButtonOffset,
+                        left: leftRightOffset,
                         child: SizedBox(
                           width: 20,
                           child: Text(
                             meal.dislikes.toString(),
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.left,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,

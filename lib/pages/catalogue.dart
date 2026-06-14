@@ -719,6 +719,11 @@ class _SortButton extends StatelessWidget {
     return Expanded(
       flex: flex,
       child: TextButton(
+        style: ButtonStyle(
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          ),
+        ),
         onPressed: onTap,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -738,39 +738,44 @@ class WfdPageState extends State<WfdPage> {
                               ).themeData.colorScheme.secondary,
                           child:
                               isBetweenMenusPage
-                                  ? ListView(
-                                    padding: EdgeInsets.only(
-                                      top: 16,
-                                      bottom: 16,
-                                      left:
-                                          settingsBox.get(
-                                                    "showNotifButtons",
-                                                    defaultValue: true,
-                                                  ) &&
-                                                  !kIsWeb
-                                              ? 8
-                                              : 16,
-                                      right:
-                                          settingsBox.get(
-                                                "showRatingsButtons",
-                                                defaultValue: true,
-                                              )
-                                              ? 8
-                                              : 16,
+                                  ? ScrollConfiguration(
+                                    behavior: ScrollConfiguration.of(
+                                      context,
+                                    ).copyWith(scrollbars: false),
+                                    child: ListView(
+                                      padding: EdgeInsets.only(
+                                        top: 16,
+                                        bottom: 16,
+                                        left:
+                                            settingsBox.get(
+                                                      "showNotifButtons",
+                                                      defaultValue: true,
+                                                    ) &&
+                                                    !kIsWeb
+                                                ? 8
+                                                : 16,
+                                        right:
+                                            settingsBox.get(
+                                                  "showRatingsButtons",
+                                                  defaultValue: true,
+                                                )
+                                                ? 8
+                                                : 16,
+                                      ),
+                                      children: [
+                                        _mealSection(
+                                          "Breakfast",
+                                          dayMenu.breakfast,
+                                        ),
+                                        if (dayMenu.brunch != null)
+                                          _mealSection("Brunch", dayMenu.brunch!),
+                                        _mealSection("Lunch", dayMenu.lunch),
+                                        _mealSection(
+                                          dinnerSectionName,
+                                          dayMenu.dinner,
+                                        ),
+                                      ],
                                     ),
-                                    children: [
-                                      _mealSection(
-                                        "Breakfast",
-                                        dayMenu.breakfast,
-                                      ),
-                                      if (dayMenu.brunch != null)
-                                        _mealSection("Brunch", dayMenu.brunch!),
-                                      _mealSection("Lunch", dayMenu.lunch),
-                                      _mealSection(
-                                        dinnerSectionName,
-                                        dayMenu.dinner,
-                                      ),
-                                    ],
                                   )
                                   : _betweenMenusPage(dayMenu.dayName),
                         ),
