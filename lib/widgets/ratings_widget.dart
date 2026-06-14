@@ -31,7 +31,7 @@ class RatingsWidget extends StatelessWidget {
     if (index != -1) hasVotedOnThisMeal = true;
 
     double bottomButtonOffset = -10;
-    double leftRightOffset = 0;
+    double leftRightOffset = 5;
 
     return Expanded(
       flex: 20,
