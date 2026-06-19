@@ -25,6 +25,8 @@ class WfdPage extends StatefulWidget {
 
 int wishPage = -1;
 
+final ValueNotifier<int> currentPageNotifier = ValueNotifier(0);
+
 bool isDesktopWeb =
     kIsWeb &&
     (defaultTargetPlatform == TargetPlatform.macOS ||
@@ -247,11 +249,20 @@ class WfdPageState extends State<WfdPage> {
     final mealsDoc = await firestoreService.getMealsDocOnce();
     if (!mealsDoc.exists) return;
 
-    final data = mealsDoc.data() as Map<String, dynamic>;
-    final serverMeals = Map<String, dynamic>.from(data['meals'] ?? {});
+    final aliasesDoc = await firestoreService.getAliasesDocOnce();
+    if (!aliasesDoc.exists) return;
+
+    final mealsData = mealsDoc.data() as Map<String, dynamic>;
+    final aliasesData = aliasesDoc.data() as Map<String, dynamic>;
+
+    final serverMeals = Map<String, dynamic>.from(mealsData['meals'] ?? {});
+
+    final serverAliases = Map<String, String>.from(
+      aliasesData['aliases'] ?? {},
+    );
 
     final int serverUpdatedMs =
-        (data['lastUpdated'] as Timestamp?)?.millisecondsSinceEpoch ??
+        (mealsData['lastUpdated'] as Timestamp?)?.millisecondsSinceEpoch ??
         DateTime.now().millisecondsSinceEpoch;
 
     final bool unchanged =
@@ -263,6 +274,8 @@ class WfdPageState extends State<WfdPage> {
     }
 
     try {
+      MealItemsCache.aliases = serverAliases;
+
       final List<Meal> fetchedMeals = [];
 
       serverMeals.forEach((id, value) {
@@ -279,6 +292,7 @@ class WfdPageState extends State<WfdPage> {
 
       debugPrint("Fetched meals from server (likes/dislikes model)");
 
+      // merge will now use aliases correctly
       mergeMealItems(fetchedMeals);
 
       if (mounted) {
@@ -401,6 +415,7 @@ class WfdPageState extends State<WfdPage> {
 
     menuLoading = false;
     final todayIndex = _findTodayIndex();
+    currentPageNotifier.value = todayIndex;
 
     final currentIndex =
         MenuCache.pageController.hasClients
@@ -802,6 +817,7 @@ class WfdPageState extends State<WfdPage> {
                             HapticFeedback.mediumImpact();
                         }
                       });
+                      
                     },
                   ),
                 ),

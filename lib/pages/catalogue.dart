@@ -72,7 +72,7 @@ Future<void> removeStaleRatings(Set<String> validMealNames) async {
 enum MealVote { none, like, dislike }
 
 class LocalMealItem {
-  final String name;
+  String name;
 
   int likes;
   int dislikes;
@@ -81,7 +81,7 @@ class LocalMealItem {
 
   MealVote myVote;
 
-  int numOccurrences; // NEW
+  int numOccurrences;
 
   LocalMealItem({
     required this.name,

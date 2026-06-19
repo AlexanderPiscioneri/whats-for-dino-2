@@ -109,6 +109,7 @@ Future<void> checkServerMessages() async {
         builder:
             (ctx) => AlertDialog(
               backgroundColor: Theme.of(context).colorScheme.surface,
+              constraints: !kIsWeb ? BoxConstraints() : BoxConstraints(maxWidth: 400),
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.zero,
               ),

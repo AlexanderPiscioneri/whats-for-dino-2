@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -50,17 +51,31 @@ class RatingsWidget extends StatelessWidget {
                     clipBehavior: Clip.none,
                     alignment: AlignmentGeometry.center,
                     children: [
-
-                       IconButton(
+                      Tooltip(
+                        message:
+                            !kIsWeb ? "Like" : "Get the mobile app to vote!",
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
                           padding: EdgeInsets.zero,
                           style: ButtonStyle(
-                          shape: WidgetStateProperty.all(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
+                            shape: WidgetStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
                             ),
                           ),
-                        ),
-                        hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
                           iconSize: 18,
                           icon: Icon(
                             meal.myVote == MealVote.like
@@ -81,11 +96,12 @@ class RatingsWidget extends StatelessWidget {
                               HapticFeedback.mediumImpact();
                           },
                         ),
+                      ),
                       Positioned(
                         right: leftRightOffset,
                         bottom: bottomButtonOffset,
                         child: SizedBox(
-                          width: 20,
+                          width: 25,
                           child: Text(
                             meal.likes.toString(),
                             textAlign: TextAlign.right,
@@ -106,14 +122,31 @@ class RatingsWidget extends StatelessWidget {
                     clipBehavior: Clip.none,
                     alignment: AlignmentGeometry.center,
                     children: [
+                      Tooltip(
+                        message:
+                            !kIsWeb ? "Dislike" : "Get the mobile app to vote!",
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
 
-                        IconButton(
+                        child: IconButton(
                           padding: EdgeInsets.zero,
                           style: ButtonStyle(
                             shape: WidgetStateProperty.all(
-                              RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero,
+                              ),
                             ),
                           ),
+                          highlightColor: Colors.transparent,
                           hoverColor: Colors.transparent,
                           iconSize: 18,
                           icon: Icon(
@@ -128,8 +161,14 @@ class RatingsWidget extends StatelessWidget {
                                   ? MealVote.none
                                   : MealVote.dislike,
                             );
+                            if (settingsBox.get(
+                              "hapticFeedback",
+                              defaultValue: true,
+                            ))
+                              HapticFeedback.mediumImpact();
                           },
                         ),
+                      ),
 
                       Positioned(
                         bottom: bottomButtonOffset,

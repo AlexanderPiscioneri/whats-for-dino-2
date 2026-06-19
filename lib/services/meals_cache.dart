@@ -4,8 +4,17 @@ import 'package:whats_for_dino_2/pages/catalogue.dart';
 
 // Public cache
 class MealItemsCache {
+  static Map<String, String> aliases = {};
   static List<LocalMealItem> items = [];
   // static bool isInitialized = false;
+
+  // Resolve canonical name transitively
+  static String canonicalName(String name) {
+    while (aliases.containsKey(name)) {
+      name = aliases[name]!;
+    }
+    return name;
+  }
 }
 
 // Initialize food items
@@ -20,13 +29,10 @@ Future<void> initializeMealItemsCache() async {
           .toList();
 
   // Save back to Hive
-  mealsBox.put(
-    'meals',
-    MealItemsCache.items.map((e) => e.toJson()).toList(),
-  );
+  mealsBox.put('meals', MealItemsCache.items.map((e) => e.toJson()).toList());
 }
 
-// Given a list of meals, merge them into the local cache, and update 
+// Given a list of meals, merge them into the local cache, and update
 void mergeMealItems(List<Meal> meals) {
   final Map<String, Meal> incoming = {for (final m in meals) m.name: m};
 
@@ -34,12 +40,16 @@ void mergeMealItems(List<Meal> meals) {
 
   // 1. Update existing + add new
   for (final meal in meals) {
-    final index = MealItemsCache.items.indexWhere((m) => m.name == meal.name);
+    final canonicalName = MealItemsCache.canonicalName(meal.name);
+
+    final index = MealItemsCache.items.indexWhere(
+      (m) => MealItemsCache.canonicalName(m.name) == canonicalName,
+    );
 
     if (index == -1) {
       MealItemsCache.items.add(
         LocalMealItem(
-          name: meal.name,
+          name: canonicalName,
           likes: meal.likes,
           dislikes: meal.dislikes,
           notify: false,
@@ -50,16 +60,41 @@ void mergeMealItems(List<Meal> meals) {
 
     final existing = MealItemsCache.items[index];
 
-    // update ONLY server-side fields
+    // Migrate old alias names to canonical name
+    existing.name = canonicalName;
+
     existing.likes = meal.likes;
     existing.dislikes = meal.dislikes;
   }
 
-  // 2. Remove stale meals
-  MealItemsCache.items.removeWhere(
-    (item) => !incomingNames.contains(item.name),
-  );
+  // 2. Remove stale meals / deduplicate (keep first occurrence)
 
-  // 3. Remove stale user preferences
-  removeStaleRatings(incomingNames);
+  final canonicalIncomingNames = <String>{};
+
+  final filteredIncoming = <String>{};
+
+  for (final m in meals) {
+    final canonical = MealItemsCache.canonicalName(m.name);
+
+    if (!filteredIncoming.contains(canonical)) {
+      filteredIncoming.add(canonical);
+    }
+
+    canonicalIncomingNames.add(canonical);
+  }
+
+  // remove duplicates from local cache (keep first occurrence)
+  final seen = <String>{};
+
+  MealItemsCache.items.removeWhere((item) {
+    final canonical = MealItemsCache.canonicalName(item.name);
+
+    if (seen.contains(canonical)) {
+      return true;
+    }
+
+    seen.add(canonical);
+
+    return !canonicalIncomingNames.contains(canonical);
+  });
 }
