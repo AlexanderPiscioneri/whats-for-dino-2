@@ -15,6 +15,14 @@ class MealItemsCache {
     }
     return name;
   }
+
+  static Map<String, LocalMealItem>? _byName;
+  static Map<String, LocalMealItem> get byName {
+    _byName ??= {for (final m in items) m.name: m};
+    return _byName!;
+  }
+
+  static void invalidateIndex() => _byName = null;
 }
 
 // Initialize food items
@@ -97,4 +105,6 @@ void mergeMealItems(List<Meal> meals) {
 
     return !canonicalIncomingNames.contains(canonical);
   });
+
+  MealItemsCache.invalidateIndex();
 }

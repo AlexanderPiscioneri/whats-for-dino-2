@@ -10,14 +10,16 @@ import 'package:provider/provider.dart';
 import 'package:whats_for_dino_2/models/server_message.dart';
 import 'package:whats_for_dino_2/services/firebase_options.dart';
 import 'package:whats_for_dino_2/pages/catalogue.dart';
-import 'package:whats_for_dino_2/pages/feedback.dart';
+import 'package:whats_for_dino_2/pages/messages.dart';
 import 'package:whats_for_dino_2/pages/notifications.dart';
 import 'package:whats_for_dino_2/pages/settings.dart';
 import 'package:whats_for_dino_2/pages/wfd.dart';
+import 'package:whats_for_dino_2/services/messages_cache.dart';
 import 'package:whats_for_dino_2/services/noti_service.dart';
 import 'package:whats_for_dino_2/services/utils.dart';
 import 'package:whats_for_dino_2/services/web_utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
+import 'package:whats_for_dino_2/widgets/server_message_dialogue.dart';
 
 Color containerColour = Color.fromARGB(73, 0, 0, 0);
 
@@ -68,21 +70,24 @@ Future<void> checkServerMessages() async {
     // ];
     final now = DateTime.now();
 
+    final allMessages =
+        rawMessages
+            .map((m) => ServerMessage.fromJson(Map<String, dynamic>.from(m)))
+            .toList();
+
+    await mergeServerMessages(allMessages);
+
     // Load previously seen one-time message IDs
     final seenIds = Set<String>.from(
       metaDataBox.get('seenMessageIds', defaultValue: []) as List,
     );
 
     final messages =
-        rawMessages
-            .map((m) => ServerMessage.fromJson(Map<String, dynamic>.from(m)))
-            .where((message) {
-              if (!message.isActive(now, version)) return false;
-              if (message.showOnce && seenIds.contains(message.id))
-                return false;
-              return true;
-            })
-            .toList();
+        allMessages.where((message) {
+          if (!message.isActive(now, version)) return false;
+          if (message.showOnce && seenIds.contains(message.id)) return false;
+          return true;
+        }).toList();
 
     for (final message in messages) {
       final context = navigatorKey.currentContext;
@@ -98,126 +103,10 @@ Future<void> checkServerMessages() async {
       ImageProvider? imageProvider;
 
       if (message.imageUrl != null) {
-        imageProvider = NetworkImage(message.imageUrl!);
-
-        await precacheImage(imageProvider, context);
+        await precacheImage(NetworkImage(message.imageUrl!), context);
       }
-      
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (ctx) => AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              constraints: !kIsWeb ? BoxConstraints() : BoxConstraints(maxWidth: 400),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
-              ),
-              icon: null,
-              title: null,
-              contentPadding: EdgeInsets.zero,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null || message.title.isNotEmpty)
-                    Container(
-                      color: Theme.of(context).colorScheme.surface,
-                      padding: const EdgeInsets.all(4),
-                      child: Container(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (icon != null)
-                              Icon(icon.$1, color: icon.$2, size: 36),
-                            if (message.title.isNotEmpty)
-                              Text(
-                                message.title,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (icon == null && message.title.isEmpty)
-                    Container(
-                      color: Theme.of(context).colorScheme.surface,
-                      height: 4,
-                    ),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.only(
-                        left: 4,
-                        right: 4,
-                        top: 0,
-                        bottom: 0,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (imageProvider != null)
-                            Image(image: imageProvider, fit: BoxFit.scaleDown),
-                          if (message.text.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(
-                                message.text,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actionsAlignment: MainAxisAlignment.center,
-              actionsPadding: const EdgeInsets.symmetric(
-                horizontal: 4,
-                vertical: 4,
-              ),
-              actions: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        style: TextButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            message.buttonText,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-      );
+
+      await showServerMessageDialog(context, message);
 
       // Mark as seen after dismissal if it's a one-time message
       if (message.showOnce) {
@@ -243,6 +132,9 @@ void main() async {
   await Hive.openBox('mealsBox');
   await Hive.openBox('settingsBox');
   await Hive.openBox('notificationsBox');
+
+  await initializeMessagesCache();
+  wireAppIconBadge();
 
   // Initialize Firebase safely
   try {
@@ -334,7 +226,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
       "SETTINGS",
       "NOTIFICATIONS",
       "WHAT'S FOR DINO",
-      "FEEDBACK",
+      "MESSAGES",
       "CATALOGUE",
     ];
 
@@ -342,22 +234,37 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
       SettingsPage(),
       NotificationsPage(),
       WfdPage(key: wfdKey),
-      FeedbackPage(),
+      MessagesPage(),
       CataloguePage(),
     ];
 
-    navItems = const [
-      BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-      BottomNavigationBarItem(
+    navItems = [
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.settings),
+        label: "Settings",
+      ),
+      const BottomNavigationBarItem(
         icon: Icon(Icons.notifications),
         label: "Notifications",
       ),
-      BottomNavigationBarItem(
+      const BottomNavigationBarItem(
         icon: Icon(Icons.food_bank),
         label: "What's For Dino",
       ),
-      BottomNavigationBarItem(icon: Icon(Icons.messenger), label: "Feedback"),
-      BottomNavigationBarItem(icon: Icon(Icons.list), label: "Catalogue"),
+      BottomNavigationBarItem(
+        icon: ValueListenableBuilder<int>(
+          valueListenable: unreadMessagesNotifier,
+          builder: (context, unreadCount, _) {
+            return Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text('$unreadCount'),
+              child: const Icon(Icons.messenger),
+            );
+          },
+        ),
+        label: "Messages",
+      ),
+      const BottomNavigationBarItem(icon: Icon(Icons.list), label: "Catalogue"),
     ];
 
     currentPage = 2; // default to WFD
@@ -443,7 +350,9 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
     // });
     ColorScheme currentColourScheme =
         Provider.of<ThemeProvider>(context).themeData.colorScheme;
-
+    if (currentPage == 3) {
+      markAllMessagesRead();
+    }
     return MaterialApp(
       title: "What's For Dino 2",
       debugShowCheckedModeBanner: false,
@@ -468,7 +377,7 @@ class _WhatsForDinoAppState extends State<WhatsForDinoApp> {
               Colors.transparent, // <-- REQUIRED (Material 3 hides shadow)
           centerTitle: true,
         ),
-        body: pages[currentPage],
+        body: IndexedStack(index: currentPage, children: pages),
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(
             splashFactory: NoSplash.splashFactory,

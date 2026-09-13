@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:whats_for_dino_2/services/utils.dart';
 import 'package:whats_for_dino_2/theme/theme_provider.dart';
 import 'package:whats_for_dino_2/widgets/standard_switch_list_tile.dart';
 
@@ -121,6 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
           ),
+          ...feedbackItems(),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(_appVersionText, style: TextStyle(color: Colors.white)),
@@ -128,6 +130,156 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  List<Widget> feedbackItems() {
+    ColorScheme currentColourScheme = Theme.of(context).colorScheme;
+    return [
+      // Padding(
+      //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      //   child: Text(
+      //     'All feedback is always welcome.',
+      //     textAlign: TextAlign.center,
+      //     style: TextStyle(
+      //       color: Colors.white,
+      //       fontSize: 40,
+      //       fontWeight: FontWeight.w400,
+      //     ),
+      //   ),
+      // ),
+      // Divider(color: Theme.of(context).colorScheme.primary),
+      Divider(
+        color: Theme.of(context).colorScheme.primary,
+        indent: 20,
+        endIndent: 20,
+      ),
+      ElevatedButton(
+        onPressed: () {
+          if (settingsBox.get("hapticFeedback", defaultValue: true))
+            HapticFeedback.mediumImpact();
+          openLink(
+            "https://forms.office.com/Pages/ResponsePage.aspx?id=pM_2PxXn20i44Qhnufn7o91DYUQ6lW9MsGLk8aV9AgNUNlFXTDUwUEgwVzJQNUVYRjdMQVdJNkxSMS4u&origin=QRCode",
+          );
+        },
+        style: ButtonStyle(
+          backgroundColor: WidgetStateColor.resolveWith(
+            (_) => currentColourScheme.primary,
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          ),
+          minimumSize: WidgetStateProperty.all(Size(170, 60)),
+          elevation: WidgetStateProperty.resolveWith<double>((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return 0; // pressed (flat)
+            }
+            return 8; // normal
+          }),
+        ),
+        child: Text(
+          'Dino Feedback Form',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+
+      // Text(
+      //   'Something wrong with the app?\nHave an idea for another feature?',
+      //   textAlign: TextAlign.center,
+      //   style: TextStyle(
+      //     color: Colors.white,
+      //     fontSize: 20,
+      //     fontWeight: FontWeight.w400,
+      //   ),
+      // ),
+      ElevatedButton(
+        onPressed: () {
+          if (settingsBox.get("hapticFeedback", defaultValue: true))
+            HapticFeedback.mediumImpact();
+          openLink("https://forms.gle/mc7dDUUe1d5iCwes9");
+        },
+        style: ButtonStyle(
+          backgroundColor: WidgetStateColor.resolveWith(
+            (_) => currentColourScheme.primary,
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          ),
+          minimumSize: WidgetStateProperty.all(Size(170, 60)),
+          elevation: WidgetStateProperty.resolveWith<double>((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return 0; // pressed (flat)
+            }
+            return 8; // normal
+          }),
+        ),
+        child: Text(
+          'Anonymous App Feedback Form',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      // Divider(
+      //   color: Theme.of(context).colorScheme.primary,
+      //   indent: 20,
+      //   endIndent: 20,
+      // ),
+
+      ElevatedButton(
+        onPressed: () {
+          if (settingsBox.get("hapticFeedback", defaultValue: true))
+            HapticFeedback.mediumImpact();
+          openLink("https://linktr.ee/alexanderpiscioneri");
+        },
+        style: ButtonStyle(
+          backgroundColor: WidgetStateColor.resolveWith(
+            (_) => currentColourScheme.primary,
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          ),
+          minimumSize: WidgetStateProperty.all(Size(170, 60)),
+          elevation: WidgetStateProperty.resolveWith<double>((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return 0; // pressed (flat)
+            }
+            return 8; // normal
+          }),
+        ),
+        child: Text(
+          'Reach Out To Me Directly',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      // Text(
+      //   'All feedback is always welcome.',
+      //   textAlign: TextAlign.center,
+      //   style: TextStyle(
+      //     color: Colors.white,
+      //     fontSize: 20,
+      //     fontWeight: FontWeight.w400,
+      //   ),
+      // ),
+      Divider(
+        color: Theme.of(context).colorScheme.primary,
+        indent: 20,
+        endIndent: 20,
+      ),
+      
+    ];
   }
 
   StandardSwitchListTile settingsSwitchListTile(

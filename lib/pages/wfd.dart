@@ -41,9 +41,10 @@ class WfdPageState extends State<WfdPage> {
   final settingsBox = Hive.box('settingsBox');
   final notificationsBox = Hive.box('notificationsBox');
 
-  late String dateText;
-  late String dayText;
-  late bool showTodayLogo = true;
+  final ValueNotifier<String> dayTextNotifier = ValueNotifier('');
+  final ValueNotifier<String> dateTextNotifier = ValueNotifier('');
+  final ValueNotifier<bool> showTodayLogoNotifier = ValueNotifier(true);
+
   int _pageViewKey = 0; // Add this to force PageView rebuild
   bool menuLoading = true;
 
@@ -54,8 +55,8 @@ class WfdPageState extends State<WfdPage> {
     if (!MenuCache.isInitialized) {
       _initializeMenuCache();
       // Set temporary values while loading
-      dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
-      dayText = "Loading...";
+      dateTextNotifier.value = DateFormat('dd/MM/yyyy').format(DateTime.now());
+      dayTextNotifier.value = "Loading...";
     } else {
       // Data already exists, recreate PageController with today's index
       final todayIndex = _findTodayIndex();
@@ -67,8 +68,8 @@ class WfdPageState extends State<WfdPage> {
       );
 
       // Initialize labels immediately to match the page being displayed
-      dayText = MenuCache.dayMenus[todayIndex].dayName;
-      dateText = MenuCache.dayMenus[todayIndex].dayDate;
+      dayTextNotifier.value = MenuCache.dayMenus[todayIndex].dayName;
+      dateTextNotifier.value = MenuCache.dayMenus[todayIndex].dayDate;
     }
 
     initializeMealItemsCache();
@@ -99,6 +100,9 @@ class WfdPageState extends State<WfdPage> {
   @override
   void dispose() {
     // Don't dispose the PageController - keep it alive for next time
+    dayTextNotifier.dispose();
+    dateTextNotifier.dispose();
+    showTodayLogoNotifier.dispose();
     super.dispose();
   }
 
@@ -117,11 +121,9 @@ class WfdPageState extends State<WfdPage> {
         initialPage: todayIndex,
         viewportFraction: centreMenuFraction,
       );
-      setState(() {
-        dayText = MenuCache.dayMenus[todayIndex].dayName;
-        dateText = MenuCache.dayMenus[todayIndex].dayDate;
-        showTodayLogo = true;
-      });
+      dayTextNotifier.value = MenuCache.dayMenus[todayIndex].dayName;
+      dateTextNotifier.value = MenuCache.dayMenus[todayIndex].dayDate;
+      showTodayLogoNotifier.value = true;
     }
   }
 
@@ -137,12 +139,11 @@ class WfdPageState extends State<WfdPage> {
           initialPage: todayIndex,
           viewportFraction: pageFraction,
         );
+        dayTextNotifier.value = MenuCache.dayMenus[todayIndex].dayName;
+        dateTextNotifier.value = MenuCache.dayMenus[todayIndex].dayDate;
+        showTodayLogoNotifier.value = true;
         setState(() {
           MenuCache.isInitialized = true;
-          // Set the correct labels
-          dayText = MenuCache.dayMenus[todayIndex].dayName;
-          dateText = MenuCache.dayMenus[todayIndex].dayDate;
-          showTodayLogo = true;
         });
       }
     }
@@ -193,14 +194,14 @@ class WfdPageState extends State<WfdPage> {
           viewportFraction: pageFraction,
         );
 
+        dayTextNotifier.value = newDayMenus[todayIndex].dayName;
+        dateTextNotifier.value = newDayMenus[todayIndex].dayDate;
+
         setState(() {
           MenuCache.menus = fetchedMenus;
           MenuCache.dayMenus = newDayMenus;
           MenuCache.isInitialized = true;
           _pageViewKey++;
-
-          dayText = newDayMenus[todayIndex].dayName;
-          dateText = newDayMenus[todayIndex].dayDate;
         });
       }
 
@@ -375,8 +376,8 @@ class WfdPageState extends State<WfdPage> {
   //   // Reinitialize
   //   if (mounted) {
   //     setState(() {
-  //       dateText = DateFormat('dd/MM/yyyy').format(DateTime.now());
-  //       dayText = "Loading...";
+  //       dateTextNotifier.value = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  //       dayTextNotifier.value = "Loading...";
   //       _pageViewKey++;
   //     });
   //     await _initializeData();
@@ -468,15 +469,8 @@ class WfdPageState extends State<WfdPage> {
               children: [
                 Expanded(
                   flex: 6,
-                  // child: Container(
-                  // color: Colors.transparent,
-                  // child: Material(
-                  // color: Colors.transparent,
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: 50,
-                      // maxHeight: 1000,
-                    ),
+                    constraints: const BoxConstraints(minHeight: 50),
                     child: InkWell(
                       onTap: () async {
                         DateTime? selectedDate = await showDatePicker(
@@ -509,12 +503,9 @@ class WfdPageState extends State<WfdPage> {
 
                             return Theme(
                               data: baseTheme.copyWith(
-                                // This controls "January 2026"
                                 colorScheme: baseTheme.colorScheme.copyWith(
                                   onSurface: Colors.white,
-                                  surfaceTint:
-                                      Colors
-                                          .transparent, // Doesn't seem to do anything
+                                  surfaceTint: Colors.transparent,
                                   outline: Colors.transparent,
                                 ),
 
@@ -543,7 +534,6 @@ class WfdPageState extends State<WfdPage> {
                                   displayColor: Colors.white,
                                 ),
 
-                                // OK / CANCEL colour
                                 textButtonTheme: TextButtonThemeData(
                                   style: ButtonStyle(
                                     foregroundColor: WidgetStateProperty.all(
@@ -555,19 +545,14 @@ class WfdPageState extends State<WfdPage> {
                               child: DatePickerTheme(
                                 data: DatePickerThemeData(
                                   headerBackgroundColor:
-                                      currentColourScheme.primary, // top bar
+                                      currentColourScheme.primary,
 
-                                  headerForegroundColor:
-                                      Colors
-                                          .white, // header icons + some header text
+                                  headerForegroundColor: Colors.white,
 
-                                  backgroundColor:
-                                      currentColourScheme
-                                          .surface, // calendar body
+                                  backgroundColor: currentColourScheme.surface,
 
                                   dividerColor: Colors.transparent,
 
-                                  // These styles only affect secondary header text
                                   headerHelpStyle: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -579,7 +564,6 @@ class WfdPageState extends State<WfdPage> {
                                     fontWeight: FontWeight.normal,
                                   ),
 
-                                  // Weekday letters styling
                                   weekdayStyle: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -609,9 +593,7 @@ class WfdPageState extends State<WfdPage> {
                                   confirmButtonStyle: ButtonStyle(
                                     shape: WidgetStateProperty.all(
                                       RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          4,
-                                        ), // smaller radius
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
                                   ),
@@ -670,41 +652,61 @@ class WfdPageState extends State<WfdPage> {
 
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            if (centreMenuFraction <= 0.7)
-                              Expanded(
-                                flex: (50 - (centreMenuFraction * 50).toInt()),
-                                child: _rowText(
-                                  _dayBefore(dayText),
-                                  centreMenuFraction < 0.5
-                                      ? TextAlign.left
-                                      : TextAlign.center,
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: dayTextNotifier,
+                          builder: (context, currentDayText, _) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                if (centreMenuFraction <= 0.7)
+                                  Expanded(
+                                    flex:
+                                        (50 -
+                                            (centreMenuFraction * 50).toInt()),
+                                    child: _rowText(
+                                      _dayBefore(currentDayText),
+                                      centreMenuFraction < 0.5
+                                          ? TextAlign.left
+                                          : TextAlign.center,
+                                    ),
+                                  ),
+                                Expanded(
+                                  flex: (centreMenuFraction * 100).toInt(),
+                                  child: ValueListenableBuilder<String>(
+                                    valueListenable: dateTextNotifier,
+                                    builder: (context, currentDateText, _) {
+                                      return ValueListenableBuilder<bool>(
+                                        valueListenable: showTodayLogoNotifier,
+                                        builder: (context, currentShowLogo, _) {
+                                          return _dayDateRow(
+                                            currentDayText,
+                                            currentDateText,
+                                            currentShowLogo,
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                            Expanded(
-                              flex: (centreMenuFraction * 100).toInt(),
-                              child: _dayDateRow(dayText, dateText),
-                            ),
-                            if (centreMenuFraction <= 0.7)
-                              Expanded(
-                                flex: (50 - (centreMenuFraction * 50).toInt()),
-                                child: _rowText(
-                                  _dayAfter(dayText),
-                                  centreMenuFraction < 0.5
-                                      ? TextAlign.right
-                                      : TextAlign.center,
-                                ),
-                              ),
-                          ],
+                                if (centreMenuFraction <= 0.7)
+                                  Expanded(
+                                    flex:
+                                        (50 -
+                                            (centreMenuFraction * 50).toInt()),
+                                    child: _rowText(
+                                      _dayAfter(currentDayText),
+                                      centreMenuFraction < 0.5
+                                          ? TextAlign.right
+                                          : TextAlign.center,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ),
                   ),
-                  // ),
-                  // ),
                 ),
                 Expanded(
                   flex: 94,
@@ -712,6 +714,7 @@ class WfdPageState extends State<WfdPage> {
                     key: ValueKey(_pageViewKey), // Add key to force rebuild
                     controller: MenuCache.pageController,
                     scrollDirection: Axis.horizontal,
+                    allowImplicitScrolling: true,
                     physics:
                         isDesktopWeb
                             ? const NeverScrollableScrollPhysics()
@@ -746,78 +749,81 @@ class WfdPageState extends State<WfdPage> {
                           right: rightPadding,
                           bottom: 4,
                         ),
-                        child: Container(
-                          color:
-                              Provider.of<ThemeProvider>(
-                                context,
-                              ).themeData.colorScheme.secondary,
-                          child:
-                              isBetweenMenusPage
-                                  ? ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(
-                                      context,
-                                    ).copyWith(scrollbars: false),
-                                    child: ListView(
-                                      padding: EdgeInsets.only(
-                                        top: 16,
-                                        bottom: 16,
-                                        left:
-                                            settingsBox.get(
-                                                      "showNotifButtons",
-                                                      defaultValue: true,
-                                                    ) &&
-                                                    !kIsWeb
-                                                ? 8
-                                                : 16,
-                                        right:
-                                            settingsBox.get(
-                                                  "showRatingsButtons",
-                                                  defaultValue: true,
-                                                )
-                                                ? 8
-                                                : 16,
+                        child: RepaintBoundary(
+                          child: Container(
+                            color:
+                                Provider.of<ThemeProvider>(
+                                  context,
+                                ).themeData.colorScheme.secondary,
+                            child:
+                                isBetweenMenusPage
+                                    ? ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(
+                                        context,
+                                      ).copyWith(scrollbars: false),
+                                      child: ListView(
+                                        padding: EdgeInsets.only(
+                                          top: 16,
+                                          bottom: 16,
+                                          left:
+                                              settingsBox.get(
+                                                        "showNotifButtons",
+                                                        defaultValue: true,
+                                                      ) &&
+                                                      !kIsWeb
+                                                  ? 8
+                                                  : 16,
+                                          right:
+                                              settingsBox.get(
+                                                    "showRatingsButtons",
+                                                    defaultValue: true,
+                                                  )
+                                                  ? 8
+                                                  : 16,
+                                        ),
+                                        children: [
+                                          _mealSection(
+                                            "Breakfast",
+                                            dayMenu.breakfast,
+                                          ),
+                                          if (dayMenu.brunch != null)
+                                            _mealSection(
+                                              "Brunch",
+                                              dayMenu.brunch!,
+                                            ),
+                                          _mealSection("Lunch", dayMenu.lunch),
+                                          _mealSection(
+                                            dinnerSectionName,
+                                            dayMenu.dinner,
+                                          ),
+                                        ],
                                       ),
-                                      children: [
-                                        _mealSection(
-                                          "Breakfast",
-                                          dayMenu.breakfast,
-                                        ),
-                                        if (dayMenu.brunch != null)
-                                          _mealSection("Brunch", dayMenu.brunch!),
-                                        _mealSection("Lunch", dayMenu.lunch),
-                                        _mealSection(
-                                          dinnerSectionName,
-                                          dayMenu.dinner,
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  : _betweenMenusPage(dayMenu.dayName),
+                                    )
+                                    : _betweenMenusPage(dayMenu.dayName),
+                          ),
                         ),
                       );
                     },
                     onPageChanged: (index) {
-                      setState(() {
-                        dayText = MenuCache.dayMenus[index].dayName;
-                        dateText = MenuCache.dayMenus[index].dayDate;
-                        if (todayIndex == index &&
-                            dayText.contains("||") == false) {
-                          showTodayLogo = true;
-                          if (settingsBox.get(
-                            "hapticFeedback",
-                            defaultValue: true,
-                          ))
-                            HapticFeedback.heavyImpact();
-                        } else {
-                          showTodayLogo = false;
-                          if (settingsBox.get(
-                            "hapticFeedback",
-                            defaultValue: true,
-                          ))
-                            HapticFeedback.mediumImpact();
-                        }
-                      });
-                      
+                      dayTextNotifier.value = MenuCache.dayMenus[index].dayName;
+                      dateTextNotifier.value =
+                          MenuCache.dayMenus[index].dayDate;
+                      if (todayIndex == index &&
+                          dayTextNotifier.value.contains("||") == false) {
+                        showTodayLogoNotifier.value = true;
+                        if (settingsBox.get(
+                          "hapticFeedback",
+                          defaultValue: true,
+                        ))
+                          HapticFeedback.heavyImpact();
+                      } else {
+                        showTodayLogoNotifier.value = false;
+                        if (settingsBox.get(
+                          "hapticFeedback",
+                          defaultValue: true,
+                        ))
+                          HapticFeedback.mediumImpact();
+                      }
                     },
                   ),
                 ),
@@ -1144,41 +1150,6 @@ class WfdPageState extends State<WfdPage> {
                 ),
               ],
             ),
-
-            // Positioned(
-            //   bottom: -10,
-            //   child: Row(
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: [
-            //       SizedBox(
-            //         width: 20,
-            //         child: Text(
-            //           left,
-            //           textAlign: TextAlign.right,
-            //           style: const TextStyle(
-            //             fontSize: 11,
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ),
-            //       const Text(
-            //         ":",
-            //         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-            //       ),
-            //       SizedBox(
-            //         width: 20,
-            //         child: Text(
-            //           right,
-            //           textAlign: TextAlign.left,
-            //           style: const TextStyle(
-            //             fontSize: 11,
-            //             fontWeight: FontWeight.w600,
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -1266,7 +1237,7 @@ class WfdPageState extends State<WfdPage> {
     mealsBox.put('meals', MealItemsCache.items.map((e) => e.toJson()).toList());
   }
 
-  Widget _dayDateRow(String rowDayText, String rowDateText) {
+  Widget _dayDateRow(String rowDayText, String rowDateText, bool showLogo) {
     double textFontSize = 26;
     double iconSize = 28;
     return Row(
@@ -1283,7 +1254,7 @@ class WfdPageState extends State<WfdPage> {
                 color: Colors.white,
               ),
             ),
-            if (showTodayLogo)
+            if (showLogo)
               Icon(
                 Icons.event_available_sharp,
                 color: Colors.white,
@@ -1308,7 +1279,6 @@ class WfdPageState extends State<WfdPage> {
             ),
           ],
         ),
-        // _centreRowText(rowDateText),
       ],
     );
   }

@@ -174,7 +174,7 @@ class RatingsWidget extends StatelessWidget {
                         bottom: bottomButtonOffset,
                         left: leftRightOffset,
                         child: SizedBox(
-                          width: 20,
+                          width: 25,
                           child: Text(
                             meal.dislikes.toString(),
                             textAlign: TextAlign.left,

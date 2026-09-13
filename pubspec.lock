@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  app_badge_control_flutter:
+    dependency: "direct main"
+    description:
+      name: app_badge_control_flutter
+      sha256: "6df220ab6236e1401488f6e756379dc555ebc76f509597b32dc5cd3bda3f7a6e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   archive:
     dependency: transitive
     description:

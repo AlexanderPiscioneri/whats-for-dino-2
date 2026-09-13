@@ -11,6 +11,8 @@ class ServerMessage {
   final bool showOnce;
   final String buttonText;
   final String? imageName;
+  final String? link;
+  final String? linkButtonText;
   final Map<String, dynamic> conditions;
 
   ServerMessage({
@@ -22,6 +24,8 @@ class ServerMessage {
     required this.buttonText,
     required this.conditions,
     this.imageName,
+    this.link,
+    this.linkButtonText,
   });
 
   factory ServerMessage.fromJson(Map<String, dynamic> json) {
@@ -33,8 +37,25 @@ class ServerMessage {
       showOnce: json['showOnce'] ?? false,
       buttonText: json['buttonText'] ?? 'OK',
       imageName: json['imageName'],
+      link: json['link'],
+      linkButtonText: json['linkButtonText'],
       conditions: Map<String, dynamic>.from(json['conditions'] ?? {}),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'text': text,
+      'type': type,
+      'showOnce': showOnce,
+      'buttonText': buttonText,
+      'imageName': imageName,
+      'link': link,
+      'linkButtonText': linkButtonText,
+      'conditions': conditions,
+    };
   }
 
   String? get imageUrl {

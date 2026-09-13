@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_badge_control_flutter
   cloud_firestore
   firebase_core
   flutter_timezone
